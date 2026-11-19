@@ -19,6 +19,7 @@ const Uploader = {
       inp.type = 'file'; inp.accept = 'image/*';
       inp.onchange = () => {
         const f = inp.files && inp.files[0];
+        DC && DC.ev('img:pick', f ? f.name + ' ' + f.size + 'B' : 'cancelado');
         if (!f) return res(null);
         const r = new FileReader();
         r.onload = async () =>
@@ -35,6 +36,7 @@ const Uploader = {
     /* el selector se abre ANTES de cualquier await: un await mata el
        gesto del toque y Android ignora el file input */
     const p = this.pick('viaje-' + id + '.jpg');
+    DC && DC.ev('img:pickSave', id);
     const d = await DB.get('destinos', id);
     const pick = await p;
     if (!pick) return null;
@@ -87,6 +89,8 @@ const Uploader = {
       await fs.writeFile({ path: this.DIR + '/' + fn,
         data: String(dataURL).split(',')[1] || dataURL,
         directory: 'DATA', recursive: true });
+      this._cache['uf:' + fn] = dataURL;         // por ref: todo visor la ve
+      DC && DC.ev('img:save', fn + ' ' + dataURL.length + 'B');
       return { ref: 'uf:' + fn, dataURL: dataURL };
     } catch (e) {
       console.warn('Uploader.save', e);
@@ -111,12 +115,14 @@ const Uploader = {
   bindImg(el, d) {
     if (!el) return;
     const im = el.querySelector('img');
+    DC && DC.ev('img:bind', d.id + ' → ' + String(d.imagen || '∅').slice(0, 40));
     const b64 = d.imgfx && d.imgfx.b64 &&
       String(d.imgfx.b64).indexOf('data:image/') === 0 ? d.imgfx.b64 : null;
     /* fuerza bruta: la fuente se pinta como <img> Y como fondo del div —
        aunque una capa falle, la otra se ve */
     const put = s => {
-      if (!s) return;
+      if (!s) { DC && DC.ev('img:put', '∅ VACÍO'); return; }
+      DC && DC.ev('img:put', String(s).slice(0, 46) + '…' + s.length + 'B');
       if (im) { im.onerror = null; im.src = s; }
       el.style.backgroundImage = 'url("' + s + '")';
       el.style.backgroundSize = 'cover';
@@ -134,7 +140,9 @@ const Uploader = {
     let pt = null, sx = 0, sy = 0;
     el.addEventListener('touchstart', e => {
       const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
-      pt = setTimeout(() => { pt = null; this.fxModal(d); }, 550); });
+      pt = setTimeout(() => { pt = null;
+        DC && DC.ev('img:editor', 'pulsación larga → fxModal');
+        this.fxModal(d); }, 550); });
     el.addEventListener('touchmove', e => {      // tolera temblor de dedo
       if (!pt) return;
       const t = e.touches[0];
@@ -157,6 +165,7 @@ const Uploader = {
   /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
   fxModal(d) {
     this._lp = Date.now();
+    DC && DC.ev('img:fxModal', 'abriendo para ' + d.id);
     if (document.getElementById('upl-fx')) return;
     const fx = Object.assign({ x: 0, s: 100, r: 0, b: 0, o: 100 },
       d.imgfx || {});
@@ -205,8 +214,9 @@ const Uploader = {
       const u = await fs.getUri({ path: path, directory: 'DATA' });
       const C = window.Capacitor;
       const src = C && C.convertFileSrc ? C.convertFileSrc(u.uri) : u.uri;
+      DC && DC.ev('img:url', src ? src.slice(0, 50) : '∅');
       if (src) return src;
-    } catch (e) { /* sigue al respaldo base64 */ }
+    } catch (e) { DC && DC.ev('img:url', 'getUri falló: ' + e); }
     try {
       const r = await fs.readFile({ path: path, directory: 'DATA' });
       const b = typeof r.data === 'string' ? r.data : '';

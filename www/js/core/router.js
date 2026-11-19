@@ -20,7 +20,9 @@ const Router = {
     usuarios: ['Usuarios y Roles',
       'Cuentas de acceso, administradores y privilegios'],
     estadisticas: ['Resumen y Estadísticas',
-      'Métricas generales del CRM y respaldo de datos']
+      'Métricas generales del CRM y respaldo de datos'],
+    perfil: ['Mi Perfil',
+      'Tu cuenta, ajustes de la aplicación y estadísticas']
   },
   ON_TAB: {},
   async switchTab(tab) {

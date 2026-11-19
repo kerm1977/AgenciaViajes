@@ -1,0 +1,31 @@
+<!-- perfil.html — página personal: datos de cuenta, ajustes y estadísticas -->
+<div class="card card-pad" style="max-width:640px;margin-bottom:1rem">
+  <div class="flex gap2" style="align-items:center">
+    <div class="avatar" id="pf-avatar"
+         style="width:56px;height:56px;font-size:1.3rem">?</div>
+    <div style="flex:1;min-width:0">
+      <h3 id="pf-nombre" class="bold">—</h3>
+      <p class="muted text-sm truncate" id="pf-email">—</p>
+      <div class="flex gap1" style="align-items:center;margin-top:.25rem">
+        <span class="rol-chip rol-user" id="pf-rol">usuario</span>
+        <span class="rol-chip" id="pf-estado"
+              style="background:var(--sky-50);color:var(--sky-600)">—</span>
+      </div>
+    </div>
+  </div>
+  <h4 class="lbl" style="margin-top:1rem">Privilegios</h4>
+  <div id="pf-priv" class="flex gap1" style="flex-wrap:wrap"></div>
+</div>
+
+<div class="card card-pad" style="max-width:640px;margin-bottom:1rem">
+  <h4 class="lbl" style="margin-bottom:.75rem">
+    <i class="fa-solid fa-gear" style="color:var(--brand-600)"></i> Acciones</h4>
+  <div class="flex gap2" style="flex-wrap:wrap">
+    <button class="btn btn-soft" onclick="Perfil.ajustes()">
+      <i class="fa-solid fa-folder-open"></i> Ajustes · Uploader</button>
+    <button class="btn btn-soft" onclick="Perfil.stats()">
+      <i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
+  </div>
+  <div id="pf-ajustes" class="hidden mt2"></div>
+</div>
+<div id="pf-stats" class="hidden"></div>

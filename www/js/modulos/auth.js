@@ -80,13 +80,11 @@ const Auth = {
       ['contactos', 'fa-address-book', 'Contactos', 'Contactos'],
       ['pasajeros', 'fa-users-gear', 'Pasajeros', 'Pasajeros'],
       ['usuarios', 'fa-user-shield', 'Usuarios y Roles', 'Usuarios'],
-      ['estadisticas', 'fa-chart-pie', 'Resumen y Estadísticas', 'Resumen']
+      ['perfil', 'fa-user-gear', 'Mi Perfil', 'Perfil']
     ];
     const ok = k => {
       if (k === 'usuarios')
         return Session.esSuper() || Session.can('usuarios.gestionar');
-      if (k === 'estadisticas')
-        return Session.esSuper() || Session.can('estadisticas.ver');
       return true;
     };
     $('#nav-list').innerHTML = items.filter(i => ok(i[0])).map(i =>

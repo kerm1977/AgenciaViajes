@@ -10,6 +10,16 @@ const Estadisticas = {
     set('#stat-contactos', contactos.length);
     set('#stat-pasajeros', pasajeros.length);
     set('#stat-usuarios', usuarios.length);
+    /* archivos reales de Uploader (carpeta DATA/Uploader) */
+    let nImg = 0;
+    try {
+      const fs = Uploader._fs();
+      if (fs) {
+        const r = await fs.readdir({ path: Uploader.DIR, directory: 'DATA' });
+        nImg = (r.files || []).length;
+      }
+    } catch (e) { /* carpeta aún no existe */ }
+    set('#stat-imagenes', nImg);
     /* pie: contactos por tipo */
     const porTipo = {};
     contactos.forEach(c => { porTipo[c.tipo] = (porTipo[c.tipo] || 0) + 1; });

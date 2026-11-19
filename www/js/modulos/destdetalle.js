@@ -21,7 +21,12 @@ Destinos.pagina = async function (id) {
   const fila = (ic, l, v) =>
     '<div><p class="lbl">' + l + '</p><p class="kv bold">' +
     '<i class="fa-solid ' + ic + '"></i> ' + v + '</p></div>';
+  const f = d.fechas || {};
   h += '<div class="grid-2 card card-pad">' +
+    (f.on && (f.desde || f.hasta)
+      ? fila('fa-calendar-days', 'Fechas', esc(f.desde || '') +
+          (f.hasta ? ' → ' + esc(f.hasta) : ''))
+      : '') +
     fila('fa-user-tie', 'Guía asignado', esc(d.guia || 'Sin asignar')) +
     fila('fa-bus', 'Transporte', esc(d.transporte || 'No especificado')) +
     fila('fa-plane', 'Vuelo',
@@ -59,6 +64,11 @@ Destinos.pagina = async function (id) {
         (it.nombre ? '<p><i class="fa-solid fa-user"></i> ' + esc(it.nombre) + '</p>' : '') +
         (it.tel ? '<p><i class="fa-solid fa-phone"></i> ' + esc(it.tel) + '</p>' : '') +
         (it.telGuia ? '<p><i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + '</p>' : '') +
+        ((it.hdesde || it.hhasta) ? '<p><i class="fa-regular fa-clock"></i> ' +
+          esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
+          '</p>' : '') +
+        (it.guia ? '<p><i class="fa-solid fa-user-check"></i> Guía: ' +
+          esc(it.guia) + '</p>' : '') +
         (it.desc ? '<p class="hint">' + esc(it.desc) + '</p>' : '') +
         '<div class="flex gap1" style="margin-top:.4rem">' +
           '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(gmaps) +

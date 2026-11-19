@@ -16,6 +16,9 @@ const Borrador = {
           moneda: $('#dest-moneda').value,
           pais: $('#dest-pais').value,
           nombre: $('#dest-nombre').value,
+          fechas: { on: $('#dest-tiene-fechas').checked,
+            desde: $('#dest-fdesde').value,
+            hasta: $('#dest-fhasta').value },
           destinos: $$('#destinos-lista-container .dst-item')
             .map(i => i.value).filter(s => s.trim()),
           itinerario: Itinerario.collect()
@@ -35,6 +38,11 @@ const Borrador = {
     $('#dest-moneda').value = d.moneda || 'USD';
     Destinos._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre || '';
+    const f = d.fechas || {};
+    $('#dest-tiene-fechas').checked = !!f.on;
+    $('#dest-fdesde').value = f.desde || '';
+    $('#dest-fhasta').value = f.hasta || '';
+    if (window.Destinos) Destinos.togFechas();
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos && d.destinos.length ? d.destinos : [null])
       .forEach(n => Destinos.addDestino(n));

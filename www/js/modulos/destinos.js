@@ -93,6 +93,7 @@ const Destinos = {
     $('#form-destino').reset(); $('#destino-id').value = '';
     $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
     $('#dest-moneda').value = 'USD';
+    $('#dest-tiene-fechas').checked = false; this.togFechas();
     this._fillPais('');
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = '';
@@ -109,6 +110,10 @@ const Destinos = {
     const c = $('#dest-conguia').value, s = $('#dest-singuia').value;
     r.textContent = ($('#dest-moneda').value === 'CRC' ? '₡' : '$') +
       (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
+  },
+  togFechas() {
+    const w = $('#dest-fechas-wrap'); if (w)
+      w.style.display = $('#dest-tiene-fechas').checked ? 'grid' : 'none';
   },
   acc(id, stay) {
     ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
@@ -140,6 +145,8 @@ const Destinos = {
       pais: $('#dest-pais').value,
       nombre: $('#dest-nombre').value.trim(),
       destinos: dests,
+      fechas: { on: $('#dest-tiene-fechas').checked,
+        desde: $('#dest-fdesde').value, hasta: $('#dest-fhasta').value },
       imagen: '', guia: '', transporte: '', aerolinea: '', vuelo: '',
       checkin: '', checkout: '', notas: '', itinerario: []
     };
@@ -153,11 +160,13 @@ const Destinos = {
           if (i.checkout) obj.checkout = i.checkout;
           obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai,
                          ps: i.ps, os: i.os, osv: i.osv, osd: i.osd,
-                         dia: i.dia };
+                         dia: i.dia, hdesde: i.hdesde, hhasta: i.hhasta,
+                         guia: i.guia };
         }
         if (i.campo === 'Transporte')
           obj.trans = { tsel: i.tsel, tnombre: i.tnombre,
-                        ttel: i.ttel, tdesc: i.tdesc, dia: i.dia };
+                        ttel: i.ttel, tdesc: i.tdesc, dia: i.dia,
+                        hdesde: i.hdesde, hhasta: i.hhasta, guia: i.guia };
       } else obj.itinerario.push(i);
     });
     await DB.save('destinos', obj);
@@ -177,6 +186,11 @@ const Destinos = {
     setTimeout(() => Destinos._capRes(), 0);
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
+    const f = d.fechas || {};
+    $('#dest-tiene-fechas').checked = !!f.on;
+    $('#dest-fdesde').value = f.desde || '';
+    $('#dest-fhasta').value = f.hasta || '';
+    this.togFechas();
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos || []).forEach(n => this.addDestino(n));
     if (!dc.children.length) this.addDestino();

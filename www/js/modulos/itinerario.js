@@ -80,23 +80,6 @@ const Itinerario = {
     const c = $('#itinerary-container'); if (!c) return;
     c.innerHTML = '';
     const cards = $$('#it-general .it-acc');
-    cards.filter(k => k.dataset.dia).forEach(card => {
-      const row = document.createElement('div');
-      row.className = 'it-card it-mirror';
-      row.innerHTML =
-        '<div class="flex gap1" style="align-items:center">' +
-          '<select class="select it-dia" style="flex:0 0 6.5rem">' +
-            this._dias() + '</select>' +
-          '<span class="it-acc-t" style="flex:1;font-weight:600">' +
-            esc(card.querySelector('.it-acc-t').textContent) + '</span>' +
-          '<button type="button" class="iconbtn danger" title="Quitar" ' +
-            'onclick="Itinerario.unassign(\'' + card.id + '\')">' +
-            '<i class="fa-solid fa-xmark"></i></button></div>';
-      const d = row.querySelector('.it-dia');
-      d.value = card.dataset.dia;
-      d.addEventListener('change', () => { card.dataset.dia = d.value; });
-      c.appendChild(row);
-    });
     const free = cards.filter(k => !k.dataset.dia);
     const row = document.createElement('div');
     row.className = 'it-card it-mirror';
@@ -117,6 +100,23 @@ const Itinerario = {
       this.syncItin();
     });
     c.appendChild(row);
+    cards.filter(k => k.dataset.dia).forEach(card => {
+      const row = document.createElement('div');
+      row.className = 'it-card it-mirror';
+      row.innerHTML =
+        '<div class="flex gap1" style="align-items:center">' +
+          '<select class="select it-dia" style="flex:0 0 6.5rem">' +
+            this._dias() + '</select>' +
+          '<span class="it-acc-t" style="flex:1;font-weight:600">' +
+            esc(card.querySelector('.it-acc-t').textContent) + '</span>' +
+          '<button type="button" class="iconbtn danger" title="Quitar" ' +
+            'onclick="Itinerario.unassign(\'' + card.id + '\')">' +
+            '<i class="fa-solid fa-xmark"></i></button></div>';
+      const d = row.querySelector('.it-dia');
+      d.value = card.dataset.dia;
+      d.addEventListener('change', () => { card.dataset.dia = d.value; });
+      c.appendChild(row);
+    });
   },
   async unassign(id) {
     if (!(await confirmar('¿Quitar este campo del itinerario?'))) return;

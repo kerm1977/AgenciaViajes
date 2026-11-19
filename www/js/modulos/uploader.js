@@ -28,6 +28,7 @@ const Uploader = {
   /* elige imagen y la asigna al viaje: archivo en Uploader + respaldo
      comprimido dentro del registro (nunca se pierde al reiniciar) */
   async pickSave(id) {
+    if (this._lp && Date.now() - this._lp < 900) return null;   // venía de pulsación larga
     const pick = await this.pick(); if (!pick) return null;
     const d = await DB.get('destinos', id);
     if (!d) { showToast('Viaje no encontrado', 'error'); return null; }
@@ -116,6 +117,10 @@ const Uploader = {
         'id="upl-fx-x">Cancelar</button><button type="button" class="btn" ' +
         'id="upl-fx-ok" style="flex:1">Guardar</button></div></div>';
     document.body.appendChild(bd);
+    bd.addEventListener('click', e => {                        // tocar fuera cierra
+      if (e.target === bd) { this.applyFx(
+        document.querySelector('.dest-img[onclick*="\'' + d.id + '\'"] img'),
+        d.imgfx); cerrar(); } });
     const im = document.querySelector(
       '.dest-img[onclick*="\'' + d.id + '\'"] img');
     bd.querySelectorAll('input').forEach(i =>

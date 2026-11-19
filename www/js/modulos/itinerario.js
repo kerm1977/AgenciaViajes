@@ -149,6 +149,10 @@ const Itinerario = {
       else c = $('#itinerary-container');
     }
     const rid = uid('it');
+    [...c.children].forEach(s => {           /* el nuevo colapsa al resto */
+      if (s.classList && s.classList.contains('it-acc')) {
+        s.classList.remove('open');
+        const b = this._body(s); if (b) b.style.display = 'none'; } });
     const card = document.createElement('div');
     card.className = 'it-acc it-card open'; card.id = rid;
     card.dataset.tipo = tipo || 'Parada';

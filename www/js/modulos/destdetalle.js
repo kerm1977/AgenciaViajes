@@ -43,10 +43,17 @@ Destinos.pagina = async function (id) {
     (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
   const dias = Object.keys(porDia).sort((a, b) =>
     parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
+  const ftag = dia => {
+    if (!(f.on && f.desde)) return '';
+    const n = parseInt((dia || '').replace(/\D/g, '')) || 1,
+          dd = new Date(f.desde + 'T00:00:00');
+    dd.setDate(dd.getDate() + n - 1);
+    return ' · ' + dd.getDate() + '/' + (dd.getMonth() + 1) +
+      '/' + dd.getFullYear(); };
   h += '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>';
   dias.forEach(dia => {
     h += '<h3 class="pit-dia"><i class="fa-solid fa-calendar-day"></i> ' +
-      esc(dia) + '</h3>';
+      esc(dia) + esc(ftag(dia)) + '</h3>';
     porDia[dia].forEach(it => {
       const q = encodeURIComponent(
         [it.destino, d.pais].filter(Boolean).join(', '));

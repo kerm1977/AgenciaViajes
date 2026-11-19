@@ -3,6 +3,25 @@
    hora desde/hasta y guía tomado de contactos tipo Guía. */
 'use strict';
 Object.assign(Itinerario, {
+  /* opciones de día: con fechas del viaje muestra Día N · dd/mm y nunca
+     se sale del rango; sin fechas quedan Día 1–30 */
+  _dias() {
+    const on = ($('#dest-tiene-fechas') || {}).checked,
+          f0 = ($('#dest-fdesde') || {}).value,
+          f1 = ($('#dest-fhasta') || {}).value;
+    let n = 30, d0 = null;
+    if (on && f0 && f1) {
+      d0 = new Date(f0 + 'T00:00:00');
+      n = Math.max(1, Math.min(60,
+        Math.round((new Date(f1 + 'T00:00:00') - d0) / 864e5) + 1)); }
+    let o = '';
+    for (let i = 1; i <= n; i++) {
+      let tag = '';
+      if (d0) { const d = new Date(d0); d.setDate(d.getDate() + i - 1);
+        tag = ' · ' + d.getDate() + '/' + (d.getMonth() + 1); }
+      o += '<option value="Día ' + i + '">Día ' + i + tag + '</option>'; }
+    return o;
+  },
   /* re-render completo del acordeón Itinerario */
   async syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
@@ -43,8 +62,8 @@ Object.assign(Itinerario, {
             'onclick="Itinerario.unassign(\'' + card.id + '\')">' +
             '<i class="fa-solid fa-xmark"></i></button></div>' +
         '<div class="flex gap1" style="margin-top:.4rem">' +
-          '<input type="time" class="input it-hd" style="flex:0 0 5rem" title="Desde">' +
-          '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hasta">' +
+          '<input type="time" class="input it-hd" style="flex:0 0 5rem" title="Hora de salida">' +
+          '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hora de llegada">' +
           '<select class="select it-guia" style="flex:1"></select></div>';
       const d = row.querySelector('.it-dia'), p = row.querySelector('.it-pick'),
             g = row.querySelector('.it-guia'), gs = card.dataset.guia || '';

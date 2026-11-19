@@ -227,7 +227,8 @@ Router.ON_TAB.destinos = () => Destinos.render();
     const sg = $('#dest-singuia');
     if (sg) sg.value = Math.max(0, (parseInt(e.target.value) || 0) - 2);
   }
-  if (id !== 'dest-singuia' && /^dest-(conguia|pais|moneda)$/.test(id) &&
+  if (id !== 'dest-singuia' &&
+      /^dest-(conguia|pais|moneda|fdesde|fhasta|tiene-fechas)$/.test(id) &&
       window.Itinerario) Itinerario.refresh();
   if (/^dest-(conguia|singuia|moneda)$/.test(id)) Destinos._capRes();
   if (e.target && e.target.classList &&

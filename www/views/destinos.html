@@ -51,34 +51,53 @@
           </div>
         </div>
       </div>
-      <div class="grid-2">
-        <div class="field">
-          <label class="lbl">País *</label>
-          <select id="dest-pais" class="select" data-reglas="requerido"></select>
-          <p class="err">Selecciona un país</p>
+      <div class="it-acc cap-acc" id="info-acc">
+        <div class="it-acc-head">
+          <button type="button" class="it-acc-btn"
+                  onclick="document.getElementById('info-acc').classList.toggle('open')">
+            <span class="it-acc-t">Información del viaje</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
         </div>
-        <div class="field">
-          <label class="lbl">Nombre del Viaje *</label>
-          <input type="text" id="dest-nombre" class="input" data-reglas="requerido"
-                 placeholder="Ej. Escapada a Cancún & Riviera">
-          <p class="err">Requerido</p>
+        <div class="it-acc-body">
+          <div class="grid-2">
+            <div class="field">
+              <label class="lbl">País *</label>
+              <select id="dest-pais" class="select" data-reglas="requerido"></select>
+              <p class="err">Selecciona un país</p>
+            </div>
+            <div class="field">
+              <label class="lbl">Nombre del Viaje *</label>
+              <input type="text" id="dest-nombre" class="input" data-reglas="requerido"
+                     placeholder="Ej. Escapada a Cancún & Riviera">
+              <p class="err">Requerido</p>
+            </div>
+          </div>
+          <div class="field">
+            <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:.4rem">
+              <label class="lbl" style="margin:0">Destinos del viaje *</label>
+              <button type="button" class="btn btn-sm btn-soft" onclick="Destinos.addDestino()">
+                <i class="fa-solid fa-plus"></i> Agregar destino</button>
+            </div>
+            <div id="destinos-lista-container" class="grid gap1" style="max-height:10rem;overflow-y:auto"></div>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:.4rem">
-          <label class="lbl" style="margin:0">Destinos del viaje *</label>
-          <button type="button" class="btn btn-sm btn-soft" onclick="Destinos.addDestino()">
-            <i class="fa-solid fa-plus"></i> Agregar destino</button>
+      <div class="it-acc cap-acc" id="itin-acc">
+        <div class="it-acc-head">
+          <button type="button" class="it-acc-btn"
+                  onclick="document.getElementById('itin-acc').classList.toggle('open')">
+            <span class="it-acc-t">Itinerario</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
         </div>
-        <div id="destinos-lista-container" class="grid gap1" style="max-height:10rem;overflow-y:auto"></div>
-      </div>
-      <div class="field" style="border-top:1px solid var(--slate-200);padding-top:1rem">
-        <label class="lbl">Mini itinerario / rutas del viaje</label>
-        <div class="flex gap1" style="margin-bottom:.5rem">
-          <select id="it-dia-new" class="select" style="flex:0 0 6.5rem"></select>
-          <select id="it-tipo-new" class="select" style="flex:1"></select>
+        <div class="it-acc-body">
+          <div class="flex gap1" style="margin-bottom:.5rem">
+            <select id="it-dia-new" class="select" style="flex:0 0 6.5rem"></select>
+            <select id="it-tipo-new" class="select" style="flex:1"></select>
+          </div>
+          <div id="itinerary-container" class="grid gap1"></div>
         </div>
-        <div id="itinerary-container" class="grid gap1"></div>
       </div>
       <div class="modal-foot" style="padding-left:0;padding-right:0">
         <button type="button" class="btn btn-soft" onclick="Destinos.cancelar()">Cancelar</button>

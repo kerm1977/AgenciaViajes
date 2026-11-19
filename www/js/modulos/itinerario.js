@@ -5,7 +5,7 @@ const Itinerario = {
   TIPOS: ['Llegada y traslado','Guía','Transporte Aéreo','Lancha',
     'Avioneta','Tour Operador','Agencia de Viajes','Entradas 4x4','Acarreo',
     'Estadía / Hospedaje','Hotel','Uber / Didi / Taxi / Bus',
-    'Centro Turístico','Centro Arqueológico'],
+    'Centro Turístico','Centro Arqueológico','Entradas','Impuestos'],
   /* opciones que guardan un solo valor en el objeto destino */
   CAMPOS: {
     'Imagen URL':      { k: 'imagen',      ph: 'https://…', t: 'url' },

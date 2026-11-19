@@ -166,5 +166,7 @@ label.lbl {
 .it-acc.open .it-acc-body { display:grid; gap:.3rem; }
 .it-acc-body p { margin:0; }
 .it-card .it-acc-body { padding:.4rem 0 0; }
+.cap-acc .it-acc-body { padding:.4rem 0 .5rem; }
+.cap-acc .it-acc-btn .hint { flex:0 0 auto; white-space:nowrap; }
 .pax-badge { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .75rem; border-radius:var(--r-md); background:var(--slate-100); font-size:12px; font-weight:600; color:var(--slate-800); border:1px solid var(--slate-200); }
 .pax-badge i { color:var(--brand-600); }

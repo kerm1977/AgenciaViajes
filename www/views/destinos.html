@@ -19,24 +19,36 @@
     </div>
     <form id="form-destino" class="modal-body" onsubmit="Destinos.guardar(event)" novalidate>
       <input type="hidden" id="destino-id">
-      <div class="field">
-        <label class="lbl">Moneda</label>
-        <select id="dest-moneda" class="select">
-          <option value="USD" selected>Dólares USD ($)</option>
-          <option value="CRC">Colones CRC (₡)</option>
-        </select>
-      </div>
-      <div class="grid-2">
-        <div class="field">
-          <label class="lbl">Capacidad C/G *</label>
-          <input type="number" id="dest-conguia" class="input" min="0"
-                 data-reglas="requerido" placeholder="Personas que van (Ej. 14)">
-          <p class="err">Requerido</p>
+      <div class="it-acc cap-acc" id="cap-acc">
+        <div class="it-acc-head">
+          <button type="button" class="it-acc-btn"
+                  onclick="document.getElementById('cap-acc').classList.toggle('open')">
+            <span class="it-acc-t">Capacidad y moneda</span>
+            <span class="hint" id="cap-acc-res"></span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
         </div>
-        <div class="field">
-          <label class="lbl">Capacidad S/G</label>
-          <input type="number" id="dest-singuia" class="input" min="0"
-                 placeholder="Auto = con guía − 2 (editable)">
+        <div class="it-acc-body">
+          <div class="field">
+            <label class="lbl">Moneda</label>
+            <select id="dest-moneda" class="select">
+              <option value="USD" selected>Dólares USD ($)</option>
+              <option value="CRC">Colones CRC (₡)</option>
+            </select>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label class="lbl">Capacidad C/G *</label>
+              <input type="number" id="dest-conguia" class="input" min="0"
+                     data-reglas="requerido" placeholder="Personas que van (Ej. 14)">
+              <p class="err">Requerido</p>
+            </div>
+            <div class="field">
+              <label class="lbl">Capacidad S/G</label>
+              <input type="number" id="dest-singuia" class="input" min="0"
+                     placeholder="Auto = con guía − 2 (editable)">
+            </div>
+          </div>
         </div>
       </div>
       <div class="grid-2">

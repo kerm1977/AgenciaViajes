@@ -96,12 +96,16 @@ const Destinos = {
     const draft = Borrador.get();
     if (draft) Borrador.restore(draft); else this.addDestino();
     $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
+    this._capRes();
     openModal('modal-destino');
   },
-  async delDest(rid) {
-    if (await confirmar('¿Quitar este destino de la lista?'))
-      document.getElementById(rid).remove();
+  _capRes() {
+    const r = $('#cap-acc-res'); if (!r) return;
+    const c = $('#dest-conguia').value, s = $('#dest-singuia').value;
+    const m = ($('#dest-moneda').value === 'CRC') ? '₡' : '$';
+    r.textContent = m + (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
   },
+  async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) document.getElementById(rid).remove(); },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-destino'))) return;
@@ -146,6 +150,7 @@ const Destinos = {
     $('#dest-conguia').value = d.paxConGuia || '';
     $('#dest-singuia').value = d.paxSinGuia || '';
     $('#dest-moneda').value = d.moneda || 'USD';
+    setTimeout(() => Destinos._capRes(), 0);
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
@@ -232,9 +237,12 @@ document.addEventListener('input', e => {
     if (sg) sg.value = Math.max(0, n - 2);
     if (window.Itinerario) Itinerario.refresh();
   }
+  if (e.target && /dest-(conguia|singuia)/.test(e.target.id))
+    Destinos._capRes();
 });
 document.addEventListener('change', e => {
   if (e.target && ['dest-pais', 'dest-moneda'].includes(e.target.id) &&
       window.Itinerario)
     Itinerario.refresh();
+  if (e.target && e.target.id === 'dest-moneda') Destinos._capRes();
 });

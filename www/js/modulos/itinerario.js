@@ -20,6 +20,10 @@ const Itinerario = {
     'Enlace check-in': { k: 'checkin',     ph: 'https://…', t: 'url' },
     'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
   },
+  async delRow(rid) {
+    if (await confirmar('¿Eliminar este día / evento del itinerario?'))
+      document.getElementById(rid).remove();
+  },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
   paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
   _fmt(n) {
@@ -93,7 +97,7 @@ const Itinerario = {
             '<span class="it-acc-t">' + esc(tipo) + '</span>' +
             '<i class="fa-solid fa-chevron-down"></i></button>' +
           '<button type="button" class="iconbtn danger" title="Quitar" ' +
-            'onclick="document.getElementById(\'' + rid + '\').remove()">' +
+            'onclick="Itinerario.delRow(\'' + rid + '\')">' +
             '<i class="fa-solid fa-xmark"></i></button></div>' +
         '<div class="it-acc-body">' +
           (campo.ta
@@ -116,7 +120,7 @@ const Itinerario = {
           '<span class="it-acc-t">' + esc(card.dataset.tipo) + '</span>' +
           '<i class="fa-solid fa-chevron-down"></i></button>' +
         '<button type="button" class="iconbtn danger" title="Quitar parada" ' +
-          'onclick="document.getElementById(\'' + rid + '\').remove()">' +
+          'onclick="Itinerario.delRow(\'' + rid + '\')">' +
           '<i class="fa-solid fa-xmark"></i></button></div>' +
       '<div class="it-acc-body">' +
         '<input type="text" placeholder="Detalle (Ej. llegada hotel)" ' +

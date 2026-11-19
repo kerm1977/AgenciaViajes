@@ -76,8 +76,8 @@ const Destinos = {
     div.innerHTML =
       '<input type="text" placeholder="Destino (Ej. Cancún, Chichén Itzá…)" ' +
         'value="' + esc(nombre || '') + '" class="input dst-item" style="flex:1">' +
-      '<button type="button" class="iconbtn danger" onclick="document.getElementById(\'' +
-        rid + '\').remove()"><i class="fa-solid fa-xmark"></i></button>';
+      '<button type="button" class="iconbtn danger" onclick="Destinos.delDest(\'' +
+        rid + '\')"><i class="fa-solid fa-xmark"></i></button>';
     c.appendChild(div);
   },
   addItRow(dia, tipo, ruta, x) { Itinerario.addRow(dia, tipo, ruta, x); },
@@ -97,6 +97,10 @@ const Destinos = {
     if (draft) Borrador.restore(draft); else this.addDestino();
     $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
     openModal('modal-destino');
+  },
+  async delDest(rid) {
+    if (await confirmar('¿Quitar este destino de la lista?'))
+      document.getElementById(rid).remove();
   },
   async guardar(e) {
     e.preventDefault();

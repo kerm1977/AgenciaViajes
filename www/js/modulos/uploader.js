@@ -4,13 +4,16 @@
 'use strict';
 const Uploader = {
   DIR: 'Uploader',
+  _cache: {},
   _fs() {
     const C = window.Capacitor;
     return C && C.Plugins && C.Plugins.Filesystem &&
       C.Plugins.Filesystem.writeFile ? C.Plugins.Filesystem : null;
   },
   /* selector de archivo → guarda en Uploader → devuelve 'uf:<nombre>' */
-  pick() {
+  /* selector de archivo → guarda en Uploader → {ref, dataURL};
+     fname: nombre existente a reusar (una tarjeta = un solo archivo) */
+  pick(fname) {
     return new Promise(res => {
       const inp = document.createElement('input');
       inp.type = 'file'; inp.accept = 'image/*';
@@ -19,7 +22,7 @@ const Uploader = {
         if (!f) return res(null);
         const r = new FileReader();
         r.onload = async () =>
-          res(await this.saveDataURL(await this._fit(r.result), f.name));
+          res(await this.saveDataURL(await this._fit(r.result), f.name, fname));
         r.readAsDataURL(f);
       };
       inp.click();
@@ -29,12 +32,15 @@ const Uploader = {
      comprimido dentro del registro (nunca se pierde al reiniciar) */
   async pickSave(id) {
     if (this._lp && Date.now() - this._lp < 900) return null;   // venía de pulsación larga
-    const pick = await this.pick(); if (!pick) return null;
     const d = await DB.get('destinos', id);
     if (!d) { showToast('Viaje no encontrado', 'error'); return null; }
+    const old = /^uf:/.test(d.imagen || '')
+      ? String(d.imagen).slice(3) : null;
+    const pick = await this.pick(old); if (!pick) return null;
     d.imagen = pick.ref;
     d.imgfx = Object.assign({}, d.imgfx, { b64: pick.dataURL });
     await DB.save('destinos', d);
+    this._cache[id] = pick.dataURL;
     showToast('Imagen guardada en Uploader'); return pick.ref;
   },
   /* reduce cualquier imagen a JPEG ≤1100px en dataURL */
@@ -54,16 +60,16 @@ const Uploader = {
     });
   },
   /* dataURL → archivo Uploader/<ts>-<nombre>; devuelve {ref, dataURL} */
-  async saveDataURL(dataURL, name) {
+  async saveDataURL(dataURL, name, fname) {
     const fs = this._fs();
     if (!fs) return { ref: dataURL, dataURL: dataURL };
     try {
-      const fname = Date.now() + '-' +
-        (name || 'img.jpg').replace(/[^\w.-]/g, '_');
-      await fs.writeFile({ path: this.DIR + '/' + fname,
+      const fn = fname || (Date.now() + '-' +
+        (name || 'img.jpg').replace(/[^\w.-]/g, '_'));
+      await fs.writeFile({ path: this.DIR + '/' + fn,
         data: String(dataURL).split(',')[1] || dataURL,
         directory: 'DATA', recursive: true });
-      return { ref: 'uf:' + fname, dataURL: dataURL };
+      return { ref: 'uf:' + fn, dataURL: dataURL };
     } catch (e) {
       console.warn('Uploader.save', e);
       return { ref: dataURL, dataURL: dataURL }; }
@@ -75,7 +81,8 @@ const Uploader = {
     const im = el.querySelector('img');
     /* la copia comprimida del registro siempre gana: el archivo Uploader
        es respaldo físico y su relectura solo sustituye si trae datos */
-    if (im && d.imgfx && d.imgfx.b64) im.src = d.imgfx.b64;
+    if (im && this._cache[d.id]) im.src = this._cache[d.id];
+    else if (im && d.imgfx && d.imgfx.b64) im.src = d.imgfx.b64;
     else if (im && /^data:/.test(d.imagen || '')) im.src = d.imagen;
     else if (/^uf:/.test(d.imagen || ''))
       this.url(d.imagen).then(u => { if (u && im) im.src = u; });

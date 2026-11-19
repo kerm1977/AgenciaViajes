@@ -1,2 +1,2 @@
 // sello OTA generado por ota_push.py
-window.TM_OTA = { ts: '2026-11-19 17:31:51', files: 64 };
+window.TM_OTA = { ts: '2026-11-19 17:33:40', files: 64 };

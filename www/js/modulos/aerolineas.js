@@ -62,7 +62,7 @@ const AEROLINEAS = {
 };
 Itinerario.aeroCard = function (card, nombre, x) {
   const nombres = Object.keys(AEROLINEAS);
-  const asientoInc = x.ai !== '0' && x.ai !== false;
+  const asientoInc = x.ai === '1' || x.ai === true;
   card.dataset.aero = '1';
   card.querySelector('.it-acc-body').innerHTML =
     '<select class="select it-aero">' +

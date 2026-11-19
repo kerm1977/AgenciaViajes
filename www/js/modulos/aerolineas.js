@@ -81,14 +81,29 @@ Itinerario.aeroCard = function (card, nombre, x) {
       ' value="' + esc(x.ps || '') + '"' +
       (asientoInc ? ' hidden' : '') + '>' +
     '<label class="it-aic"><input type="checkbox" class="it-os"' +
-      (x.os ? ' checked' : '') + '> Otros servicios</label>' +
+      (x.os === '1' || x.os === true ? ' checked' : '') + '> Otros servicios</label>' +
     '<input type="number" min="0" step="0.01" class="input it-osv" ' +
       'placeholder="Precio del servicio"' +
       ' value="' + esc(x.osv || '') + '"' +
-      (x.os ? '' : ' hidden') + '>' +
+      (x.os === '1' || x.os === true ? '' : ' hidden') + '>' +
     '<input class="input it-osd" placeholder="¿Qué incluye?"' +
       ' value="' + esc(x.osd || '') + '"' +
-      (x.os ? '' : ' hidden') + '>' +
+      (x.os === '1' || x.os === true ? '' : ' hidden') + '>' +
+    '<label class="it-aic"><input type="checkbox" class="it-esc"' +
+      (x.esc === '1' || x.esc === true ? ' checked' : '') + '> Tiene escala</label>' +
+    '<div class="it-escw"' +
+      (x.esc === '1' || x.esc === true ? '' : ' hidden') + '>' +
+      '<select class="select it-escp"><option value="">— País de escala —</option>' +
+        PAISES.map(p => '<option' + (p === x.escp ? ' selected' : '') +
+          '>' + esc(p) + '</option>').join('') + '</select>' +
+      '<input class="input it-escv" placeholder="Número de vuelo"' +
+        ' value="' + esc(x.escv || '') + '">' +
+      '<input type="time" class="input it-esch" title="Hora de la escala"' +
+        ' value="' + esc(x.esch || '') + '">' +
+      '<select class="select it-esca">' +
+        '<option value="">— Aerolínea de la escala —</option>' +
+        nombres.map(n => '<option' + (n === x.esca ? ' selected' : '') +
+          '>' + esc(n) + '</option>').join('') + '</select></div>' +
     '<p class="it-total it-tota hint"></p>';
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
@@ -127,6 +142,9 @@ Itinerario.aeroCard = function (card, nombre, x) {
       (a ? a.clases.map(c => '<option' + (c === x.clase ? ' selected' : '') +
         '>' + esc(c) + '</option>').join('') : '');
   };
+  const es = card.querySelector('.it-esc');
+  es.addEventListener('change', () => {
+    card.querySelector('.it-escw').hidden = !es.checked; });
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
   ai.addEventListener('change', () => { ps.hidden = ai.checked; total(); });
   os.addEventListener('change', () => {
@@ -147,6 +165,11 @@ Itinerario.aeroCollect = function (card) {
     ps: card.querySelector('.it-ps').value,
     os: card.querySelector('.it-os').checked ? '1' : '0',
     osv: card.querySelector('.it-osv').value,
-    osd: card.querySelector('.it-osd').value
+    osd: card.querySelector('.it-osd').value,
+    esc: card.querySelector('.it-esc').checked ? '1' : '0',
+    escp: card.querySelector('.it-escp').value,
+    escv: card.querySelector('.it-escv').value,
+    esch: card.querySelector('.it-esch').value,
+    esca: card.querySelector('.it-esca').value
   };
 };

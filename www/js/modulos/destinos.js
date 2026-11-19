@@ -169,10 +169,10 @@ const Destinos = {
         if (i.campo === 'Aerolínea') {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
-          obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai,
-                         ps: i.ps, os: i.os, osv: i.osv, osd: i.osd,
-                         dia: i.dia, hdesde: i.hdesde, hhasta: i.hhasta,
-                         guia: i.guia };
+          obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai, ps: i.ps,
+            os: i.os, osv: i.osv, osd: i.osd, dia: i.dia, hdesde: i.hdesde,
+            hhasta: i.hhasta, guia: i.guia, esc: i.esc, escp: i.escp,
+            escv: i.escv, esch: i.esch, esca: i.esca };
         }
         if (i.campo === 'Transporte')
           obj.trans = { tsel: i.tsel, tnombre: i.tnombre,

@@ -1,8 +1,6 @@
-/* itinerario.js — itinerario por destino: cada destino del viaje trae su
-   propio bloque con selector de día + evento; el evento abre una card con
-   guía/agencia/tour operador, teléfonos, link Maps/GPX, descripción,
-   precio por persona/grupo y total. Los campos del viaje (imagen, guía,
-   transporte, aerolínea, vuelo, check-in, notas) son opciones sueltas. */
+/* itinerario.js — campos del viaje (Costos y pagos) + itinerario día a día:
+   cada destino trae su bloque con selector de día + evento; el evento abre
+   una card con contacto, teléfonos, Maps/GPX, descripción, precio y total. */
 'use strict';
 const Itinerario = {
   TIPOS: ['Llegada y traslado','Guía','Transporte Aéreo','Lancha',
@@ -20,12 +18,9 @@ const Itinerario = {
     'Enlace check-out': { k: 'checkout',   ph: 'https://…', t: 'url' },
     'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
   },
-  async delRow(rid) {
-    if (await confirmar('¿Eliminar este día / evento del itinerario?'))
-      document.getElementById(rid).remove();
-  },
-  /* colapso exclusivo: abrir un card cierra a sus hermanos del mismo nivel.
-     Se fuerza display del body además de la clase (a prueba de estilos). */
+  async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?'))
+    document.getElementById(rid).remove(); },
+  /* colapso exclusivo entre hermanos + display inline a prueba de estilos */
   _body(card) {
     return [...card.children].find(k =>
       k.classList && k.classList.contains('it-acc-body'));
@@ -36,25 +31,19 @@ const Itinerario = {
     [...card.parentElement.children].forEach(s => {
       if (s.classList && s.classList.contains('it-acc')) {
         s.classList.remove('open');
-        const b = this._body(s); if (b) b.style.display = 'none';
-      }
-    });
+        const b = this._body(s); if (b) b.style.display = 'none'; } });
     if (!open) {
       card.classList.add('open');
-      const b = this._body(card); if (b) b.style.display = '';
-    }
+      const b = this._body(card); if (b) b.style.display = ''; }
   },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
   paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
-  _fmt(n) {
-    const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
+  _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
     return s + n.toLocaleString('en-US',
-    { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
-  _dias() {
-    let o = '';
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+  _dias() { let o = '';
     for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>';
-    return o;
-  },
+    return o; },
   _calc(card) {
     const precio = parseFloat(card.querySelector('.it-precio').value) || 0;
     const modo = card.querySelector('.it-modo').value;
@@ -89,6 +78,18 @@ const Itinerario = {
         t.value = ''; t.dispatchEvent(new Event('change'));
       });
     }
+    const d = $('#it-dia-new'), ev = $('#it-ev-new');
+    if (!d || !ev) return;
+    d.innerHTML = this._dias();
+    ev.innerHTML = '<option value="">— Evento —</option>' +
+      this.TIPOS.map(x => '<option>' + esc(x) + '</option>').join('');
+    if (ev._wired) return;
+    ev._wired = 1;
+    ev.addEventListener('change', () => {
+      if (!ev.value) return;
+      this.addRow('', d.value, ev.value, '');
+      ev.value = ''; ev.dispatchEvent(new Event('change'));
+    });
   },
   /* un acordeón por cada destino escrito en información del viaje */
   syncDestinos() {
@@ -241,8 +242,8 @@ const Itinerario = {
       const dest = a.querySelector('.dst-acc-t').textContent.trim();
       $$('.it-acc', a).forEach(card => it.push(leer(card, dest)));
     });
-    $$('#itinerary-container > .it-acc:not(.dst-acc)')
-      .forEach(card => it.push(leer(card, '')));
+    $$('#itinerary-container > .it-acc:not(.dst-acc)').forEach(card =>
+      it.push(leer(card, '')));
     return it;
   }
 };

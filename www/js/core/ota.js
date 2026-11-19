@@ -1,7 +1,5 @@
-/* ota.js — motor OTA La Tribu de los Libres Travels (idéntico a CursosOTA):
-   notifyAppReady anti-rollback · push PC /ota + /ota-zip → tmOta → pull
-   poller 8 s al stamp del PC · watchdog libera descargas colgadas
-   TAP sello de build = Actualizar · LONG-PRESS = reset() · modal TM_OTA */
+/* ota.js — motor OTA La Tribu: notifyAppReady anti-rollback · push tmOta →
+   pull (prefiere zip local sobre :8788) · poller 8 s · watchdog 80 s */
 (function () {
   'use strict';
   const KEY = 'tm_ota_url';      /* última url recibida por push */
@@ -24,16 +22,14 @@
     return d;
   };
   const up = UP();
-  if (up && up.notifyAppReady) {
-    up.notifyAppReady()
-      .then(() => L('notifyAppReady OK'))
+  if (up && up.notifyAppReady)
+    up.notifyAppReady().then(() => L('notifyAppReady OK'))
       .catch(e => L('notifyAppReady falló: ' + (e && e.message || e)));
-  } else L('CapacitorUpdater NO disponible — OTA inactivo (web)');
+  else L('CapacitorUpdater NO disponible — OTA inactivo (web)');
 
+  /* el plugin cuelga ~60 s: sin watchdog el candado queda pegado y los
+     eventos se descartan en silencio (bug real observado en consola) */
   let pulling = false, pullWatch = null;
-  /* el plugin de descarga puede colgar el promise con reintentos internos
-     de ~60 s: sin watchdog el candado queda pegado y TODO lo demás se
-     descarta en silencio (bug real observado en consola) */
   function soltarPull() { pulling = false; clearTimeout(pullWatch); pullWatch = null; }
   function armarWatch() {
     clearTimeout(pullWatch);
@@ -50,24 +46,21 @@
     } catch (e) { L('stamp no respondió en ' + baseOf(url) + ': ' + (e && e.message || e)); }
     return '';
   }
-  async function pull(url, version, checksum, silent) {
+  async function pull(url, version, checksum, silent, okcb) {
     const P = UP();
     if (!P || !P.download) { L('pull abortado: sin plugin updater'); return; }
     url = String(url || '').trim();
     if (!esHttp(url)) {
       L('pull abortado: url inválida «' + url + '»');
       if (!silent && window.showToast) showToast('OTA: URL inválida', 'error');
-      return;
-    }
+      return; }
     if (!checksum) checksum = await checksumDe(url);
     if (!checksum) {
       L('pull abortado: sin checksum para ' + url);
       if (!silent && window.showToast) showToast('OTA: no pude obtener el checksum', 'error');
-      return;
-    }
+      return; }
     if (pulling) { L('pull omitido: descarga en curso'); return; }
-    pulling = true;
-    armarWatch();
+    pulling = true; armarWatch();
     L('descargando → ' + url + ' · v=' + version);
     if (!silent && window.showToast) showToast('Descargando OTA…');
     P.download({ url: url, version: String(version || 'ota'), checksum: checksum })
@@ -75,12 +68,21 @@
         L('descargado id=' + bundle.id + ' — aplicando…');
         if (!silent && window.showToast) showToast('Aplicando OTA…');
         return P.set({ id: bundle.id }).catch(() => P.next({ id: bundle.id }));
-      }).then(() => { L('aplicado — el WebView recarga solo'); sonar('ok'); })
+      }).then(() => { pull._re = 0; if (okcb) okcb();
+        L('aplicado — el WebView recarga solo'); sonar('ok'); })
       .catch(e => {
         soltarPull();
-        sonar('fail');
         L('FALLO descarga: ' + (e && e.message || e));
-        if (window.showToast) showToast('OTA falló: ' + (e && e.message || e), 'error');
+        if (esLocal(url) && !pull._re) {   /* el zip se reescribía a mitad */
+          pull._re = 1;
+          L('reintentando zip local en 2 s…');
+          setTimeout(() => pull(url, version, checksum, silent, okcb), 2000);
+          return;
+        }
+        pull._re = 0;
+        sonar('fail');
+        if (!esLocal(url)) { L('PC inalcanzable — probando zip local'); probarLocal(true); }
+        if (!silent && window.showToast) showToast('OTA falló: ' + (e && e.message || e), 'error');
       });
   }
 
@@ -96,14 +98,14 @@
       try { localStorage.setItem(KEY, url); } catch (er) {}
       if (esHttp(url) && !esLocal(url))
         try { localStorage.setItem(PCKEY, baseOf(url)); } catch (er) {}
-      pull(url, (e && e.version) || ('ota-' + Date.now()),
-           (e && e.checksum) || '');
+      const v = (e && e.version) || ('ota-' + Date.now()), sha = (e && e.checksum) || '';
+      if (pulling) { L('descarga en curso — tmOta en espera 5 s');
+        setTimeout(() => pull(url, v, sha), 5000); } else pull(url, v, sha);
     });
     L('listener tmOta armado');
   } else L('TravelFtp NO disponible — push muerto (web)');
 
-  /* base del PC: guardada por pushes http, o dentro del propio bundle
-     (el watcher escribe ota-pc.json con su IP/puerto) */
+  /* base del PC: de pushes http o del ota-pc.json dentro del bundle */
   async function pcBase() {
     let b = '';
     try { b = localStorage.getItem(PCKEY) || ''; } catch (e) {}
@@ -112,8 +114,7 @@
     try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
     if (esHttp(saved) && !esLocal(saved)) {
       try { localStorage.setItem(PCKEY, baseOf(saved)); } catch (e) {}
-      return baseOf(saved);
-    }
+      return baseOf(saved); }
     try {
       const r = await fetch('ota-pc.json', { cache: 'no-store' });
       const j = r.ok ? await r.json() : null;
@@ -134,8 +135,8 @@
     } catch (e) { L('sello FALLO — la PC no responde: ' + (e && e.message || e)); }
     return null;
   }
-  /* sello LOCAL: /ota-stamp del plugin — sha del zip ya empujado al
-     teléfono por /ota-zip (via libre del firewall del PC) */
+  /* sello LOCAL del plugin: sha del zip ya empujado por /ota-zip
+     (via libre del firewall del PC) */
   async function selloLocal() {
     const H = HTTP();
     if (!H) return null;
@@ -152,8 +153,8 @@
     try { ya = localStorage.getItem('lt_ota_applied') || ''; } catch (e) {}
     if (!l.sha || l.sha === ya) return true;   // nada pendiente (o ya aplicado)
     L('zip local pendiente (sha ' + l.sha.slice(0, 10) + '…) — aplicando');
-    pull('http://127.0.0.1:9863/ota-incoming.zip', 'local-' + Date.now(), l.sha, silent);
-    try { localStorage.setItem('lt_ota_applied', l.sha); } catch (e) {}
+    pull('http://127.0.0.1:9863/ota-incoming.zip', 'local-' + Date.now(), l.sha, silent,
+      () => { try { localStorage.setItem('lt_ota_applied', l.sha); } catch (e) {} });
     return true;
   }
 
@@ -170,6 +171,13 @@
     }
     pollFails = 0;
     if (d.ts !== lastPoll && d.ts !== seen) {
+      const l = await selloLocal();
+      if (l && l.sha && l.sha === d.sha) {   /* el zip ya llegó por push */
+        L('sello nuevo ya está en el teléfono — aplicando zip local');
+        pull('http://127.0.0.1:9863/ota-incoming.zip', d.ts, d.sha, true);
+        lastPoll = d.ts;
+        return;
+      }
       L('sello nuevo del PC: ' + d.ts + ' — jalando paquete');
       pull(d.url || (await pcBase()) + '/bundle.zip', d.ts, d.sha, true);
     }
@@ -182,17 +190,14 @@
   function wire() {
     const t = document.getElementById('build-tag');
     if (!t || t._otaWired) return;
-    t._otaWired = 1;
-    let lp = null;
+    t._otaWired = 1; let lp = null;
     t.addEventListener('click', () => { if (UP()) window.forzarOTA(); });
     t.addEventListener('pointerdown', () => {
       lp = setTimeout(() => {
         lp = null;
         const P = UP();
-        if (P && P.reset && window.confirm('¿Quitar el OTA y volver al paquete?')) {
-          L('reset() — volviendo al paquete interno');
-          P.reset();
-        }
+        if (P && P.reset && window.confirm('¿Quitar el OTA y volver al paquete?'))
+          { L('reset() — volviendo al paquete interno'); P.reset(); }
       }, 650);
     });
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev =>

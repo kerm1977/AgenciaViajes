@@ -24,6 +24,16 @@ const Itinerario = {
     if (await confirmar('¿Eliminar este día / evento del itinerario?'))
       document.getElementById(rid).remove();
   },
+  /* colapso exclusivo: abrir un card cierra a sus hermanos del mismo nivel */
+  tog(btn) {
+    const card = btn.closest('.it-acc');
+    const open = card.classList.contains('open');
+    [...card.parentElement.children].forEach(s => {
+      if (s.classList && s.classList.contains('it-acc'))
+        s.classList.remove('open');
+    });
+    card.classList.toggle('open', !open);
+  },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
   paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
   _fmt(n) {
@@ -87,7 +97,7 @@ const Itinerario = {
       a.innerHTML =
         '<div class="it-acc-head">' +
           '<button type="button" class="it-acc-btn" ' +
-            'onclick="this.parentElement.parentElement.classList.toggle(\'open\')">' +
+            'onclick="Itinerario.tog(this)">' +
             '<span class="it-acc-t dst-acc-t">' + esc(n) + '</span>' +
             '<i class="fa-solid fa-chevron-down"></i></button></div>' +
         '<div class="it-acc-body">' +
@@ -135,7 +145,7 @@ const Itinerario = {
     const head =
       '<div class="it-acc-head">' +
         '<button type="button" class="it-acc-btn" ' +
-          'onclick="this.parentElement.parentElement.classList.toggle(\'open\')">' +
+          'onclick="Itinerario.tog(this)">' +
           (campo ? '' : '<span class="dia">' + esc(dia || 'Día 1') + '</span>') +
           '<span class="it-acc-t">' + esc(tipo) + '</span>' +
           '<i class="fa-solid fa-chevron-down"></i></button>' +

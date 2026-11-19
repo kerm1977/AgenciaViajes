@@ -73,66 +73,7 @@ const Itinerario = {
     }
     this.syncItin();
   },
-  /* Itinerario: asignar día+horas+guía solo a los costos/pagos elegidos */
-  async syncItin() {
-    const c = $('#itinerary-container'); if (!c) return;
-    c.innerHTML = ''; const guias = ((await DB.list('contactos')) || [])
-      .filter(x => x.tipo === 'Guía').map(x => x.nombre);
-    const cards = $$('#it-general .it-acc'),
-          free = cards.filter(k => !k.dataset.dia);
-    const row = document.createElement('div'); row.className = 'it-card it-mirror';
-    row.innerHTML =
-      '<div class="flex gap1" style="align-items:center">' +
-        '<select class="select it-dia" style="flex:0 0 6.5rem">' +
-          this._dias() + '</select>' +
-        '<select class="select it-pick" style="flex:1">' +
-          '<option value="">— Asignar campo —</option>' +
-          free.map((k, i) => '<option value="' + i + '">' +
-            esc(k.querySelector('.it-acc-t').textContent) +
-            '</option>').join('') + '</select></div>';
-    if (!free.length) row.querySelector('.it-pick').disabled = true;
-    const p = row.querySelector('.it-pick'), d = row.querySelector('.it-dia');
-    p.addEventListener('change', () => {
-      if (p.value === '') return;
-      free[+p.value].dataset.dia = d.value || 'Día 1'; this.syncItin(); });
-    c.appendChild(row);
-    cards.filter(k => k.dataset.dia).forEach(card => {
-      const row = document.createElement('div');
-      row.className = 'it-card it-mirror';
-      row.innerHTML =
-        '<div class="flex gap1" style="align-items:center">' +
-          '<select class="select it-dia" style="flex:0 0 6.5rem">' +
-            this._dias() + '</select>' +
-          '<span class="it-acc-t" style="flex:1;font-weight:600">' +
-            esc(card.querySelector('.it-acc-t').textContent) + '</span>' +
-          '<button type="button" class="iconbtn danger" title="Quitar" ' +
-            'onclick="Itinerario.unassign(\'' + card.id + '\')">' +
-            '<i class="fa-solid fa-xmark"></i></button></div>' +
-        '<div class="flex gap1" style="margin-top:.4rem">' +
-          '<input type="time" class="input it-hd" style="flex:0 0 5rem" title="Desde">' +
-          '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hasta">' +
-          '<select class="select it-guia" style="flex:1"></select></div>';
-      const d = row.querySelector('.it-dia'); d.value = card.dataset.dia;
-      d.onchange = () => { card.dataset.dia = d.value; };
-      const g = row.querySelector('.it-guia'), gs = card.dataset.guia || '';
-      [['hd','hdesde'],['hh','hhasta']].forEach(([cl, k]) => {
-        const i = row.querySelector('.it-' + cl);
-        i.value = card.dataset[k] || '';
-        i.addEventListener('change', () => { card.dataset[k] = i.value; }); });
-      g.innerHTML = '<option value="">— Guía —</option>' +
-        guias.concat(gs && !guias.includes(gs) ? [gs] : [])
-          .map(n => '<option>' + esc(n) + '</option>').join('');
-      g.value = gs;
-      g.addEventListener('change', () => { card.dataset.guia = g.value; });
-      c.appendChild(row);
-    });
-  },
-  async unassign(id) {
-    if (!(await confirmar('¿Quitar este campo del itinerario?')) ||
-        !(await confirmar('¿Seguro? se quitará su asignación de día')))
-      return;
-    const k = document.getElementById(id);
-    if (k) delete k.dataset.dia; this.syncItin(); },
+  /* syncItin/unassign viven en itasig.js (asignaciones del itinerario) */
   refresh() {
     $$('#itinerary-container .it-cod, #it-general .it-cod').forEach(cod =>
       cod.textContent = codigoDePais(($('#dest-pais') || {}).value) || '—');

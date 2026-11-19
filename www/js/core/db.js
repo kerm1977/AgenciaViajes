@@ -16,7 +16,7 @@ const DB = {
       ' nombre TEXT, pais TEXT, destinos TEXT,' +
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
-      ' checkout TEXT, boleto TEXT,'
+      ' checkout TEXT, boleto TEXT,' +
       ' notas TEXT, itinerario TEXT)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +

@@ -1,6 +1,5 @@
-/* destinos.js — CRUD de destinos/viajes: país (América+España), lista de
-   destinos por viaje, precio con/sin guía, itinerario por día (1-30) con
-   tipo de parada y sub-datos de servicio (contacto, tel, precio). */
+/* destinos.js — CRUD de destinos/viajes: país (América+España), multi-destino,
+   capacidad C/G-S/G, moneda e itinerario por día con sub-datos de servicio. */
 'use strict';
 const PAISES = ['Argentina','Aruba','Bahamas','Barbados','Belice','Bolivia',
   'Brasil','Canadá','Chile','Colombia','Costa Rica','Cuba','Curazao',
@@ -69,7 +68,10 @@ const Destinos = {
         esc(p) + '</option>').join('');
   },
   addDestino(nombre) {
-    const c = $('#destinos-lista-container');
+    const items = $$('#destinos-lista-container .dst-item');
+    const last = items[items.length - 1];
+    if (last && !last.value.trim() && nombre === undefined) {
+      last.focus(); showToast('Completa el destino anterior primero', 'error'); return; }
     const rid = uid('dst');
     const div = document.createElement('div');
     div.className = 'flex gap1'; div.id = rid;
@@ -78,7 +80,7 @@ const Destinos = {
         'value="' + esc(nombre || '') + '" class="input dst-item" style="flex:1">' +
       '<button type="button" class="iconbtn danger" onclick="Destinos.delDest(\'' +
         rid + '\')"><i class="fa-solid fa-xmark"></i></button>';
-    c.appendChild(div);
+    $('#destinos-lista-container').appendChild(div);
   },
   addItRow(dia, tipo, ruta, x) { Itinerario.addRow(dia, tipo, ruta, x); },
   cancelar() { return Borrador.cancelar(); },

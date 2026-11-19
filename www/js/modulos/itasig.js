@@ -22,13 +22,17 @@ Object.assign(Itinerario, {
       o += '<option value="Día ' + i + '">Día ' + i + tag + '</option>'; }
     return o;
   },
-  /* re-render completo del acordeón Itinerario */
+  /* re-render completo del acordeón Itinerario (solo gana la última llamada) */
   async syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
-    c.innerHTML = ''; const guias = ((await DB.list('contactos')) || [])
+    const n = ++this._sN;
+    const guias = ((await DB.list('contactos')) || [])
       .filter(x => x.tipo === 'Guía').map(x => x.nombre);
+    if (n !== this._sN) return;
+    c.innerHTML = '';
     const cards = $$('#it-general .it-acc'),
-          free = cards.filter(k => !k.dataset.dia),
+          free = cards.filter((k, i) =>
+            !k.dataset.dia && cards.indexOf(k) === i),
           opts = (sel, extra) => free.concat(extra || []).map(k =>
             '<option value="' + cards.indexOf(k) + '"' +
             (k === sel ? ' selected' : '') + '>' +

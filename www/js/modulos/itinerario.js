@@ -98,7 +98,6 @@ const Itinerario = {
       c.appendChild(row);
     });
     const free = cards.filter(k => !k.dataset.dia);
-    if (!free.length) return;
     const row = document.createElement('div');
     row.className = 'it-card it-mirror';
     row.innerHTML =
@@ -110,6 +109,7 @@ const Itinerario = {
           free.map((k, i) => '<option value="' + i + '">' +
             esc(k.querySelector('.it-acc-t').textContent) + '</option>')
             .join('') + '</select></div>';
+    if (!free.length) row.querySelector('.it-pick').disabled = true;
     const p = row.querySelector('.it-pick'), d = row.querySelector('.it-dia');
     p.addEventListener('change', () => {
       if (p.value === '') return;
@@ -118,7 +118,10 @@ const Itinerario = {
     });
     c.appendChild(row);
   },
-  unassign(id) { const k = document.getElementById(id);
+  async unassign(id) {
+    if (!(await confirmar('¿Quitar este campo del itinerario?'))) return;
+    if (!(await confirmar('¿Seguro? se quitará su asignación de día'))) return;
+    const k = document.getElementById(id);
     if (k) delete k.dataset.dia; this.syncItin(); },
   refresh() {
     $$('#itinerary-container .it-cod, #it-general .it-cod').forEach(cod =>

@@ -1,87 +1,44 @@
-/* destdetalle.js — modal detalle del viaje: portada, datos, itinerario
-   por destino en acordeones y pasajeros asignados. */
+/* destdetalle.js — página completa del viaje: portada, datos del viaje,
+   vuelos con check-in/out, itinerario por día con Mapa/Waze y pasajeros.
+   La tarjeta del viaje abre esta página directamente (sin modal). */
 'use strict';
-Destinos.detalle = async function (id) {
-  const d = await DB.get('destinos', id);
-  if (!d) return;
-  Destinos._detId = id;
-  $('#detalle-destino-header').style.backgroundImage =
-    'url(' + (d.imagen || Destinos.IMG_DEF) + ')';
-  $('#detalle-badge-aerolinea').textContent = d.aerolinea || 'Viaje';
-  $('#detalle-title').textContent = d.nombre;
-  $('#detalle-pais').innerHTML = '<i class="fa-solid fa-flag"></i> ' +
-    esc(d.pais || '—') +
-    (d.paxConGuia ? ' <span class="hint">· ' + d.paxConGuia +
-      ' van / ' + (d.paxSinGuia || 0) + ' pagan</span>' : '');
-  $('#detalle-lugares').textContent = (d.destinos || []).join(' · ');
-  $('#detalle-guia').innerHTML = '<i class="fa-solid fa-user-tie"></i> ' +
-    esc(d.guia || 'Sin asignar');
-  $('#detalle-transporte').innerHTML = '<i class="fa-solid fa-bus"></i> ' +
-    esc(d.transporte || 'No especificado');
-  $('#detalle-vuelo').textContent = d.vuelo ? 'Vuelo: ' + d.vuelo : 'Sin vuelo';
-  const ck = $('#detalle-checkin-link');
-  if (d.checkin) { ck.href = d.checkin; ck.classList.remove('hidden'); }
-  else ck.classList.add('hidden');
-  const mon = d.moneda === 'CRC' ? '₡' : '$';
-  const il = $('#detalle-itinerario-list');
-  il.innerHTML = (d.itinerario || []).length
-    ? d.itinerario.map(it =>
-        '<div class="it-acc">' +
-        '<button type="button" class="it-acc-btn" ' +
-          'onclick="this.parentElement.classList.toggle(\'open\')">' +
-          '<span class="dia">' + esc(it.dia || '') + '</span>' +
-          '<span class="it-acc-t">' +
-            esc((it.destino ? it.destino + ' · ' : '') + (it.tipo || 'Parada')) +
-          '</span><i class="fa-solid fa-chevron-down"></i></button>' +
-        '<div class="it-acc-body">' +
-          '<p>' + esc(it.ruta && it.ruta !== it.tipo ? it.ruta : 'Sin detalle') +
-            '</p>' +
-          ((it.nombre || it.tel || it.telGuia || it.precio)
-            ? '<p class="hint text-xs">' +
-              (it.nombre ? '<i class="fa-solid fa-user"></i> ' + esc(it.nombre) + ' · ' : '') +
-              (it.tel ? '<i class="fa-solid fa-phone"></i> ' + esc(it.tel) + ' · ' : '') +
-              (it.telGuia ? '<i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + ' · ' : '') +
-              (it.maps ? '<a href="' + esc(it.maps) + '" target="_blank">' +
-                '<i class="fa-solid fa-map"></i> Mapa</a> · ' : '') +
-              (it.precio ? mon + Number(it.precio).toFixed(2) + ' ' +
-                esc(it.modo === 'grupo' ? 'por grupo' : 'por persona') : '') +
-              '</p>' : '') +
-          (it.desc ? '<p class="hint text-xs">' + esc(it.desc) + '</p>' : '') +
-        '</div></div>').join('')
-    : '<p class="hint">No hay rutas registradas para este viaje.</p>';
-  const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id);
-  $('#detalle-pasajeros-list').innerHTML = pax.length
-    ? pax.map(p => '<span class="pax-badge"><i class="fa-solid fa-user"></i> ' +
-        esc(p.nombre) + (p.asiento ? ' <span class="muted">(' + esc(p.asiento) +
-        ')</span>' : '') + '</span>').join('')
-    : '<p class="hint">No hay pasajeros asignados a este destino.</p>';
-  openModal('modal-detalle-destino');
-};
-/* página completa: hero + nota + vuelos + itinerario por día + Mapa/Waze */
+Destinos.detalle = function (id) { Destinos.pagina(id); };
+Destinos.cerrarPagina = function () {
+  $('#pag-itin').classList.remove('open'); };
 Destinos.pagina = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
+  Destinos._detId = id;
   let h = '<div class="pit-hero" style="background-image:url(' +
     (d.imagen || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
-    esc(d.nombre) + '</h2><p>' + esc(d.pais || '') +
-    ((d.destinos || []).length ? ' · ' + esc(d.destinos.join(' · ')) : '') +
+    esc(d.nombre) + '</h2><p>' + esc(d.pais || '—') +
+    (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
+      (d.paxSinGuia || 0) + ' pagan' : '') +
+    ((d.destinos || []).length ? '<br>' + esc(d.destinos.join(' · ')) : '') +
     '</p></div></div>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
     esc(d.notas) + '</div>';
-  if (d.vuelo || d.checkin || d.checkout)
-    h += '<div class="pit-links">' +
-      (d.vuelo ? '<span class="badge badge-brand"><i class="fa-solid fa-plane"></i> ' +
-        esc((d.aerolinea ? d.aerolinea + ' ' : '') + d.vuelo) + '</span>' : '') +
+  const fila = (ic, l, v) =>
+    '<div><p class="lbl">' + l + '</p><p class="kv bold">' +
+    '<i class="fa-solid ' + ic + '"></i> ' + v + '</p></div>';
+  h += '<div class="grid-2 card card-pad">' +
+    fila('fa-user-tie', 'Guía asignado', esc(d.guia || 'Sin asignar')) +
+    fila('fa-bus', 'Transporte', esc(d.transporte || 'No especificado')) +
+    fila('fa-plane', 'Vuelo',
+      esc(d.vuelo ? ((d.aerolinea ? d.aerolinea + ' ' : '') + d.vuelo) : 'Sin vuelo')) +
+    '<div><p class="lbl">Check-in / Check-out</p><p class="flex gap2">' +
       (d.checkin ? '<a class="btn btn-sm btn-primary" target="_blank" href="' +
         esc(d.checkin) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>' : '') +
       (d.checkout ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +
         esc(d.checkout) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-out</a>' : '') +
-      '</div>';
+      ((d.checkin || d.checkout) ? '' : '<span class="hint">Sin enlaces</span>') +
+    '</p></div></div>';
   const porDia = {};
   (d.itinerario || []).forEach(it =>
     (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
   const dias = Object.keys(porDia).sort((a, b) =>
     parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
+  h += '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>';
   dias.forEach(dia => {
     h += '<h3 class="pit-dia"><i class="fa-solid fa-calendar-day"></i> ' +
       esc(dia) + '</h3>';
@@ -112,8 +69,14 @@ Destinos.pagina = async function (id) {
     });
   });
   if (!dias.length) h += '<p class="hint">Sin itinerario todavía.</p>';
+  const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id);
+  h += '<h3 class="pit-dia"><i class="fa-solid fa-users"></i> Pasajeros</h3>' +
+    (pax.length
+      ? '<div class="flex gap1" style="flex-wrap:wrap">' +
+        pax.map(p => '<span class="pax-badge"><i class="fa-solid fa-user"></i> ' +
+          esc(p.nombre) + (p.asiento ? ' <span class="muted">(' +
+          esc(p.asiento) + ')</span>' : '') + '</span>').join('') + '</div>'
+      : '<p class="hint">No hay pasajeros asignados a este viaje.</p>');
   $('#pag-itin-body').innerHTML = h;
   $('#pag-itin').classList.add('open');
 };
-Destinos.cerrarPagina = function () {
-  $('#pag-itin').classList.remove('open'); };

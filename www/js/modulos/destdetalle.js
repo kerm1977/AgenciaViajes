@@ -9,7 +9,7 @@ Destinos.pagina = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
   Destinos._detId = id;
-  const imgUrl = await Uploader.url(d.imagen),
+  const imgUrl = await Uploader.url(d.imagen, (d.imgfx || {}).b64),
         fx = d.imgfx || {},
         fxCss = fx.x || fx.s ? ';background-position:' +
           (50 + (fx.x || 0)) + '% center;background-size:' +

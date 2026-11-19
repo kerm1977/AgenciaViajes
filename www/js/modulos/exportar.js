@@ -64,7 +64,7 @@ const Exportar = {
     const ds = (await this._todo()).destinos || [];
     let y = 28;
     for (const d of ds) {
-      const u = await Uploader.url(d.imagen);
+      const u = await Uploader.url(d.imagen, (d.imgfx || {}).b64);
       if (/^data:image/.test(u)) {
         try {
           if (y > 245) { doc.addPage(); y = 15; }

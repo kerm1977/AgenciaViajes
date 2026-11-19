@@ -32,15 +32,15 @@ const Itinerario = {
     if (!precio || !n) { out.innerHTML = ''; return; }
     if (modo === 'grupo') {
       let h = '<hr class="it-hr">Grupo ' + this._fmt(precio) + ' → ' +
-        this._fmt(precio / n) + ' P/P (' + n + ' con guía)';
+        this._fmt(precio / n) + ' P/P (' + n + ' C/G)';
       if (ns && ns !== n)
-        h += '<br>' + this._fmt(precio / ns) + ' P/P (' + ns + ' sin guía)';
+        h += '<br>' + this._fmt(precio / ns) + ' P/P (' + ns + ' S/G)';
       out.innerHTML = h;
     } else {
       let h = '<hr class="it-hr">P/P ' + this._fmt(precio) + ' × ' + n +
-        ' con guía = ' + this._fmt(precio * n);
+        ' C/G = ' + this._fmt(precio * n);
       if (ns && ns !== n)
-        h += '<br>' + this._fmt(precio) + ' × ' + ns + ' sin guía = ' +
+        h += '<br>' + this._fmt(precio) + ' × ' + ns + ' S/G = ' +
           this._fmt(precio * ns);
       out.innerHTML = h;
     }

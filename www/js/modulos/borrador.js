@@ -38,9 +38,10 @@ const Borrador = {
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos && d.destinos.length ? d.destinos : [null])
       .forEach(n => Destinos.addDestino(n));
+    if (window.Itinerario) Itinerario.syncDestinos();
     (d.itinerario || []).forEach(it => {
-      if (it.campo) Destinos.addItRow('', it.campo, it.valor);
-      else Destinos.addItRow(it.dia, it.tipo, it.ruta, it);
+      if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor);
+      else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it);
     });
     Itinerario.refresh();
   },

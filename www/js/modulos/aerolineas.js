@@ -62,6 +62,7 @@ const AEROLINEAS = {
 };
 Itinerario.aeroCard = function (card, nombre, x) {
   const nombres = Object.keys(AEROLINEAS);
+  const asientoInc = x.ai !== '0' && x.ai !== false;
   card.dataset.aero = '1';
   card.querySelector('.it-acc-body').innerHTML =
     '<select class="select it-aero">' +
@@ -72,17 +73,34 @@ Itinerario.aeroCard = function (card, nombre, x) {
     '<div class="grid-2">' +
       '<input type="number" min="0" step="0.01" placeholder="Precio boleto" ' +
         'value="' + esc(x.pb || '') + '" class="input it-pb">' +
-      '<input type="number" min="0" step="0.01" placeholder="Precio asiento" ' +
-        'value="' + esc(x.ps || '') + '" class="input it-ps"></div>' +
-    '<div class="grid-2">' +
-      '<input type="number" min="0" step="0.01" placeholder="Precio maleta" ' +
-        'value="' + esc(x.pm || '') + '" class="input it-pm">' +
-      '<input type="number" min="0" step="0.01" placeholder="Precio clase" ' +
-        'value="' + esc(x.pc || '') + '" class="input it-pc"></div>' +
-    '<select class="select it-clase"><option value="">— Clase —</option></select>';
+      '<select class="select it-clase"><option value="">— Clase —</option>' +
+        '</select></div>' +
+    '<input type="number" min="0" step="0.01" placeholder="Precio clase" ' +
+      'value="' + esc(x.pc || '') + '" class="input it-pc">' +
+    '<label class="it-aic"><input type="checkbox" class="it-ai"' +
+      (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
+    '<input type="number" min="0" step="0.01" class="input it-ps" ' +
+      'placeholder="Costo del asiento"' +
+      ' value="' + esc(x.ps || '') + '"' +
+      (asientoInc ? ' hidden' : '') + '>' +
+    '<p class="it-total it-tota hint"></p>';
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
-        chk = card.querySelector('.it-achk');
+        chk = card.querySelector('.it-achk'),
+        ai  = card.querySelector('.it-ai'),
+        ps  = card.querySelector('.it-ps'),
+        tot = card.querySelector('.it-tota'),
+        inp = (c) => card.querySelector(c);
+  const n = el => parseFloat(el.value) || 0;
+  const sim = () => ($('#dest-moneda') || {}).value || '$';
+  const total = () => {
+    const base = n(inp('.it-pb')) + n(inp('.it-pc'));
+    const con = base + (ai.checked ? 0 : n(ps));
+    tot.textContent = base || con
+      ? 'Total sin asiento: ' + sim() + base.toFixed(2) +
+        (ai.checked ? '' : ' · con asiento: ' + sim() + con.toFixed(2))
+      : '';
+  };
   const pintar = () => {
     const a = AEROLINEAS[sel.value];
     chk.innerHTML = a
@@ -94,7 +112,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
         '>' + esc(c) + '</option>').join('') : '');
   };
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
-  pintar();
+  ai.addEventListener('change', () => { ps.hidden = ai.checked; total(); });
+  ['.it-pb', '.it-pc', '.it-ps'].forEach(c =>
+    inp(c).addEventListener('input', total));
+  pintar(); total();
 };
 Itinerario.aeroCollect = function (card) {
   const nombre = card.querySelector('.it-aero').value;
@@ -104,8 +125,8 @@ Itinerario.aeroCollect = function (card) {
     checkin: a.ci || '', checkout: a.co || '',
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
-    ps: card.querySelector('.it-ps').value,
-    pm: card.querySelector('.it-pm').value,
-    pc: card.querySelector('.it-pc').value
+    pc: card.querySelector('.it-pc').value,
+    ai: card.querySelector('.it-ai').checked ? '1' : '0',
+    ps: card.querySelector('.it-ps').value
   };
 };

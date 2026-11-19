@@ -62,7 +62,8 @@ const Itinerario = {
   initPickers() {
     const t = $('#it-tipo-new'); if (!t) return;
     t.innerHTML = '<option value="">— Campo del viaje —</option>' +
-      Object.keys(this.CAMPOS).map(x => '<option>' + esc(x) + '</option>').join('');
+      Object.keys(this.CAMPOS).map(x => '<option>' + esc(x) + '</option>').join('') +
+      this.TIPOS.map(x => '<option>' + esc(x) + '</option>').join('');
     t.value = '';
     if (!t._wired) {
       t._wired = 1;
@@ -137,7 +138,7 @@ const Itinerario = {
     if (acc && !acc.classList.contains('open') && window.Destinos)
       Destinos.acc(acc.id, 1);
     let c = $('#it-general');
-    if (!campo) {
+    if (!campo && dest !== null) {
       this.syncDestinos();
       const a = $$('.dst-acc').find(x2 =>
         x2.querySelector('.dst-acc-t').textContent === dest);
@@ -215,11 +216,6 @@ const Itinerario = {
   },
   collect() {
     const it = [], cod = codigoDePais($('#dest-pais').value);
-    $$('#it-general .it-acc').forEach(card => {
-      const fn = card.dataset.aero ? this.aeroCollect : card.dataset.trans
-        ? this.transCollect : null;
-      it.push(fn ? fn.call(this, card) : { campo: card.dataset.tipo,
-        valor: card.querySelector('.it-campo').value.trim() }); });
     const pre = cod ? cod + ' ' : '';
     const leer = (card, dest) => {
       const ta = card.querySelector('.it-tela').value.trim();
@@ -234,6 +230,13 @@ const Itinerario = {
         precio: parseFloat(card.querySelector('.it-precio').value) || 0,
         modo: card.querySelector('.it-modo').value };
     };
+    $$('#it-general .it-acc').forEach(card => {
+      const fn = card.dataset.aero ? this.aeroCollect : card.dataset.trans
+        ? this.transCollect : null;
+      it.push(fn ? fn.call(this, card) :
+        card.querySelector('.it-ruta') ? leer(card, '') :
+        { campo: card.dataset.tipo,
+          valor: card.querySelector('.it-campo').value.trim() }); });
     $$('.dst-acc').forEach(a => {
       const dest = a.querySelector('.dst-acc-t').textContent.trim();
       $$('.it-acc', a).forEach(card => it.push(leer(card, dest)));

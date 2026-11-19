@@ -24,15 +24,25 @@ const Itinerario = {
     if (await confirmar('¿Eliminar este día / evento del itinerario?'))
       document.getElementById(rid).remove();
   },
-  /* colapso exclusivo: abrir un card cierra a sus hermanos del mismo nivel */
+  /* colapso exclusivo: abrir un card cierra a sus hermanos del mismo nivel.
+     Se fuerza display del body además de la clase (a prueba de estilos). */
+  _body(card) {
+    return [...card.children].find(k =>
+      k.classList && k.classList.contains('it-acc-body'));
+  },
   tog(btn) {
     const card = btn.closest('.it-acc');
     const open = card.classList.contains('open');
     [...card.parentElement.children].forEach(s => {
-      if (s.classList && s.classList.contains('it-acc'))
+      if (s.classList && s.classList.contains('it-acc')) {
         s.classList.remove('open');
+        const b = this._body(s); if (b) b.style.display = 'none';
+      }
     });
-    card.classList.toggle('open', !open);
+    if (!open) {
+      card.classList.add('open');
+      const b = this._body(card); if (b) b.style.display = '';
+    }
   },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
   paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },

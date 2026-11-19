@@ -62,9 +62,8 @@ const Destinos = {
           (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>';
       grid.appendChild(card);
-      if (/^uf:/.test(d.imagen || '')) Uploader.url(d.imagen).then(u => {
-        const im = card.querySelector('.dest-img img');
-        if (u && im) im.src = u; });
+      if (window.Uploader)
+        Uploader.bindImg(card.querySelector('.dest-img'), d);
     });
   },
   _fillPais(val) {

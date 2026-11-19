@@ -9,9 +9,13 @@ Destinos.pagina = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
   Destinos._detId = id;
-  const imgUrl = await Uploader.url(d.imagen);
+  const imgUrl = await Uploader.url(d.imagen),
+        fx = d.imgfx || {},
+        fxCss = fx.x || fx.s ? ';background-position:' +
+          (50 + (fx.x || 0)) + '% center;background-size:' +
+          (fx.s || 100) + '%' : '';
   let h = '<div class="pit-hero" style="background-image:url(' +
-    (imgUrl || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
+    (imgUrl || Destinos.IMG_DEF) + ')' + fxCss + '"><div class="pit-hero-t"><h2>' +
     esc(d.nombre) + '</h2><p>' + esc(d.pais || '—') +
     (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
       (d.paxSinGuia || 0) + ' pagan' : '') +

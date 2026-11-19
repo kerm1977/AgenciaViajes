@@ -44,6 +44,65 @@ const Uploader = {
       return 'uf:' + fname;
     } catch (e) { console.warn('Uploader.save', e); return dataURL; }
   },
+  /* cablea la zona de imagen de una tarjeta: resuelve 'uf:', aplica los
+     ajustes guardados y abre el editor con pulsación larga */
+  bindImg(el, d) {
+    if (!el) return;
+    const im = el.querySelector('img');
+    if (/^uf:/.test(d.imagen || ''))
+      this.url(d.imagen).then(u => { if (u && im) im.src = u; });
+    this.applyFx(im, d.imgfx);
+    let pt = null;
+    el.addEventListener('touchstart', () => {
+      pt = setTimeout(() => this.fxModal(d), 550); });
+    ['touchend', 'touchmove', 'touchcancel'].forEach(ev =>
+      el.addEventListener(ev, () => clearTimeout(pt)));
+    el.addEventListener('contextmenu', e => {
+      e.preventDefault(); this.fxModal(d); });
+  },
+  /* aplica posición/zoom/rotación/blur/opacidad a un <img> */
+  applyFx(el, fx) {
+    if (!el) return;
+    const f = Object.assign({ x: 0, s: 100, r: 0, b: 0, o: 100 }, fx || {});
+    el.style.transformOrigin = 'center';
+    el.style.transform = 'translateX(' + f.x + '%) scale(' + f.s / 100 +
+      ') rotate(' + f.r + 'deg)';
+    el.style.filter = 'blur(' + f.b + 'px) opacity(' + f.o / 100 + ')';
+  },
+  /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
+  fxModal(d) {
+    this._lp = Date.now();
+    if (document.getElementById('upl-fx')) return;
+    const fx = Object.assign({ x: 0, s: 100, r: 0, b: 0, o: 100 },
+      d.imgfx || {});
+    const bd = document.createElement('div');
+    bd.id = 'upl-fx'; bd.className = 'upl-fx';
+    bd.innerHTML = '<div class="upl-fx-card"><h4 style="margin:0 0 .5rem">' +
+      'Ajustar imagen</h4>' +
+      [['x', 'Izq / Der', -50, 50], ['s', 'Zoom', 50, 200],
+       ['r', 'Rotar', -180, 180], ['b', 'Desenfoque', 0, 8],
+       ['o', 'Opacidad', 20, 100]].map(a =>
+        '<label class="upl-fx-r"><span>' + a[1] + '</span>' +
+        '<input type="range" min="' + a[2] + '" max="' + a[3] +
+        '" value="' + fx[a[0]] + '" data-k="' + a[0] + '"></label>'
+      ).join('') +
+      '<div class="flex gap1"><button type="button" class="btn btn-soft" ' +
+        'id="upl-fx-x">Cancelar</button><button type="button" class="btn" ' +
+        'id="upl-fx-ok" style="flex:1">Guardar</button></div></div>';
+    document.body.appendChild(bd);
+    const im = document.querySelector(
+      '.dest-img[onclick*="\'' + d.id + '\'"] img');
+    bd.querySelectorAll('input').forEach(i =>
+      i.addEventListener('input', () => {
+        fx[i.dataset.k] = +i.value; this.applyFx(im, fx); }));
+    const cerrar = () => bd.remove();
+    bd.querySelector('#upl-fx-x').onclick = () => {
+      this.applyFx(im, d.imgfx); cerrar(); };
+    bd.querySelector('#upl-fx-ok').onclick = async () => {
+      d.imgfx = fx; await DB.save('destinos', d);
+      showToast('Ajustes de imagen guardados'); cerrar();
+      Destinos.render(); };
+  },
   /* resuelve una ref ('uf:', 'data:' u http) a algo usable en <img>/PDF */
   async url(ref) {
     if (!ref || String(ref).indexOf('uf:') !== 0) return ref || '';

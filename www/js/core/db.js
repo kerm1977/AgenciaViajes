@@ -5,7 +5,7 @@ const DB = {
   TABLAS: ['usuarios', 'contactos', 'destinos', 'pasajeros'],
   JSON_FIELDS: { usuarios: ['permisos'],
                  destinos: ['itinerario', 'destinos', 'boleto', 'trans',
-                            'fechas'] },
+                            'fechas', 'imgfx'] },
   SCHEMA: {
     usuarios: 'CREATE TABLE IF NOT EXISTS usuarios (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, email TEXT UNIQUE, pass TEXT, rol TEXT,' +
@@ -18,7 +18,7 @@ const DB = {
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
       ' checkout TEXT, boleto TEXT, trans TEXT, fechas TEXT,' +
-      ' notas TEXT, itinerario TEXT)',
+      ' imgfx TEXT, notas TEXT, itinerario TEXT)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +
       ' destinoId TEXT, asiento TEXT, checkin TEXT)'
@@ -27,7 +27,8 @@ const DB = {
   MIGRACIONES: {
     destinos: ['pais TEXT', 'destinos TEXT',
                'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT',
-               'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT']
+               'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',
+               'imgfx TEXT']
   },
   mot: null,
   async init() {

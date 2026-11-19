@@ -151,6 +151,16 @@ label.lbl {
 .it-tel .input { flex:1; min-width:0; }
 .it-total { margin:0; font-size:12px; color:var(--brand-700); font-weight:600; }
 .it-hr { border:none; border-top:1px dashed var(--slate-300); margin:.2rem 0; }
+.upl-fx { position:fixed; inset:0; z-index:90; background:rgba(15,23,42,.35);
+  display:flex; align-items:flex-end; }
+.upl-fx-card { width:100%; background:#fff; border-radius:16px 16px 0 0;
+  padding:1rem; box-shadow:var(--shadow-lg); animation:uplUp .2s ease; }
+@keyframes uplUp { from { transform:translateY(40px); opacity:0 }
+  to { transform:none; opacity:1 } }
+.upl-fx-r { display:flex; align-items:center; gap:.7rem; margin:.45rem 0;
+  font-size:12px; }
+.upl-fx-r span { flex:0 0 5.5rem; color:var(--slate-600); font-weight:600; }
+.upl-fx-r input { flex:1; }
 /* acordeón por día en el detalle del viaje (sin cajas/barras) */
 .it-acc { border-bottom:1px solid var(--slate-100); }
 .it-acc:last-child { border-bottom:none; }

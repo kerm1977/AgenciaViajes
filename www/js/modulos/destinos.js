@@ -152,11 +152,12 @@ const Destinos = {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
           obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai,
-                         ps: i.ps, os: i.os, osv: i.osv, osd: i.osd };
+                         ps: i.ps, os: i.os, osv: i.osv, osd: i.osd,
+                         dia: i.dia };
         }
         if (i.campo === 'Transporte')
           obj.trans = { tsel: i.tsel, tnombre: i.tnombre,
-                        ttel: i.ttel, tdesc: i.tdesc };
+                        ttel: i.ttel, tdesc: i.tdesc, dia: i.dia };
       } else obj.itinerario.push(i);
     });
     await DB.save('destinos', obj);

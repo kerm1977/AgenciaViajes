@@ -10,6 +10,22 @@ WWW = os.path.join(ROOT, 'www')
 SKIP = {'builtin', 'vendor-big'}
 PORT = 9863
 
+def check_js():
+    """node --check de cada .js: jamas empujar sintaxis rota al telefono."""
+    import subprocess
+    mal = []
+    for base, dirs, files in os.walk(WWW):
+        dirs[:] = [d for d in dirs if d not in SKIP and not d.startswith('.')]
+        for f in files:
+            if not f.endswith('.js'):
+                continue
+            p = os.path.join(base, f)
+            r = subprocess.run(['node', '--check', p],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                mal.append('%s\n%s' % (os.path.relpath(p, WWW), r.stderr.strip()))
+    return mal
+
 def build_zip():
     buf = io.BytesIO(); n = 0
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -64,6 +80,10 @@ if __name__ == '__main__':
         print('telefono no encontrado — pasale su IP: python scripts\\ota_push.py 192.168.x.x')
         sys.exit(1)
     n = sum(1 for b, d, fs in os.walk(WWW) for f in fs if not f.startswith('.'))
+    mal = check_js()
+    if mal:
+        print('ABORTADO — JS con sintaxis rota:\n' + '\n\n'.join(mal))
+        sys.exit(2)
     stamp(n)
     data, n = build_zip()
     # cola: si el teléfono duerme, reintenta cada 5 s hasta que despierte

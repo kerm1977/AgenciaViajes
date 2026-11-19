@@ -19,6 +19,22 @@ PORT_SRV = 8788                            # este servidor de bundle
 IPCACHE = os.path.join(ROOT, 'scripts', '.ota_ip')
 BUNDLE = {'data': b'', 'sha': '', 'n': 0, 'ts': ''}
 
+def check_js():
+    """node --check de cada .js: jamas servir sintaxis rota al telefono."""
+    import subprocess
+    for base, dirs, files in os.walk(WWW):
+        dirs[:] = [d for d in dirs if d not in SKIP and not d.startswith('.')]
+        for f in files:
+            if not f.endswith('.js'):
+                continue
+            p = os.path.join(base, f)
+            r = subprocess.run(['node', '--check', p],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                return '%s: %s' % (os.path.relpath(p, WWW),
+                                   r.stderr.strip().splitlines()[0])
+    return ''
+
 def build_zip():
     buf = io.BytesIO(); n = 0
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -41,6 +57,10 @@ def rebuild():
     with open(os.path.join(WWW, 'js', 'ota_stamp.js'), 'w', encoding='utf-8') as f:
         f.write("// sello OTA generado por ota_watch.py\n"
                 "window.TM_OTA = { ts: '%s', files: %d };\n" % (ts, n))
+    mal = check_js()
+    if mal:
+        print('SALTADO — JS roto:', mal, flush=True)
+        return ''
     data, n = build_zip()
     BUNDLE['data'] = data
     BUNDLE['sha'] = hashlib.sha256(data).hexdigest()

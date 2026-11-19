@@ -32,11 +32,13 @@ const Uploader = {
      comprimido dentro del registro (nunca se pierde al reiniciar) */
   async pickSave(id) {
     if (this._lp && Date.now() - this._lp < 900) return null;   // venía de pulsación larga
+    /* el selector se abre ANTES de cualquier await: un await mata el
+       gesto del toque y Android ignora el file input */
+    const p = this.pick('viaje-' + id + '.jpg');
     const d = await DB.get('destinos', id);
-    if (!d) { showToast('Viaje no encontrado', 'error'); return null; }
-    /* un solo archivo por tarjeta, SIEMPRE el mismo nombre: nunca duplica */
-    const pick = await this.pick('viaje-' + id + '.jpg');
+    const pick = await p;
     if (!pick) return null;
+    if (!d) { showToast('Viaje no encontrado', 'error'); return null; }
     d.imagen = pick.ref;
     d.imgfx = Object.assign({}, d.imgfx, { b64: pick.dataURL });
     await DB.save('destinos', d);

@@ -19,6 +19,13 @@
     </div>
     <form id="form-destino" class="modal-body" onsubmit="Destinos.guardar(event)" novalidate>
       <input type="hidden" id="destino-id">
+      <div class="field">
+        <label class="lbl">Moneda</label>
+        <select id="dest-moneda" class="select">
+          <option value="USD" selected>Dólares USD ($)</option>
+          <option value="CRC">Colones CRC (₡)</option>
+        </select>
+      </div>
       <div class="grid-2">
         <div class="field">
           <label class="lbl">Precio C/G *</label>

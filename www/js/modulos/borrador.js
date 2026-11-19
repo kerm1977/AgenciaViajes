@@ -13,6 +13,7 @@ const Borrador = {
         const d = {
           conguia: $('#dest-conguia').value,
           singuia: $('#dest-singuia').value,
+          moneda: $('#dest-moneda').value,
           pais: $('#dest-pais').value,
           nombre: $('#dest-nombre').value,
           destinos: $$('#destinos-lista-container .dst-item')
@@ -31,6 +32,7 @@ const Borrador = {
   restore(d) {
     $('#dest-conguia').value = d.conguia || '';
     $('#dest-singuia').value = d.singuia || '';
+    $('#dest-moneda').value = d.moneda || 'USD';
     Destinos._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre || '';
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';

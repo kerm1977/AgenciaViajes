@@ -14,7 +14,7 @@ const DB = {
       ' email TEXT, notas TEXT)',
     destinos: 'CREATE TABLE IF NOT EXISTS destinos (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, pais TEXT, destinos TEXT,' +
-      ' paxConGuia INTEGER, paxSinGuia INTEGER, imagen TEXT, guia TEXT,' +
+      ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
       ' notas TEXT, itinerario TEXT)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
@@ -24,7 +24,7 @@ const DB = {
   /* columnas añadidas después del esquema inicial — migración ALTER */
   MIGRACIONES: {
     destinos: ['pais TEXT', 'destinos TEXT',
-               'paxConGuia INTEGER', 'paxSinGuia INTEGER']
+               'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT']
   },
   mot: null,
   async init() {

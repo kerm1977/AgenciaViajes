@@ -88,6 +88,7 @@ const Destinos = {
     }
     $('#form-destino').reset(); $('#destino-id').value = '';
     $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
+    $('#dest-moneda').value = 'USD';
     this._fillPais('');
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = '';
@@ -114,6 +115,7 @@ const Destinos = {
       id: id || undefined,
       paxConGuia: parseInt($('#dest-conguia').value) || 0,
       paxSinGuia: parseInt($('#dest-singuia').value) || 0,
+      moneda: $('#dest-moneda').value || 'USD',
       pais: $('#dest-pais').value,
       nombre: $('#dest-nombre').value.trim(),
       destinos: dests,
@@ -139,6 +141,7 @@ const Destinos = {
     $('#destino-id').value = d.id;
     $('#dest-conguia').value = d.paxConGuia || '';
     $('#dest-singuia').value = d.paxSinGuia || '';
+    $('#dest-moneda').value = d.moneda || 'USD';
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
@@ -201,7 +204,8 @@ const Destinos = {
               ? '<p class="hint text-xs">' +
                 (it.nombre ? '<i class="fa-solid fa-user"></i> ' + esc(it.nombre) + ' · ' : '') +
                 (it.tel ? '<i class="fa-solid fa-phone"></i> ' + esc(it.tel) + ' · ' : '') +
-                (it.precio ? '$' + Number(it.precio).toFixed(2) + ' ' +
+                (it.precio ? (d.moneda === 'CRC' ? '₡' : '$') +
+                  Number(it.precio).toFixed(2) + ' ' +
                   esc(it.modo === 'grupo' ? 'por grupo' : 'por persona') : '') +
                 '</p>' : '') +
           '</div></div>').join('')
@@ -226,6 +230,7 @@ document.addEventListener('input', e => {
   }
 });
 document.addEventListener('change', e => {
-  if (e.target && e.target.id === 'dest-pais' && window.Itinerario)
+  if (e.target && ['dest-pais', 'dest-moneda'].includes(e.target.id) &&
+      window.Itinerario)
     Itinerario.refresh();
 });

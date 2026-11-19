@@ -22,7 +22,9 @@ const Itinerario = {
   },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
   paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
-  _fmt(n) { return '$' + n.toLocaleString('en-US',
+  _fmt(n) {
+    const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
+    return s + n.toLocaleString('en-US',
     { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
   _calc(card) {
     const precio = parseFloat(card.querySelector('.it-precio').value) || 0;

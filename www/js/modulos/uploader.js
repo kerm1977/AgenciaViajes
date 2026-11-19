@@ -73,11 +73,12 @@ const Uploader = {
   bindImg(el, d) {
     if (!el) return;
     const im = el.querySelector('img');
-    if (/^uf:/.test(d.imagen || ''))
-      this.url(d.imagen).then(u => {
-        if (u && im) im.src = u;
-        else if (im && d.imgfx && d.imgfx.b64) im.src = d.imgfx.b64; });
+    /* la copia comprimida del registro siempre gana: el archivo Uploader
+       es respaldo físico y su relectura solo sustituye si trae datos */
+    if (im && d.imgfx && d.imgfx.b64) im.src = d.imgfx.b64;
     else if (im && /^data:/.test(d.imagen || '')) im.src = d.imagen;
+    else if (/^uf:/.test(d.imagen || ''))
+      this.url(d.imagen).then(u => { if (u && im) im.src = u; });
     this.applyFx(im, d.imgfx);
     let pt = null;
     el.addEventListener('touchstart', () => {
@@ -137,8 +138,9 @@ const Uploader = {
   /* resuelve una ref ('uf:', 'data:' u http) a algo usable en <img>/PDF;
      b64 = respaldo guardado en el registro por si el archivo falta */
   async url(ref, b64) {
+    if (b64) return b64;
     if (!ref || String(ref).indexOf('uf:') !== 0) return ref || '';
-    const fs = this._fs(); if (!fs) return b64 || '';
+    const fs = this._fs(); if (!fs) return '';
     try {
       const r = await fs.readFile({ path: this.DIR + '/' +
         String(ref).slice(3), directory: 'DATA' });

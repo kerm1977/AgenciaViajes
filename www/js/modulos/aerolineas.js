@@ -70,13 +70,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
       nombres.map(n => '<option' + (n === nombre ? ' selected' : '') + '>' +
         esc(n) + '</option>').join('') + '</select>' +
     '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
-    '<div class="grid-2">' +
-      '<input type="number" min="0" step="0.01" placeholder="Precio boleto" ' +
-        'value="' + esc(x.pb || '') + '" class="input it-pb">' +
-      '<select class="select it-clase"><option value="">— Clase —</option>' +
-        '</select></div>' +
-    '<input type="number" min="0" step="0.01" placeholder="Precio clase" ' +
-      'value="' + esc(x.pc || '') + '" class="input it-pc">' +
+    '<select class="select it-clase"><option value="">— Clase —</option>' +
+      '</select>' +
+    '<input type="number" min="0" step="0.01" placeholder="Precio boleto" ' +
+      'value="' + esc(x.pb || '') + '" class="input it-pb">' +
     '<label class="it-aic"><input type="checkbox" class="it-ai"' +
       (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
     '<input type="number" min="0" step="0.01" class="input it-ps" ' +
@@ -94,7 +91,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const n = el => parseFloat(el.value) || 0;
   const sim = () => ($('#dest-moneda') || {}).value || '$';
   const total = () => {
-    const base = n(inp('.it-pb')) + n(inp('.it-pc'));
+    const base = n(inp('.it-pb'));
     const con = base + (ai.checked ? 0 : n(ps));
     tot.textContent = base || con
       ? 'Total sin asiento: ' + sim() + base.toFixed(2) +
@@ -113,7 +110,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
   };
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
   ai.addEventListener('change', () => { ps.hidden = ai.checked; total(); });
-  ['.it-pb', '.it-pc', '.it-ps'].forEach(c =>
+  ['.it-pb', '.it-ps'].forEach(c =>
     inp(c).addEventListener('input', total));
   pintar(); total();
 };
@@ -125,7 +122,6 @@ Itinerario.aeroCollect = function (card) {
     checkin: a.ci || '', checkout: a.co || '',
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
-    pc: card.querySelector('.it-pc').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',
     ps: card.querySelector('.it-ps').value
   };

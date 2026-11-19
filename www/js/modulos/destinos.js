@@ -111,7 +111,7 @@ const Destinos = {
       (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
   },
   acc(id, stay) {
-    ['cap-acc', 'info-acc', 'itin-acc'].forEach(a => {
+    ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
       const el = document.getElementById(a); if (el)
         el.classList.toggle('open', a === id && (stay || !el.classList.contains('open')));
     });

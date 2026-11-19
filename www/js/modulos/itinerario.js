@@ -136,10 +136,11 @@ const Itinerario = {
   },
   addRow(dest, dia, tipo, ruta, x) {
     x = x || {};
-    const acc = $('#itin-acc');
-    if (acc && !acc.classList.contains('open') && window.Destinos)
-      Destinos.acc('itin-acc', 1);
     const campo = this.CAMPOS[tipo];
+    /* campos del viaje → Costos y gastos; eventos por día → Itinerario */
+    const acc = campo ? $('#itin-acc') : $('#dia-acc');
+    if (acc && !acc.classList.contains('open') && window.Destinos)
+      Destinos.acc(acc.id, 1);
     let c = $('#it-general');
     if (!campo) {
       this.syncDestinos();

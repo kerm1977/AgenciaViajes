@@ -151,16 +151,26 @@ const Uploader = {
       showToast('Ajustes de imagen guardados'); cerrar();
       Destinos.render(); };
   },
-  /* resuelve una ref ('uf:', 'data:' u http) a algo usable en <img>/PDF;
-     b64 = respaldo guardado en el registro por si el archivo falta */
-  async url(ref, b64) {
-    if (b64) return b64;
-    if (!ref || String(ref).indexOf('uf:') !== 0) return ref || '';
-    const fs = this._fs(); if (!fs) return '';
+  /* resuelve una ref ('uf:', 'data:' u http) a algo usable en <img>/PDF.
+     Camino principal: getUri + convertFileSrc → URL http al archivo real
+     (persiste en DATA/Uploader entre reinicios; wantData fuerza base64
+      para el PDF). Respaldos: readFile → b64 */
+  async url(ref, b64, wantData) {
+    if (!ref || String(ref).indexOf('uf:') !== 0)
+      return b64 || ref || '';
+    const fs = this._fs(); if (!fs) return b64 || '';
+    const path = this.DIR + '/' + String(ref).slice(3);
+    if (!wantData) try {                         // URL directa al archivo
+      const u = await fs.getUri({ path: path, directory: 'DATA' });
+      const C = window.Capacitor;
+      const src = C && C.convertFileSrc ? C.convertFileSrc(u.uri) : u.uri;
+      if (src) return src;
+    } catch (e) { /* sigue al respaldo base64 */ }
     try {
-      const r = await fs.readFile({ path: this.DIR + '/' +
-        String(ref).slice(3), directory: 'DATA' });
-      return 'data:image/jpeg;base64,' + String(r.data || '');
-    } catch (e) { return b64 || ''; }
+      const r = await fs.readFile({ path: path, directory: 'DATA' });
+      const b = typeof r.data === 'string' ? r.data : '';
+      if (b) return 'data:image/jpeg;base64,' + b;
+    } catch (e) { /* último recurso: b64 del registro */ }
+    return b64 || '';
   }
 };

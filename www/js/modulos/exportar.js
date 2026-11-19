@@ -61,8 +61,21 @@ const Exportar = {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
     doc.text('La Tribu de los Libres Travels — Reporte', 14, 18);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-    const lineas = doc.splitTextToSize(this._texto(await this._todo()), 180);
+    const ds = (await this._todo()).destinos || [];
     let y = 28;
+    for (const d of ds) {
+      const u = await Uploader.url(d.imagen);
+      if (/^data:image/.test(u)) {
+        try {
+          if (y > 245) { doc.addPage(); y = 15; }
+          doc.addImage(u, /^data:image\/png/.test(u) ? 'PNG' : 'JPEG',
+            14, y, 60, 34);
+          doc.setFontSize(10); doc.text(d.nombre || 'Viaje', 78, y + 12);
+          doc.setFontSize(9); y += 42;
+        } catch (e) {}
+      }
+    }
+    const lineas = doc.splitTextToSize(this._texto(await this._todo()), 180);
     lineas.forEach(l => {
       if (y > 285) { doc.addPage(); y = 15; }
       doc.text(l, 14, y); y += 4.4;

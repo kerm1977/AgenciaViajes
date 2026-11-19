@@ -34,9 +34,12 @@ const Destinos = {
       const card = document.createElement('div');
       card.className = 'card';
       card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between';
-      const img = d.imagen || this.IMG_DEF;
+      const img = /^uf:/.test(d.imagen || '') ? this.IMG_DEF : (d.imagen || this.IMG_DEF);
       card.innerHTML =
-        '<div><div class="dest-img"><img src="' + esc(img) + '" alt="" ' +
+        '<div><div class="dest-img" title="Toca para cambiar la imagen" ' +
+          'onclick="Uploader.pickSave(\'' + d.id +
+          '\').then(r=>r&&Destinos.render())" style="cursor:pointer">' +
+          '<img src="' + esc(img) + '" alt="" ' +
           'onerror="this.src=\'' + this.IMG_DEF + '\'">' +
           '<span class="float-badge">' + esc(d.pais || 'Viaje') + '</span></div>' +
         '<div class="card-pad"><h3 class="bold" style="font-size:15px;color:var(--slate-900)">' +
@@ -59,6 +62,9 @@ const Destinos = {
           (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>';
       grid.appendChild(card);
+      if (/^uf:/.test(d.imagen || '')) Uploader.url(d.imagen).then(u => {
+        const im = card.querySelector('.dest-img img');
+        if (u && im) im.src = u; });
     });
   },
   _fillPais(val) {
@@ -96,8 +102,7 @@ const Destinos = {
     $('#dest-tiene-fechas').checked = false; this.togFechas();
     this._fillPais('');
     $('#destinos-lista-container').innerHTML = '';
-    $('#itinerary-container').innerHTML = '';
-    $('#it-general').innerHTML = '';
+    $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
     const draft = Borrador.get();
     if (draft) Borrador.restore(draft); else this.addDestino();
@@ -117,24 +122,19 @@ const Destinos = {
     this._fechasTxt();
   },
   _fechasTxt() {
-    const t = id => {
-      const v = ($(id) || {}).value;
-      if (!v) return '';
+    const t = id => { const v = ($(id) || {}).value; if (!v) return '';
       const d = new Date(v + 'T00:00:00');
       return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
     const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
     if (a) a.textContent = t('#dest-fdesde');
-    if (b) b.textContent = t('#dest-fhasta');
-  },
+    if (b) b.textContent = t('#dest-fhasta'); },
   acc(id, stay) {
     ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
-      const el = document.getElementById(a); if (el)
-        el.classList.toggle('open', a === id && (stay || !el.classList.contains('open')));
-    });
-  },
+      const el = document.getElementById(a); if (el) el.classList.toggle(
+        'open', a === id && (stay || !el.classList.contains('open'))); }); },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
-    document.getElementById(rid).remove();
-    if (window.Itinerario) Itinerario.syncItin(); } },
+    document.getElementById(rid).remove(); if (window.Itinerario)
+      Itinerario.syncItin(); } },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-destino'))) return;
@@ -147,7 +147,8 @@ const Destinos = {
         $('#destinos-lista-container').style.border = 'none', 1800);
       return;
     }
-    const id = $('#destino-id').value;
+    const id = $('#destino-id').value,
+          prev = id ? await DB.get('destinos', id) : null;
     const obj = {
       id: id || undefined,
       paxConGuia: parseInt($('#dest-conguia').value) || 0,
@@ -158,7 +159,7 @@ const Destinos = {
       destinos: dests,
       fechas: { on: $('#dest-tiene-fechas').checked,
         desde: $('#dest-fdesde').value, hasta: $('#dest-fhasta').value },
-      imagen: '', guia: '', transporte: '', aerolinea: '', vuelo: '',
+      imagen: (prev && prev.imagen) || '', guia: '', transporte: '', aerolinea: '', vuelo: '',
       checkin: '', checkout: '', notas: '', itinerario: []
     };
     /* campos acordeón → propiedades del viaje; resto → itinerario */
@@ -197,8 +198,7 @@ const Destinos = {
     setTimeout(() => Destinos._capRes(), 0);
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
-    const f = d.fechas || {};
-    $('#dest-tiene-fechas').checked = !!f.on;
+    const f = d.fechas || {}; $('#dest-tiene-fechas').checked = !!f.on;
     $('#dest-fdesde').value = f.desde || '';
     $('#dest-fhasta').value = f.hasta || '';
     this.togFechas();
@@ -210,7 +210,7 @@ const Destinos = {
     Itinerario.initPickers();
     Object.keys(Itinerario.CAMPOS).forEach(t => {
       const v = d[Itinerario.CAMPOS[t].k];
-      if (v) this.addItRow(null, '', t, v,
+      if (v && !/^(data:|uf:)/.test(String(v))) this.addItRow(null, '', t, v,
         t === 'Aerolínea' ? (d.boleto || {}) :
         t === 'Transporte' ? (d.trans || {}) : null);
     });

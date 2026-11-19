@@ -9,8 +9,9 @@ Destinos.pagina = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
   Destinos._detId = id;
+  const imgUrl = await Uploader.url(d.imagen);
   let h = '<div class="pit-hero" style="background-image:url(' +
-    (d.imagen || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
+    (imgUrl || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
     esc(d.nombre) + '</h2><p>' + esc(d.pais || '—') +
     (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
       (d.paxSinGuia || 0) + ' pagan' : '') +

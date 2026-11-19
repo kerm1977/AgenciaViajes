@@ -151,8 +151,8 @@ const Destinos = {
         if (i.campo === 'Aerolínea') {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
-          obj.boleto = { clase: i.clase, pb: i.pb,
-                         ai: i.ai, ps: i.ps };
+          obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai,
+                         ps: i.ps, os: i.os, osv: i.osv, osd: i.osd };
         }
       } else obj.itinerario.push(i);
     });

@@ -80,18 +80,30 @@ Itinerario.aeroCard = function (card, nombre, x) {
       'placeholder="Costo del asiento"' +
       ' value="' + esc(x.ps || '') + '"' +
       (asientoInc ? ' hidden' : '') + '>' +
+    '<label class="it-aic"><input type="checkbox" class="it-os"' +
+      (x.os ? ' checked' : '') + '> Otros servicios</label>' +
+    '<input type="number" min="0" step="0.01" class="input it-osv" ' +
+      'placeholder="Precio del servicio"' +
+      ' value="' + esc(x.osv || '') + '"' +
+      (x.os ? '' : ' hidden') + '>' +
+    '<input class="input it-osd" placeholder="¿Qué incluye?"' +
+      ' value="' + esc(x.osd || '') + '"' +
+      (x.os ? '' : ' hidden') + '>' +
     '<p class="it-total it-tota hint"></p>';
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
         chk = card.querySelector('.it-achk'),
         ai  = card.querySelector('.it-ai'),
         ps  = card.querySelector('.it-ps'),
+        os  = card.querySelector('.it-os'),
+        osv = card.querySelector('.it-osv'),
+        osd = card.querySelector('.it-osd'),
         tot = card.querySelector('.it-tota'),
         inp = (c) => card.querySelector(c);
   const n = el => parseFloat(el.value) || 0;
   const sim = () => ($('#dest-moneda') || {}).value || '$';
   const total = () => {
-    const base = n(inp('.it-pb'));
+    const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
     const con = base + (ai.checked ? 0 : n(ps));
     tot.textContent = base || con
       ? 'Total sin asiento: ' + sim() + base.toFixed(2) +
@@ -110,7 +122,9 @@ Itinerario.aeroCard = function (card, nombre, x) {
   };
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
   ai.addEventListener('change', () => { ps.hidden = ai.checked; total(); });
-  ['.it-pb', '.it-ps'].forEach(c =>
+  os.addEventListener('change', () => {
+    osv.hidden = osd.hidden = !os.checked; total(); });
+  ['.it-pb', '.it-ps', '.it-osv'].forEach(c =>
     inp(c).addEventListener('input', total));
   pintar(); total();
 };
@@ -123,6 +137,9 @@ Itinerario.aeroCollect = function (card) {
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',
-    ps: card.querySelector('.it-ps').value
+    ps: card.querySelector('.it-ps').value,
+    os: card.querySelector('.it-os').checked ? '1' : '0',
+    osv: card.querySelector('.it-osv').value,
+    osd: card.querySelector('.it-osd').value
   };
 };

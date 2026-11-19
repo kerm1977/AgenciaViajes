@@ -103,13 +103,18 @@ const Uploader = {
   bindImg(el, d) {
     if (!el) return;
     const im = el.querySelector('img');
-    /* la copia comprimida del registro siempre gana: el archivo Uploader
-       es respaldo físico y su relectura solo sustituye si trae datos */
-    if (im && this._cache[d.id]) im.src = this._cache[d.id];
-    else if (im && d.imgfx && d.imgfx.b64) im.src = d.imgfx.b64;
+    const b64 = d.imgfx && d.imgfx.b64 &&
+      String(d.imgfx.b64).indexOf('data:image/') === 0 ? d.imgfx.b64 : null;
+    /* orden: cache → archivo Uploader → data: → b64 válido (SQLite puede
+       truncar el respaldo; solo se usa si el archivo no resuelve) */
+    if (im && (this._cache[d.imagen] || this._cache[d.id]))
+      im.src = this._cache[d.imagen] || this._cache[d.id];
     else if (im && /^data:/.test(d.imagen || '')) im.src = d.imagen;
     else if (/^uf:/.test(d.imagen || ''))
-      this.url(d.imagen).then(u => { if (u && im) im.src = u; });
+      this.url(d.imagen).then(u => {
+        if (u && im) im.src = u;
+        else if (im && b64) im.src = b64; });
+    else if (im && b64) im.src = b64;
     this.applyFx(im, d.imgfx);
     let pt = null, sx = 0, sy = 0;
     el.addEventListener('touchstart', e => {

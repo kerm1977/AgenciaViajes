@@ -66,7 +66,9 @@ const Perfil = {
   },
   /* borra una imagen de Uploader y repinta la lista */
   async delImg(nm) {
-    if (!window.confirm('¿Eliminar ' + nm + ' de Uploader?')) return;
+    if (!(await confirmar('¿Eliminar ' + nm + ' de Uploader?')) ||
+        !(await confirmar('¿Seguro? Esta acción no se puede deshacer')))
+      return;
     await Uploader.del(nm);
     const box = $('#pf-ajustes');
     if (box) { box.innerHTML = '<p class="muted">Leyendo Uploader…</p>';

@@ -41,6 +41,9 @@ const Uploader = {
     d.imgfx = Object.assign({}, d.imgfx, { b64: pick.dataURL });
     await DB.save('destinos', d);
     this._cache[id] = pick.dataURL;
+    const im = document.querySelector(
+      '.dest-img[onclick*="\'' + id + '\'"] img');
+    if (im) im.src = pick.dataURL;               // visible al instante
     showToast('Imagen guardada en Uploader'); return pick.ref;
   },
   /* reduce cualquier imagen a JPEG ≤1100px en dataURL */
@@ -87,11 +90,17 @@ const Uploader = {
     else if (/^uf:/.test(d.imagen || ''))
       this.url(d.imagen).then(u => { if (u && im) im.src = u; });
     this.applyFx(im, d.imgfx);
-    let pt = null;
-    el.addEventListener('touchstart', () => {
-      pt = setTimeout(() => this.fxModal(d), 550); });
-    ['touchend', 'touchmove', 'touchcancel'].forEach(ev =>
-      el.addEventListener(ev, () => clearTimeout(pt)));
+    let pt = null, sx = 0, sy = 0;
+    el.addEventListener('touchstart', e => {
+      const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+      pt = setTimeout(() => { pt = null; this.fxModal(d); }, 550); });
+    el.addEventListener('touchmove', e => {      // tolera temblor de dedo
+      if (!pt) return;
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - sx) > 10 ||
+          Math.abs(t.clientY - sy) > 10) { clearTimeout(pt); pt = null; } });
+    ['touchend', 'touchcancel'].forEach(ev =>
+      el.addEventListener(ev, () => { clearTimeout(pt); pt = null; }));
     el.addEventListener('contextmenu', e => {
       e.preventDefault(); this.fxModal(d); });
   },

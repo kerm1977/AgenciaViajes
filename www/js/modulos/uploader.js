@@ -41,9 +41,15 @@ const Uploader = {
     d.imgfx = Object.assign({}, d.imgfx, { b64: pick.dataURL });
     await DB.save('destinos', d);
     this._cache[id] = pick.dataURL;
-    const im = document.querySelector(
-      '.dest-img[onclick*="\'' + id + '\'"] img');
-    if (im) im.src = pick.dataURL;               // visible al instante
+    const dv = document.querySelector(
+      '.dest-img[onclick*="\'' + id + '\'"]');
+    if (dv) {                                    // visible al instante
+      const im = dv.querySelector('img');
+      if (im) { im.onerror = null; im.src = pick.dataURL; }
+      dv.style.backgroundImage = 'url("' + pick.dataURL + '")';
+      dv.style.backgroundSize = 'cover';
+      dv.style.backgroundPosition = 'center';
+    }
     let n = '';
     try {                                        // verificación real: ¿hay archivos?
       const r = await this._fs().readdir({
@@ -105,16 +111,23 @@ const Uploader = {
     const im = el.querySelector('img');
     const b64 = d.imgfx && d.imgfx.b64 &&
       String(d.imgfx.b64).indexOf('data:image/') === 0 ? d.imgfx.b64 : null;
+    /* fuerza bruta: la fuente se pinta como <img> Y como fondo del div —
+       aunque una capa falle, la otra se ve */
+    const put = s => {
+      if (!s) return;
+      if (im) { im.onerror = null; im.src = s; }
+      el.style.backgroundImage = 'url("' + s + '")';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+    };
     /* orden: cache → archivo Uploader → data: → b64 válido (SQLite puede
        truncar el respaldo; solo se usa si el archivo no resuelve) */
-    if (im && (this._cache[d.imagen] || this._cache[d.id]))
-      im.src = this._cache[d.imagen] || this._cache[d.id];
-    else if (im && /^data:/.test(d.imagen || '')) im.src = d.imagen;
+    const cached = this._cache[d.imagen] || this._cache[d.id];
+    if (cached) put(cached);
+    else if (/^data:/.test(d.imagen || '')) put(d.imagen);
     else if (/^uf:/.test(d.imagen || ''))
-      this.url(d.imagen).then(u => {
-        if (u && im) im.src = u;
-        else if (im && b64) im.src = b64; });
-    else if (im && b64) im.src = b64;
+      this.url(d.imagen).then(u => put(u || b64));
+    else put(b64);
     this.applyFx(im, d.imgfx);
     let pt = null, sx = 0, sy = 0;
     el.addEventListener('touchstart', e => {

@@ -25,7 +25,7 @@ Object.assign(Itinerario, {
   /* re-render completo del acordeón Itinerario (solo gana la última llamada) */
   async syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
-    const n = ++this._sN;
+    const n = (this._sN = (this._sN || 0) + 1);
     const guias = ((await DB.list('contactos')) || [])
       .filter(x => x.tipo === 'Guía').map(x => x.nombre);
     if (n !== this._sN) return;
@@ -81,7 +81,7 @@ Object.assign(Itinerario, {
       [['hd','hdesde'],['hh','hhasta']].forEach(([cl, k]) => {
         const i = row.querySelector('.it-' + cl);
         i.value = card.dataset[k] || '';
-        i.addEventListener('change', () => { card.dataset[k] = i.value; }); });
+        i.addEventListener('input', () => { card.dataset[k] = i.value; }); });
       g.innerHTML = '<option value="">— Guía —</option>' +
         guias.concat(gs && !guias.includes(gs) ? [gs] : [])
           .map(n => '<option>' + esc(n) + '</option>').join('');

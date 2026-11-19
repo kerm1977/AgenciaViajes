@@ -154,6 +154,9 @@ const Destinos = {
           obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai,
                          ps: i.ps, os: i.os, osv: i.osv, osd: i.osd };
         }
+        if (i.campo === 'Transporte')
+          obj.trans = { tsel: i.tsel, tnombre: i.tnombre,
+                        ttel: i.ttel, tdesc: i.tdesc };
       } else obj.itinerario.push(i);
     });
     await DB.save('destinos', obj);
@@ -182,7 +185,8 @@ const Destinos = {
     Object.keys(Itinerario.CAMPOS).forEach(t => {
       const v = d[Itinerario.CAMPOS[t].k];
       if (v) this.addItRow(null, '', t, v,
-        t === 'Aerolínea' ? (d.boleto || {}) : null);
+        t === 'Aerolínea' ? (d.boleto || {}) :
+        t === 'Transporte' ? (d.trans || {}) : null);
     });
     (d.itinerario || []).forEach(it =>
       this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it));

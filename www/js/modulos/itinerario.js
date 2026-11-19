@@ -1,6 +1,5 @@
-/* itinerario.js — campos del viaje (Costos y pagos) + itinerario día a día:
-   cada destino trae su bloque con selector de día + evento; el evento abre
-   una card con contacto, teléfonos, Maps/GPX, descripción, precio y total. */
+/* itinerario.js — campos del viaje (Costos y pagos) + itinerario día a día
+   con cards por evento: contacto, tels, Maps/GPX, desc, precio y total. */
 'use strict';
 const Itinerario = {
   TIPOS: ['Llegada y traslado','Guía','Transporte Aéreo','Lancha',
@@ -21,10 +20,8 @@ const Itinerario = {
   async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?'))
     document.getElementById(rid).remove(); },
   /* colapso exclusivo entre hermanos + display inline a prueba de estilos */
-  _body(card) {
-    return [...card.children].find(k =>
-      k.classList && k.classList.contains('it-acc-body'));
-  },
+  _body(card) { return [...card.children].find(k =>
+    k.classList && k.classList.contains('it-acc-body')); },
   tog(btn) {
     const card = btn.closest('.it-acc');
     const open = card.classList.contains('open');
@@ -180,6 +177,8 @@ const Itinerario = {
       c.appendChild(card);
       if (tipo === 'Aerolínea' && this.aeroCard)
         this.aeroCard(card, ruta, x);
+      if (tipo === 'Transporte' && this.transCard)
+        this.transCard(card, ruta, x);
       card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
     }
@@ -219,11 +218,11 @@ const Itinerario = {
   },
   collect() {
     const it = [], cod = codigoDePais($('#dest-pais').value);
-    $$('#it-general .it-acc').forEach(card =>
-      it.push(card.dataset.aero && this.aeroCollect
-        ? this.aeroCollect(card)
-        : { campo: card.dataset.tipo,
-            valor: card.querySelector('.it-campo').value.trim() }));
+    $$('#it-general .it-acc').forEach(card => {
+      const fn = card.dataset.aero ? this.aeroCollect : card.dataset.trans
+        ? this.transCollect : null;
+      it.push(fn ? fn.call(this, card) : { campo: card.dataset.tipo,
+        valor: card.querySelector('.it-campo').value.trim() }); });
     const pre = cod ? cod + ' ' : '';
     const leer = (card, dest) => {
       const ta = card.querySelector('.it-tela').value.trim();

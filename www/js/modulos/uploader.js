@@ -44,7 +44,14 @@ const Uploader = {
     const im = document.querySelector(
       '.dest-img[onclick*="\'' + id + '\'"] img');
     if (im) im.src = pick.dataURL;               // visible al instante
-    showToast('Imagen guardada en Uploader'); return pick.ref;
+    let n = '';
+    try {                                        // verificación real: ¿hay archivos?
+      const r = await this._fs().readdir({
+        path: this.DIR, directory: 'DATA' });
+      n = ' · ' + (r.files || []).length + ' archivo(s) en Uploader';
+    } catch (e) { n = ' · sin acceso a Uploader'; }
+    showToast('Imagen: ' + String(pick.ref).slice(3) + n);
+    return pick.ref;
   },
   /* reduce cualquier imagen a JPEG ≤1100px en dataURL */
   _fit(dataURL) {

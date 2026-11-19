@@ -47,14 +47,15 @@ const Itinerario = {
         this._fmt(precio / n) + ' P/P (' + n + ' C/G)';
       if (ns && ns !== n)
         h += '<br>' + this._fmt(precio / ns) + ' P/P (' + ns + ' S/G)';
-      out.innerHTML = h;
+      out.innerHTML = h + '<br><b>Total: ' + this._fmt(precio) + '</b>';
     } else {
       let h = '<hr class="it-hr">P/P ' + this._fmt(precio) + ' × ' + n +
         ' C/G = ' + this._fmt(precio * n);
       if (ns && ns !== n)
         h += '<br>' + this._fmt(precio) + ' × ' + ns + ' S/G = ' +
           this._fmt(precio * ns);
-      out.innerHTML = h;
+      const tt = precio * (n + (ns && ns !== n ? ns : 0));
+      out.innerHTML = h + '<br><b>Total: ' + this._fmt(tt) + '</b>';
     }
   },
   initPickers() {

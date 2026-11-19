@@ -123,9 +123,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const total = () => {
     const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
     const con = base + (ai.checked ? 0 : n(ps));
-    tot.textContent = base || con
-      ? 'Total sin asiento: ' + sim() + base.toFixed(2) +
-        (ai.checked ? '' : ' · con asiento: ' + sim() + con.toFixed(2))
+    tot.innerHTML = base || con
+      ? '<hr class="it-hr"><b>Total: ' + sim() + con.toFixed(2) + '</b>' +
+        (ai.checked ? '' : ' <span class="hint">(sin asiento: ' +
+          sim() + base.toFixed(2) + ')</span>')
       : '';
     hint.textContent = con ? sim() + con.toFixed(2) : '';
   };

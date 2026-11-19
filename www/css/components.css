@@ -161,6 +161,10 @@ label.lbl {
   text-overflow:ellipsis; white-space:nowrap; }
 .it-acc-btn i { color:var(--slate-400); font-size:.8rem; transition:.15s; }
 .it-acc.open .it-acc-btn i { transform:rotate(180deg); color:var(--brand-600); }
+/* el acordeón abierto resalta; los cerrados bajan a gris y menor tamaño */
+.it-acc:not(.open) .it-acc-btn { color:var(--slate-400); font-size:12.5px;
+  font-weight:600; }
+.it-acc.open .it-acc-btn { color:var(--slate-900); }
 .it-acc-body { display:none; padding:0 .15rem .75rem 3rem; font-size:13px;
   color:var(--slate-700); }
 .it-acc.open .it-acc-body { display:grid; gap:.3rem; }

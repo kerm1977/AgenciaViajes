@@ -34,9 +34,9 @@ const Uploader = {
     if (this._lp && Date.now() - this._lp < 900) return null;   // venía de pulsación larga
     const d = await DB.get('destinos', id);
     if (!d) { showToast('Viaje no encontrado', 'error'); return null; }
-    const old = /^uf:/.test(d.imagen || '')
-      ? String(d.imagen).slice(3) : null;
-    const pick = await this.pick(old); if (!pick) return null;
+    /* un solo archivo por tarjeta, SIEMPRE el mismo nombre: nunca duplica */
+    const pick = await this.pick('viaje-' + id + '.jpg');
+    if (!pick) return null;
     d.imagen = pick.ref;
     d.imgfx = Object.assign({}, d.imgfx, { b64: pick.dataURL });
     await DB.save('destinos', d);
@@ -83,6 +83,20 @@ const Uploader = {
     } catch (e) {
       console.warn('Uploader.save', e);
       return { ref: dataURL, dataURL: dataURL }; }
+  },
+  /* borra un archivo de Uploader y limpia la ref del viaje que lo usa */
+  async del(nm) {
+    const fs = this._fs(); if (!fs) return false;
+    try {
+      await fs.deleteFile({ path: this.DIR + '/' + nm, directory: 'DATA' });
+      delete this._cache['uf:' + nm];
+      const ds = await DB.list('destinos');
+      for (const d of ds) if (d.imagen === 'uf:' + nm) {
+        d.imagen = ''; if (d.imgfx) delete d.imgfx.b64;
+        await DB.save('destinos', d);
+      }
+      showToast('Imagen eliminada: ' + nm); return true;
+    } catch (e) { showToast('No se pudo eliminar', 'error'); return false; }
   },
   /* cablea la zona de imagen de una tarjeta: resuelve 'uf:', aplica los
      ajustes guardados y abre el editor con pulsación larga */

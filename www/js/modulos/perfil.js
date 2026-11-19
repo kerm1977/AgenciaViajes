@@ -31,6 +31,9 @@ const Perfil = {
     box.classList.toggle('hidden');
     if (box.classList.contains('hidden')) return;
     box.innerHTML = '<p class="muted">Leyendo Uploader…</p>';
+    await this._listar(box);
+  },
+  async _listar(box) {
     const fs = Uploader._fs();
     if (!fs) { box.innerHTML = '<p class="muted">Sin almacenamiento nativo.</p>';
       return; }
@@ -53,10 +56,21 @@ const Perfil = {
           'object-fit:cover;border-radius:8px">' : '') +
         '<span style="flex:1" class="truncate">' + esc(nm) + '</span>' +
         '<small class="muted">' + (kb !== '' ? kb + ' KB' : '') +
-        '</small></div>';
+        '</small>' +
+        '<button class="iconbtn danger" title="Eliminar" ' +
+          'onclick="Perfil.delImg(\'' + esc(nm) + '\')">' +
+          '<i class="fa-solid fa-trash"></i></button></div>';
     }));
     box.innerHTML = '<h4 class="lbl" style="margin-bottom:.5rem">Uploader · ' +
       files.length + ' archivo(s)</h4>' + rows.join('');
+  },
+  /* borra una imagen de Uploader y repinta la lista */
+  async delImg(nm) {
+    if (!window.confirm('¿Eliminar ' + nm + ' de Uploader?')) return;
+    await Uploader.del(nm);
+    const box = $('#pf-ajustes');
+    if (box) { box.innerHTML = '<p class="muted">Leyendo Uploader…</p>';
+      await this._listar(box); }
   },
   /* Estadísticas embebidas: inyecta el markup del panel Resumen */
   async stats() {

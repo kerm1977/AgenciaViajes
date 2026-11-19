@@ -1,0 +1,75 @@
+<!-- pasajeros.html — tab Pasajeros + modal -->
+<div class="actionbar">
+  <div class="searchbox">
+    <i class="fa-solid fa-search"></i>
+    <input type="text" id="search-pasajeros" class="input" oninput="Pasajeros.render()"
+           placeholder="Buscar pasajero o viaje asignado...">
+  </div>
+  <button class="btn btn-primary" onclick="Pasajeros.nuevo()">
+    <i class="fa-solid fa-user-check"></i> Asignar Pasajero a Viaje</button>
+</div>
+<div class="tablewrap"><div style="overflow-x:auto">
+  <table>
+    <thead><tr>
+      <th>Pasajero</th><th>Contacto</th><th>Destino / Viaje</th>
+      <th>Check-in</th><th style="text-align:right">Acciones</th>
+    </tr></thead>
+    <tbody id="pasajeros-table-body"></tbody>
+  </table>
+</div></div>
+
+<div id="modal-pasajero" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-pasajero-title">Asignar Pasajero a Viaje</h3>
+      <button class="modal-x" onclick="closeModal('modal-pasajero')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-pasajero" class="modal-body" onsubmit="Pasajeros.guardar(event)" novalidate>
+      <input type="hidden" id="pasajero-id">
+      <div class="field">
+        <label class="lbl">Nombre del pasajero *</label>
+        <input type="text" id="pax-nombre" class="input" data-norm="nombre"
+               data-reglas="requerido|nombre" placeholder="Nombre completo">
+        <p class="err">Nombre inválido</p>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Teléfono / celular</label>
+          <div class="tel-row">
+            <select id="pax-codigo" class="select"></select>
+            <input type="tel" id="pax-telefono" class="input" data-norm="tel"
+                   data-reglas="tel" placeholder="88887777" inputmode="numeric">
+          </div>
+          <p class="err">Solo dígitos (4-15)</p>
+        </div>
+        <div class="field">
+          <label class="lbl">Correo electrónico</label>
+          <input type="email" id="pax-email" class="input" data-norm="email"
+                 data-reglas="email" placeholder="pasajero@email.com">
+          <p class="err">Correo inválido</p>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Destino / viaje asignado *</label>
+        <select id="pax-destino" class="select" data-reglas="requerido"></select>
+        <p class="err">Requerido</p>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Asiento (opcional)</label>
+          <input type="text" id="pax-asiento" class="input" placeholder="Ej. 14A">
+        </div>
+        <div class="field">
+          <label class="lbl">Estado check-in</label>
+          <select id="pax-checkin-estado" class="select">
+            <option>Pendiente</option><option>Realizado</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft" onclick="closeModal('modal-pasajero')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Pasajero</button>
+      </div>
+    </form>
+  </div>
+</div>

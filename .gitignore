@@ -1,0 +1,11 @@
+node_modules/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+*.apk
+*.zip
+*.log
+www/ota_out/
+scripts/__pycache__/
+.DS_Store

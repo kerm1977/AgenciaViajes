@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">La Tribu de los Libres Travels</string>
+    <string name="title_activity_main">La Tribu de los Libres Travels</string>
+    <string name="package_name">com.kenneth.latribulibre</string>
+    <string name="custom_url_scheme">com.kenneth.latribulibre</string>
+</resources>

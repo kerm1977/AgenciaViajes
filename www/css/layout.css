@@ -1,0 +1,88 @@
+/* layout.css — shell: sidebar desktop, topbar, nav móvil, área principal */
+body { display:flex; flex-direction:row; }
+#mobile-header {
+  display:none; background:#fff; border-bottom:1px solid var(--slate-200);
+  padding:calc(.75rem + env(safe-area-inset-top)) 1rem .75rem;
+  align-items:center; justify-content:space-between;
+  flex-shrink:0; z-index:20;
+}
+.brand { display:flex; align-items:center; gap:.75rem; }
+.brand-logo {
+  width:2.5rem; height:2.5rem; border-radius:var(--r-md); background:var(--brand-600);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(217,119,6,.3); font-size:1.15rem;
+}
+.brand-logo.sm { width:2.25rem; height:2.25rem; font-size:1rem; }
+.brand h1 { font-size:1rem; font-weight:700; color:var(--slate-900); }
+.brand-tag {
+  display:inline-flex; padding:.1rem .5rem; border-radius:var(--r-sm);
+  font-size:11px; font-weight:600; background:var(--brand-50); color:var(--brand-700);
+}
+#sidebar {
+  display:flex; flex-direction:column; width:16rem; background:#fff;
+  border-right:1px solid var(--slate-200); flex-shrink:0; z-index:30; height:100vh;
+  padding-top:env(safe-area-inset-top);
+}
+#sidebar .brand { padding:1.5rem; border-bottom:1px solid var(--slate-100); }
+#sidebar nav { flex:1; padding:1.5rem 1rem; overflow-y:auto; }
+.nav-link {
+  display:flex; align-items:center; gap:.75rem; padding:.75rem 1rem;
+  font-size:14px; font-weight:500; border-radius:var(--r-md);
+  color:var(--slate-600); transition:all .2s; margin-bottom:.25rem;
+}
+.nav-link:hover { background:var(--slate-50); color:var(--slate-900); }
+.nav-link.active { background:var(--brand-50); color:var(--brand-700); }
+.nav-link i { width:1.25rem; text-align:center; font-size:1.05rem; }
+#sidebar .userbox {
+  padding:1rem; border-top:1px solid var(--slate-100);
+}
+.userbox-inner {
+  background:var(--slate-50); border:1px solid var(--slate-200);
+  border-radius:var(--r-md); padding:.75rem; display:flex; gap:.75rem; align-items:center;
+}
+.avatar {
+  width:2.25rem; height:2.25rem; border-radius:50%; flex-shrink:0;
+  background:var(--brand-100); color:var(--brand-700); font-weight:700;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.userbox-inner p { font-size:12px; font-weight:600; color:var(--slate-900); }
+.userbox-inner small { font-size:11px; color:var(--slate-500); display:block; }
+#topbar {
+  display:flex; background:#fff; border-bottom:1px solid var(--slate-200);
+  padding:1rem 2rem; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+#topbar h2 { font-size:1.25rem; font-weight:700; color:var(--slate-900); }
+#topbar p { font-size:12px; color:var(--slate-500); margin-top:.15rem; }
+#topbar .acciones { display:flex; align-items:center; gap:.75rem; }
+.date-chip {
+  font-size:12px; font-weight:500; color:var(--slate-500);
+  background:var(--slate-100); padding:.4rem .75rem; border-radius:var(--r-md);
+}
+.date-chip i { color:var(--brand-600); margin-right:.35rem; }
+main { flex:1; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+#workspace { flex:1; overflow-y:auto; padding:1rem 2rem 5.5rem; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+#mobile-nav {
+  display:none; position:fixed; bottom:0; left:0; right:0; background:#fff;
+  border-top:1px solid var(--slate-200); z-index:45;
+  height:calc(4rem + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -4px 12px rgba(15,23,42,.08);
+  justify-content:space-around; align-items:flex-end;
+}
+.mobile-nav-link {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:100%; padding:.25rem 0; color:var(--slate-500); font-size:10px; font-weight:500;
+}
+.mobile-nav-link i { font-size:1.1rem; margin-bottom:.15rem; }
+.mobile-nav-link.active { color:var(--brand-600); }
+#build-tag { display:none; }   /* sello oculto — Actualizar lo reemplaza */
+@media (max-width:820px) {
+  body { flex-direction:column; }
+  #sidebar, #topbar { display:none; }
+  #mobile-header { display:flex; }
+  #mobile-nav { display:flex; }
+  main { flex:1; height:auto; min-height:0; }
+  #workspace { padding:1rem 1rem calc(5rem + env(safe-area-inset-bottom)); }
+}

@@ -1,0 +1,69 @@
+<!-- contactos.html — tab Contactos + modal -->
+<div class="actionbar">
+  <div class="flex gap2" style="flex:1;flex-wrap:wrap">
+    <div class="searchbox">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" id="search-contactos" class="input" oninput="Contactos.render()"
+             placeholder="Buscar por nombre, teléfono, email...">
+    </div>
+    <select id="filter-contacto-tipo" class="select" style="max-width:14rem"
+            onchange="Contactos.render()">
+      <option value="">Todos los tipos</option>
+      <option>Cliente</option><option>Guía</option>
+      <option>Transportista</option><option>Aerolínea/Hotel</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" onclick="Contactos.nuevo()">
+    <i class="fa-solid fa-user-plus"></i> Nuevo Contacto</button>
+</div>
+<div id="contactos-grid" class="grid-cards"></div>
+
+<div id="modal-contacto" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-contacto-title">Registrar Contacto</h3>
+      <button class="modal-x" onclick="closeModal('modal-contacto')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-contacto" class="modal-body" onsubmit="Contactos.guardar(event)" novalidate>
+      <input type="hidden" id="contacto-id">
+      <div class="field">
+        <label class="lbl">Nombre completo / empresa *</label>
+        <input type="text" id="cont-nombre" class="input" data-norm="nombre"
+               data-reglas="requerido|nombre" placeholder="Ej. Carlos Mendoza">
+        <p class="err">Nombre inválido</p>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Categoría / rol *</label>
+          <select id="cont-tipo" class="select">
+            <option>Cliente</option><option>Guía</option>
+            <option>Transportista</option><option>Aerolínea/Hotel</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Teléfono</label>
+          <div class="tel-row">
+            <select id="cont-codigo" class="select"></select>
+            <input type="tel" id="cont-telefono" class="input" data-norm="tel"
+                   data-reglas="tel" placeholder="88887777" inputmode="numeric">
+          </div>
+          <p class="err">Solo dígitos (4-15)</p>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Correo electrónico</label>
+        <input type="email" id="cont-email" class="input" data-norm="email"
+               data-reglas="email" placeholder="correo@ejemplo.com">
+        <p class="err">Correo inválido</p>
+      </div>
+      <div class="field">
+        <label class="lbl">Notas / observaciones</label>
+        <textarea id="cont-notas" class="input" rows="2" placeholder="Detalles de contacto..."></textarea>
+      </div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft" onclick="closeModal('modal-contacto')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Contacto</button>
+      </div>
+    </form>
+  </div>
+</div>

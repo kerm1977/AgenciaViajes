@@ -1,0 +1,69 @@
+<!-- app.html — shell principal: header móvil, sidebar, topbar, workspace -->
+<header id="mobile-header">
+  <div class="brand">
+    <div class="brand-logo sm"><i class="fa-solid fa-compass"></i></div>
+    <div><h1>La Tribu de los Libres</h1><p class="text-xs muted">Travels · Agencia CRM</p></div>
+  </div>
+  <button class="iconbtn" onclick="openModal('modal-buscar');setTimeout(function(){document.getElementById('gsearch-in').focus()},80)">
+    <i class="fa-solid fa-search" style="font-size:1.1rem"></i></button>
+</header>
+
+<aside id="sidebar">
+  <div class="brand">
+    <div class="brand-logo"><i class="fa-solid fa-compass"></i></div>
+    <div><h1>La Tribu de los Libres</h1><span class="brand-tag">Travels</span></div>
+  </div>
+  <nav id="nav-list"></nav>
+  <div class="userbox">
+    <div class="userbox-inner">
+      <div class="avatar" id="ub-avatar">?</div>
+      <div class="truncate" style="flex:1">
+        <p class="truncate" id="ub-nombre">—</p>
+        <small class="truncate" id="ub-email">—</small>
+        <span class="rol-chip rol-user" id="ub-rol">usuario</span>
+      </div>
+      <button class="iconbtn danger" title="Cerrar sesión" onclick="Auth.salir()">
+        <i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <header id="topbar">
+    <div>
+      <h2 id="topbar-title">Destinos y Viajes</h2>
+      <p id="topbar-subtitle">Gestiona tus paquetes turísticos</p>
+    </div>
+    <div class="acciones">
+      <button class="btn btn-soft" onclick="openModal('modal-buscar')">
+        <i class="fa-solid fa-search"></i> Buscar</button>
+      <span class="date-chip"><i class="fa-regular fa-calendar-days"></i>
+        <span id="current-date-label"></span></span>
+    </div>
+  </header>
+  <div id="workspace">
+    <div id="tab-destinos" class="tab-content"></div>
+    <div id="tab-contactos" class="tab-content"></div>
+    <div id="tab-pasajeros" class="tab-content"></div>
+    <div id="tab-usuarios" class="tab-content"></div>
+    <div id="tab-estadisticas" class="tab-content"></div>
+  </div>
+</main>
+
+<nav id="mobile-nav"></nav>
+
+<!-- Modal búsqueda global -->
+<div id="modal-buscar" class="modal" style="align-items:flex-start;padding-top:5rem">
+  <div class="modal-box">
+    <div class="modal-head" style="gap:.75rem">
+      <i class="fa-solid fa-search muted"></i>
+      <input type="text" id="gsearch-in" placeholder="Buscar en destinos, contactos, pasajeros..."
+             style="flex:1;border:none;background:transparent;font-size:15px"
+             oninput="Buscar.run(this.value)">
+      <button class="modal-x" onclick="closeModal('modal-buscar')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="gsearch-results" class="modal-body" style="max-height:24rem">
+      <p class="center muted text-sm" style="padding:1rem">Escribe para buscar…</p>
+    </div>
+  </div>
+</div>

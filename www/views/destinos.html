@@ -1,0 +1,114 @@
+<!-- destinos.html — tab Destinos y Viajes + modales -->
+<div class="actionbar">
+  <div class="searchbox">
+    <i class="fa-solid fa-search"></i>
+    <input type="text" id="search-destinos" class="input" oninput="Destinos.render()"
+           placeholder="Buscar por destino, guía, aerolínea...">
+  </div>
+  <button class="btn btn-primary" onclick="Destinos.nuevo()">
+    <i class="fa-solid fa-plus"></i> Nuevo Destino / Viaje</button>
+</div>
+<div id="destinos-grid" class="grid-cards"></div>
+
+<!-- Modal: crear/editar destino -->
+<div id="modal-destino" class="modal">
+  <div class="modal-box lg">
+    <div class="modal-head">
+      <h3 id="modal-destino-title">Crear Nuevo Destino y Viaje</h3>
+      <button class="modal-x" onclick="closeModal('modal-destino')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-destino" class="modal-body" onsubmit="Destinos.guardar(event)" novalidate>
+      <input type="hidden" id="destino-id">
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Precio con guía *</label>
+          <input type="number" id="dest-conguia" class="input" min="0"
+                 data-reglas="requerido" placeholder="Personas que van (Ej. 14)">
+          <p class="err">Requerido</p>
+        </div>
+        <div class="field">
+          <label class="lbl">Precio sin guía</label>
+          <input type="number" id="dest-singuia" class="input" min="0"
+                 placeholder="Auto = con guía − 2 (editable)">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">País *</label>
+          <select id="dest-pais" class="select" data-reglas="requerido"></select>
+          <p class="err">Selecciona un país</p>
+        </div>
+        <div class="field">
+          <label class="lbl">Nombre del Viaje *</label>
+          <input type="text" id="dest-nombre" class="input" data-reglas="requerido"
+                 placeholder="Ej. Escapada a Cancún & Riviera">
+          <p class="err">Requerido</p>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:.4rem">
+          <label class="lbl" style="margin:0">Destinos del viaje *</label>
+          <button type="button" class="btn btn-sm btn-soft" onclick="Destinos.addDestino()">
+            <i class="fa-solid fa-plus"></i> Agregar destino</button>
+        </div>
+        <div id="destinos-lista-container" class="grid gap1" style="max-height:10rem;overflow-y:auto"></div>
+      </div>
+      <div class="field" style="border-top:1px solid var(--slate-200);padding-top:1rem">
+        <label class="lbl">Mini itinerario / rutas del viaje</label>
+        <div class="flex gap1" style="margin-bottom:.5rem">
+          <select id="it-dia-new" class="select" style="flex:0 0 6.5rem"></select>
+          <select id="it-tipo-new" class="select" style="flex:1"></select>
+        </div>
+        <div id="itinerary-container" class="grid gap1"></div>
+      </div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft" onclick="Destinos.cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Destino</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: detalle destino -->
+<div id="modal-detalle-destino" class="modal">
+  <div class="modal-box lg">
+    <div id="detalle-destino-header" class="modal-hero">
+      <div class="flex w-full" style="justify-content:space-between;align-items:flex-end">
+        <div>
+          <span id="detalle-badge-aerolinea" class="badge badge-brand">Viaje</span>
+          <h3 id="detalle-title">—</h3>
+        </div>
+        <button class="x-round" onclick="closeModal('modal-detalle-destino')">
+          <i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="modal-body grid gap3" style="max-height:60vh">
+      <div class="grid-2 card card-pad">
+        <div><p class="lbl">País & destinos</p>
+          <p class="kv bold" id="detalle-pais"><i class="fa-solid fa-flag"></i> —</p>
+          <p class="hint text-xs" id="detalle-lugares"></p></div>
+        <div><p class="lbl">Guía asignado</p>
+          <p class="kv bold" id="detalle-guia"><i class="fa-solid fa-user-tie"></i> —</p></div>
+        <div><p class="lbl">Transporte</p>
+          <p class="kv bold" id="detalle-transporte"><i class="fa-solid fa-bus"></i> —</p></div>
+        <div><p class="lbl">Vuelo & check-in</p>
+          <p class="flex gap2" style="align-items:center">
+            <span id="detalle-vuelo" class="bold text-sm">—</span>
+            <a id="detalle-checkin-link" href="#" target="_blank"
+               class="badge badge-brand hidden"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>
+          </p></div>
+      </div>
+      <div>
+        <h4 class="lbl" style="margin-bottom:.6rem"><i class="fa-solid fa-route" style="color:var(--brand-600)"></i> Itinerario y rutas</h4>
+        <div id="detalle-itinerario-list" class="grid gap1"></div>
+      </div>
+      <div>
+        <h4 class="lbl" style="margin-bottom:.6rem"><i class="fa-solid fa-users" style="color:var(--brand-600)"></i> Pasajeros en este viaje</h4>
+        <div id="detalle-pasajeros-list" class="flex gap1" style="flex-wrap:wrap"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-dark" onclick="closeModal('modal-detalle-destino')">Cerrar</button>
+    </div>
+  </div>
+</div>

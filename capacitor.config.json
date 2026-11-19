@@ -1,0 +1,21 @@
+{
+  "appId": "com.kenneth.latribulibre",
+  "appName": "La Tribu de los Libres Travels",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "httpsOnly": false,
+      "statsUrl": "",
+      "updateUrl": "",
+      "channelUrl": ""
+    }
+  }
+}

@@ -1,0 +1,86 @@
+<!-- login.html — acceso: ingresar / registrarse -->
+<div class="auth-card">
+  <div class="center gap2" style="justify-content:center">
+    <div class="brand-logo"><i class="fa-solid fa-compass"></i></div>
+    <div>
+      <h1 class="bold" style="font-size:1.3rem;color:var(--slate-900)">La Tribu de los Libres</h1>
+      <p class="text-xs muted">Travels — CRM de agencia · offline-first</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.25rem">
+    <div class="auth-tabs">
+      <button id="tab-ingresar" class="on" onclick="Auth.tab('ingresar')">Ingresar</button>
+      <button id="tab-registro" onclick="Auth.tab('registro')">Crear cuenta</button>
+    </div>
+
+    <!-- INGRESAR -->
+    <form id="form-login" onsubmit="Auth.login(event)" novalidate>
+      <div class="field">
+        <label class="lbl">Correo electrónico</label>
+        <input type="email" id="lg-email" class="input" data-norm="email"
+               data-reglas="emailreq" placeholder="correo@ejemplo.com" autocomplete="username">
+        <p class="err">Correo inválido</p>
+      </div>
+      <div class="field">
+        <label class="lbl">Contraseña</label>
+        <div class="pass-wrap">
+          <input type="password" id="lg-pass" class="input" data-reglas="requerido|pass"
+                 placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <p class="err">Mínimo 6 caracteres</p>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Entrar</button>
+      <p class="hint mt2" style="text-align:center">
+        El acceso queda solo en esta sesión del navegador/app.</p>
+    </form>
+
+    <!-- REGISTRO -->
+    <form id="form-registro" class="hidden" onsubmit="Auth.registro(event)" novalidate>
+      <div class="field">
+        <label class="lbl">Nombre completo</label>
+        <input type="text" id="rg-nombre" class="input" data-norm="nombre"
+               data-reglas="requerido|nombre" placeholder="Ej. Carlos Mendoza">
+        <p class="err">Nombre inválido</p>
+      </div>
+      <div class="field">
+        <label class="lbl">Correo electrónico</label>
+        <input type="email" id="rg-email" class="input" data-norm="email"
+               data-reglas="emailreq" placeholder="correo@ejemplo.com" autocomplete="username">
+        <p class="err">Correo inválido</p>
+      </div>
+      <div class="field">
+        <label class="lbl">Teléfono</label>
+        <div class="tel-row">
+          <select id="rg-codigo" class="select"></select>
+          <input type="tel" id="rg-tel" class="input" data-norm="tel"
+                 data-reglas="tel" placeholder="8888 7777" inputmode="numeric">
+        </div>
+        <p class="err">Solo dígitos (4-15)</p>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Contraseña</label>
+          <div class="pass-wrap">
+            <input type="password" id="rg-pass" class="input" data-reglas="requerido|pass"
+                   placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <p class="err">Mínimo 6 caracteres</p>
+        </div>
+        <div class="field">
+          <label class="lbl">Confirmar</label>
+          <div class="pass-wrap">
+            <input type="password" id="rg-pass2" class="input" data-reglas="requerido"
+                   placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <p class="err">Requerido</p>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Crear cuenta</button>
+      <p class="hint mt2">Las cuentas nuevas entran como <b>usuario</b>; un
+        superusuario puede promoverlas a administrador con privilegios.</p>
+    </form>
+  </div>
+  <p class="hint" style="text-align:center;margin-top:1rem">
+    <i class="fa-solid fa-wifi"></i> Funciona sin internet — los datos se guardan
+    en el dispositivo.</p>
+</div>

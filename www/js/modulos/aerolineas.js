@@ -100,6 +100,9 @@ Itinerario.aeroCard = function (card, nombre, x) {
         osd = card.querySelector('.it-osd'),
         tot = card.querySelector('.it-tota'),
         inp = (c) => card.querySelector(c);
+  card.querySelector('.it-acc-t').insertAdjacentHTML('afterend',
+    '<span class="hint it-ahint"></span>');
+  const hint = card.querySelector('.it-ahint');
   const n = el => parseFloat(el.value) || 0;
   const sim = () => ($('#dest-moneda') || {}).value || '$';
   const total = () => {
@@ -109,6 +112,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
       ? 'Total sin asiento: ' + sim() + base.toFixed(2) +
         (ai.checked ? '' : ' · con asiento: ' + sim() + con.toFixed(2))
       : '';
+    hint.textContent = con ? sim() + con.toFixed(2) : '';
   };
   const pintar = () => {
     const a = AEROLINEAS[sel.value];
@@ -116,6 +120,9 @@ Itinerario.aeroCard = function (card, nombre, x) {
       ? '<a href="' + a.ci + '" target="_blank">Check-in</a> · ' +
         '<a href="' + a.co + '" target="_blank">Check-out</a>'
       : '';
+    const tt = card.querySelector('.it-acc-t');
+    if (tt) tt.textContent = sel.value
+      ? 'Aerolínea · ' + sel.value : 'Aerolínea';
     cls.innerHTML = '<option value="">— Clase —</option>' +
       (a ? a.clases.map(c => '<option' + (c === x.clase ? ' selected' : '') +
         '>' + esc(c) + '</option>').join('') : '');

@@ -37,6 +37,15 @@
   válido. Teléfonos: solo dígitos + código de país (América + España).
 - Todo campo de contraseña lleva ojo para ver/ocultar.
 
+## 6b. Itinerario — campos de asignación (BLINDADO)
+- PROHIBIDO modificar, renombrar, mover o eliminar los campos de asignación
+  del itinerario (selector Día, selector "Asignar campo", hora salida/llegada,
+  guía, X con doble confirmación) ni su lógica en `js/modulos/itasig.js`,
+  salvo orden expresa del usuario en esa sesión.
+- La fila "Día + Asignar campo" siempre va arriba y siempre visible.
+- Los datos viven en `card.dataset.dia/hdesde/hhasta/guia`; se persisten en
+  `input`/`change` inmediato y sobreviven cualquier re-render.
+
 ## 7. APK
 - `npx cap sync android` → `cd android && gradlew assembleDebug` →
   `android/app/build/outputs/apk/debug/app-debug.apk` → copiar a

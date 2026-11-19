@@ -112,8 +112,19 @@ const Destinos = {
       (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
   },
   togFechas() {
-    const w = $('#dest-fechas-wrap'); if (w)
-      w.style.display = $('#dest-tiene-fechas').checked ? 'grid' : 'none';
+    $$('#dest-fechas-wrap').forEach(w =>
+      w.style.display = $('#dest-tiene-fechas').checked ? 'grid' : 'none');
+    this._fechasTxt();
+  },
+  _fechasTxt() {
+    const t = id => {
+      const v = ($(id) || {}).value;
+      if (!v) return '';
+      const d = new Date(v + 'T00:00:00');
+      return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
+    const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
+    if (a) a.textContent = t('#dest-fdesde');
+    if (b) b.textContent = t('#dest-fhasta');
   },
   acc(id, stay) {
     ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
@@ -230,6 +241,7 @@ Router.ON_TAB.destinos = () => Destinos.render();
   if (id !== 'dest-singuia' &&
       /^dest-(conguia|pais|moneda|fdesde|fhasta|tiene-fechas)$/.test(id) &&
       window.Itinerario) Itinerario.refresh();
+  if (/^dest-f(desde|hasta)$/.test(id)) Destinos._fechasTxt();
   if (/^dest-(conguia|singuia|moneda)$/.test(id)) Destinos._capRes();
   if (e.target && e.target.classList &&
       e.target.classList.contains('dst-item') && window.Itinerario)

@@ -56,7 +56,8 @@ const DB = {
   _pack(tabla, o) {
     const out = Object.assign({}, o);
     (this.JSON_FIELDS[tabla] || []).forEach(f => {
-      if (Array.isArray(out[f])) out[f] = JSON.stringify(out[f]);
+      if (out[f] && typeof out[f] === 'object')
+        out[f] = JSON.stringify(out[f]);
     });
     return out;
   },
@@ -64,7 +65,7 @@ const DB = {
     if (!r) return r;
     (this.JSON_FIELDS[tabla] || []).forEach(f => {
       if (typeof r[f] === 'string') {
-        try { r[f] = JSON.parse(r[f] || '[]'); } catch (e) { r[f] = []; }
+        try { r[f] = JSON.parse(r[f]); } catch (e) { r[f] = []; }
       }
     });
     return r;

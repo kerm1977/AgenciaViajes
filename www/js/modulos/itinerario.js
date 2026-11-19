@@ -152,6 +152,8 @@ const Itinerario = {
             esc(campo.ph) + '" value="' + esc(ruta || '') +
             '" class="input it-campo">') + '</div>';
       c.appendChild(card);
+      if (tipo === 'Aerolínea' && this.aeroCard)
+        this.aeroCard(card, ruta, x);
       card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
     }
@@ -192,8 +194,10 @@ const Itinerario = {
   collect() {
     const it = [], cod = codigoDePais($('#dest-pais').value);
     $$('#it-general .it-acc').forEach(card =>
-      it.push({ campo: card.dataset.tipo,
-                valor: card.querySelector('.it-campo').value.trim() }));
+      it.push(card.dataset.aero && this.aeroCollect
+        ? this.aeroCollect(card)
+        : { campo: card.dataset.tipo,
+            valor: card.querySelector('.it-campo').value.trim() }));
     const pre = cod ? cod + ' ' : '';
     const leer = (card, dest) => {
       const ta = card.querySelector('.it-tela').value.trim();

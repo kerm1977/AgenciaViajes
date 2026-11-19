@@ -40,7 +40,8 @@ const Borrador = {
       .forEach(n => Destinos.addDestino(n));
     if (window.Itinerario) Itinerario.syncDestinos();
     (d.itinerario || []).forEach(it => {
-      if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor);
+      if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor,
+        it.campo === 'Aerolínea' ? it : null);
       else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it);
     });
     Itinerario.refresh();

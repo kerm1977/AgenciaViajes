@@ -146,8 +146,15 @@ const Destinos = {
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {
       const c = Itinerario.CAMPOS[i.campo];
-      if (c) obj[c.k] = i.valor;
-      else obj.itinerario.push(i);
+      if (c) {
+        obj[c.k] = i.valor;
+        if (i.campo === 'Aerolínea') {
+          if (i.checkin) obj.checkin = i.checkin;
+          if (i.checkout) obj.checkout = i.checkout;
+          obj.boleto = { clase: i.clase, pb: i.pb, ps: i.ps,
+                         pm: i.pm, pc: i.pc };
+        }
+      } else obj.itinerario.push(i);
     });
     await DB.save('destinos', obj);
     Borrador.clear();
@@ -174,7 +181,8 @@ const Destinos = {
     Itinerario.initPickers();
     Object.keys(Itinerario.CAMPOS).forEach(t => {
       const v = d[Itinerario.CAMPOS[t].k];
-      if (v) this.addItRow(null, '', t, v);
+      if (v) this.addItRow(null, '', t, v,
+        t === 'Aerolínea' ? (d.boleto || {}) : null);
     });
     (d.itinerario || []).forEach(it =>
       this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it));

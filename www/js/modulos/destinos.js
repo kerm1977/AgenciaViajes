@@ -102,8 +102,14 @@ const Destinos = {
   _capRes() {
     const r = $('#cap-acc-res'); if (!r) return;
     const c = $('#dest-conguia').value, s = $('#dest-singuia').value;
-    const m = ($('#dest-moneda').value === 'CRC') ? '₡' : '$';
-    r.textContent = m + (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
+    r.textContent = ($('#dest-moneda').value === 'CRC' ? '₡' : '$') +
+      (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
+  },
+  acc(id, stay) {
+    ['cap-acc', 'info-acc', 'itin-acc'].forEach(a => {
+      const el = document.getElementById(a); if (el)
+        el.classList.toggle('open', a === id && (stay || !el.classList.contains('open')));
+    });
   },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) document.getElementById(rid).remove(); },
   async guardar(e) {
@@ -229,20 +235,13 @@ const Destinos = {
   }
 };
 Router.ON_TAB.destinos = () => Destinos.render();
-/* precio con guía → sin guía (−2) + recálculo de paradas; país → prefijos */
-document.addEventListener('input', e => {
-  if (e.target && e.target.id === 'dest-conguia') {
-    const n = parseInt(e.target.value) || 0;
+['input', 'change'].forEach(t => document.addEventListener(t, e => {
+  const id = e.target && e.target.id || '';
+  if (id === 'dest-conguia') {
     const sg = $('#dest-singuia');
-    if (sg) sg.value = Math.max(0, n - 2);
-    if (window.Itinerario) Itinerario.refresh();
+    if (sg) sg.value = Math.max(0, (parseInt(e.target.value) || 0) - 2);
   }
-  if (e.target && /dest-(conguia|singuia)/.test(e.target.id))
-    Destinos._capRes();
-});
-document.addEventListener('change', e => {
-  if (e.target && ['dest-pais', 'dest-moneda'].includes(e.target.id) &&
-      window.Itinerario)
-    Itinerario.refresh();
-  if (e.target && e.target.id === 'dest-moneda') Destinos._capRes();
-});
+  if (id !== 'dest-singuia' && /^dest-(conguia|pais|moneda)$/.test(id) &&
+      window.Itinerario) Itinerario.refresh();
+  if (/^dest-(conguia|singuia|moneda)$/.test(id)) Destinos._capRes();
+}));

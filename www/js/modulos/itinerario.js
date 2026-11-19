@@ -82,7 +82,9 @@ const Itinerario = {
   },
   addRow(dia, tipo, ruta, x) {
     x = x || {};
-    const acc = $('#itin-acc'); if (acc) acc.classList.add('open');
+    const acc = $('#itin-acc');
+    if (acc && !acc.classList.contains('open') && window.Destinos)
+      Destinos.acc('itin-acc', 1);
     const c = $('#itinerary-container');
     const rid = uid('it');
     const card = document.createElement('div');

@@ -164,7 +164,7 @@ label.lbl {
 /* el acordeón abierto resalta; los cerrados bajan a gris y menor tamaño */
 .it-acc:not(.open) .it-acc-btn { color:var(--slate-400); font-size:12.5px;
   font-weight:600; }
-.it-acc.open .it-acc-btn { color:var(--slate-900); }
+.it-acc.open .it-acc-btn { color:var(--slate-900); font-size:15px; }
 .it-acc-body { display:none; padding:0 .15rem .75rem 3rem; font-size:13px;
   color:var(--slate-700); }
 .it-acc.open .it-acc-body { display:grid; gap:.3rem; }

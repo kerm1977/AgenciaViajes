@@ -141,7 +141,7 @@ const Destinos = {
       nombre: $('#dest-nombre').value.trim(),
       destinos: dests,
       imagen: '', guia: '', transporte: '', aerolinea: '', vuelo: '',
-      checkin: '', notas: '', itinerario: []
+      checkin: '', checkout: '', notas: '', itinerario: []
     };
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {

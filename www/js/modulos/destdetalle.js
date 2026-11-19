@@ -4,6 +4,7 @@
 Destinos.detalle = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
+  Destinos._detId = id;
   $('#detalle-destino-header').style.backgroundImage =
     'url(' + (d.imagen || Destinos.IMG_DEF) + ')';
   $('#detalle-badge-aerolinea').textContent = d.aerolinea || 'Viaje';
@@ -56,3 +57,63 @@ Destinos.detalle = async function (id) {
     : '<p class="hint">No hay pasajeros asignados a este destino.</p>';
   openModal('modal-detalle-destino');
 };
+/* página completa: hero + nota + vuelos + itinerario por día + Mapa/Waze */
+Destinos.pagina = async function (id) {
+  const d = await DB.get('destinos', id);
+  if (!d) return;
+  let h = '<div class="pit-hero" style="background-image:url(' +
+    (d.imagen || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
+    esc(d.nombre) + '</h2><p>' + esc(d.pais || '') +
+    ((d.destinos || []).length ? ' · ' + esc(d.destinos.join(' · ')) : '') +
+    '</p></div></div>';
+  if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
+    esc(d.notas) + '</div>';
+  if (d.vuelo || d.checkin || d.checkout)
+    h += '<div class="pit-links">' +
+      (d.vuelo ? '<span class="badge badge-brand"><i class="fa-solid fa-plane"></i> ' +
+        esc((d.aerolinea ? d.aerolinea + ' ' : '') + d.vuelo) + '</span>' : '') +
+      (d.checkin ? '<a class="btn btn-sm btn-primary" target="_blank" href="' +
+        esc(d.checkin) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>' : '') +
+      (d.checkout ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +
+        esc(d.checkout) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-out</a>' : '') +
+      '</div>';
+  const porDia = {};
+  (d.itinerario || []).forEach(it =>
+    (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
+  const dias = Object.keys(porDia).sort((a, b) =>
+    parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
+  dias.forEach(dia => {
+    h += '<h3 class="pit-dia"><i class="fa-solid fa-calendar-day"></i> ' +
+      esc(dia) + '</h3>';
+    porDia[dia].forEach(it => {
+      const q = encodeURIComponent(
+        [it.destino, d.pais].filter(Boolean).join(', '));
+      const waze = it.maps
+        ? 'https://waze.com/ul?q=' + encodeURIComponent(it.maps)
+        : 'https://waze.com/ul?q=' + q;
+      const gmaps = it.maps ||
+        ('https://www.google.com/maps/search/?api=1&query=' + q);
+      h += '<div class="pit-ev card card-pad">' +
+        '<p class="pit-ev-t"><i class="fa-solid fa-location-dot"></i> ' +
+          esc(it.tipo) +
+          (it.destino ? ' <span class="hint">· ' + esc(it.destino) + '</span>' : '') +
+          '</p>' +
+        (it.ruta && it.ruta !== it.tipo ? '<p>' + esc(it.ruta) + '</p>' : '') +
+        (it.nombre ? '<p><i class="fa-solid fa-user"></i> ' + esc(it.nombre) + '</p>' : '') +
+        (it.tel ? '<p><i class="fa-solid fa-phone"></i> ' + esc(it.tel) + '</p>' : '') +
+        (it.telGuia ? '<p><i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + '</p>' : '') +
+        (it.desc ? '<p class="hint">' + esc(it.desc) + '</p>' : '') +
+        '<div class="flex gap1" style="margin-top:.4rem">' +
+          '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(gmaps) +
+            '"><i class="fa-solid fa-map"></i> Maps</a>' +
+          '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(waze) +
+            '"><i class="fa-solid fa-diamond-turn-right"></i> Waze</a>' +
+        '</div></div>';
+    });
+  });
+  if (!dias.length) h += '<p class="hint">Sin itinerario todavía.</p>';
+  $('#pag-itin-body').innerHTML = h;
+  $('#pag-itin').classList.add('open');
+};
+Destinos.cerrarPagina = function () {
+  $('#pag-itin').classList.remove('open'); };

@@ -17,6 +17,7 @@ const Itinerario = {
     'Aerolínea':       { k: 'aerolinea',   ph: 'Ej. Avianca, Copa, Iberia…' },
     'Número de vuelo': { k: 'vuelo',       ph: 'Ej. IB-6301' },
     'Enlace check-in': { k: 'checkin',     ph: 'https://…', t: 'url' },
+    'Enlace check-out': { k: 'checkout',   ph: 'https://…', t: 'url' },
     'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
   },
   async delRow(rid) {

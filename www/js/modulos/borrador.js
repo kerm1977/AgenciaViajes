@@ -38,7 +38,7 @@ const Borrador = {
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos && d.destinos.length ? d.destinos : [null])
       .forEach(n => Destinos.addDestino(n));
-    if (window.Itinerario) Itinerario.syncDestinos();
+    if (window.Itinerario) Itinerario.syncItin();
     (d.itinerario || []).forEach(it => {
       if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor,
         it.campo === 'Aerolínea' || it.campo === 'Transporte' ? it : null);

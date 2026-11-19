@@ -5,7 +5,7 @@ const Itinerario = {
   TIPOS: ['Llegada y traslado','Guía','Transporte Aéreo','Lancha',
     'Avioneta','Tour Operador','Agencia de Viajes','Entradas 4x4','Acarreo',
     'Estadía / Hospedaje','Hotel','Uber / Didi / Taxi / Bus',
-    'Centro Turístico','Centro Arqueológico','Entradas','Impuestos'],
+    'Centro Turístico','Centro Arqueológico','Entradas','Impuestos','Otros'],
   /* opciones que guardan un solo valor en el objeto destino */
   CAMPOS: {
     'Imagen URL':      { k: 'imagen',      ph: 'https://…', t: 'url' },
@@ -14,8 +14,8 @@ const Itinerario = {
     'Aerolínea':       { k: 'aerolinea',   ph: 'Ej. Avianca, Copa, Iberia…' },
     'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
   },
-  async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?'))
-    document.getElementById(rid).remove(); },
+  async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?')) {
+    document.getElementById(rid).remove(); this.syncItin(); } },
   /* colapso exclusivo entre hermanos + display inline a prueba de estilos */
   _body(card) { return [...card.children].find(k =>
     k.classList && k.classList.contains('it-acc-body')); },
@@ -73,55 +73,25 @@ const Itinerario = {
         t.value = ''; t.dispatchEvent(new Event('change'));
       });
     }
-    const d = $('#it-dia-new'), ev = $('#it-ev-new');
-    if (!d || !ev) return;
-    d.innerHTML = this._dias();
-    ev.innerHTML = '<option value="">— Evento —</option>' +
-      this.TIPOS.map(x => '<option>' + esc(x) + '</option>').join('');
-    if (ev._wired) return;
-    ev._wired = 1;
-    ev.addEventListener('change', () => {
-      if (!ev.value) return;
-      this.addRow('', d.value, ev.value, '');
-      ev.value = ''; ev.dispatchEvent(new Event('change'));
-    });
+    this.syncItin();
   },
-  /* un acordeón por cada destino escrito en información del viaje */
-  syncDestinos() {
+  /* Itinerario = espejo de Costos y pagos: asignar un día a cada card */
+  syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
-    const names = $$('#destinos-lista-container .dst-item')
-      .map(i => i.value.trim()).filter(Boolean);
-    const accs = $$('.dst-acc', c);
-    accs.forEach((a, i) => {
-      if (i >= names.length) a.remove();
-      else a.querySelector('.dst-acc-t').textContent = names[i];
-    });
-    names.forEach((n, i) => {
-      if (i < accs.length) return;
-      const a = document.createElement('div');
-      a.className = 'it-acc it-card'; a.id = uid('dacc'); a.dataset.dest = n;
-      a.innerHTML =
-        '<div class="it-acc-head">' +
-          '<button type="button" class="it-acc-btn" ' +
-            'onclick="Itinerario.tog(this)">' +
-            '<span class="it-acc-t dst-acc-t">' + esc(n) + '</span>' +
-            '<i class="fa-solid fa-chevron-down"></i></button></div>' +
-        '<div class="it-acc-body">' +
-          '<div class="flex gap1" style="margin-bottom:.5rem">' +
-            '<select class="select it-dia" style="flex:0 0 6.5rem">' +
-              this._dias() + '</select>' +
-            '<select class="select it-ev" style="flex:1">' +
-              '<option value="">— Evento —</option>' +
-              this.TIPOS.map(x => '<option>' + esc(x) + '</option>')
-                .join('') + '</select></div>' +
-          '<div class="grid gap1 it-evc"></div></div>';
-      c.appendChild(a);
-      const ev = a.querySelector('.it-ev');
-      ev.addEventListener('change', () => {
-        if (!ev.value) return;
-        this.addRow(n, a.querySelector('.it-dia').value, ev.value, '');
-        ev.value = ''; ev.dispatchEvent(new Event('change'));
-      });
+    c.innerHTML = '';
+    $$('#it-general .it-acc').forEach(card => {
+      const row = document.createElement('div');
+      row.className = 'it-card it-mirror';
+      row.innerHTML =
+        '<div class="flex gap1" style="align-items:center">' +
+          '<select class="select it-dia" style="flex:0 0 6.5rem">' +
+            this._dias() + '</select>' +
+          '<span class="it-acc-t" style="flex:1;font-weight:600">' +
+            esc(card.querySelector('.it-acc-t').textContent) + '</span></div>';
+      const d = row.querySelector('.it-dia');
+      d.value = card.dataset.dia || 'Día 1';
+      d.addEventListener('change', () => { card.dataset.dia = d.value; });
+      c.appendChild(row);
     });
   },
   refresh() {
@@ -129,22 +99,15 @@ const Itinerario = {
       cod.textContent = codigoDePais(($('#dest-pais') || {}).value) || '—');
     $$('#itinerary-container .it-precio').forEach(p =>
       this._calc(p.closest('.it-acc')));
+    this.syncItin();
   },
   addRow(dest, dia, tipo, ruta, x) {
     x = x || {};
     const campo = this.CAMPOS[tipo];
-    /* campos del viaje → Costos y gastos; eventos por día → Itinerario */
-    const acc = campo ? $('#itin-acc') : $('#dia-acc');
+    const acc = $('#itin-acc');
     if (acc && !acc.classList.contains('open') && window.Destinos)
       Destinos.acc(acc.id, 1);
-    let c = $('#it-general');
-    if (!campo && dest !== null) {
-      this.syncDestinos();
-      const a = $$('.dst-acc').find(x2 =>
-        x2.querySelector('.dst-acc-t').textContent === dest);
-      if (a) { a.classList.add('open'); c = a.querySelector('.it-evc'); }
-      else c = $('#itinerary-container');
-    }
+    const c = $('#it-general');
     const rid = uid('it');
     [...c.children].forEach(s => {           /* el nuevo colapsa al resto */
       if (s.classList && s.classList.contains('it-acc')) {
@@ -153,6 +116,7 @@ const Itinerario = {
     const card = document.createElement('div');
     card.className = 'it-acc it-card open'; card.id = rid;
     card.dataset.tipo = tipo || 'Parada';
+    card.dataset.dia = dia || 'Día 1';
     const head =
       '<div class="it-acc-head">' +
         '<button type="button" class="it-acc-btn" ' +
@@ -178,6 +142,7 @@ const Itinerario = {
       if (tipo === 'Transporte' && this.transCard)
         this.transCard(card, ruta, x);
       card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      this.syncItin();
       return;
     }
     card.dataset.dia = dia || 'Día 1';
@@ -213,6 +178,7 @@ const Itinerario = {
     card.addEventListener('change', () => this._calc(card));
     card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     this._calc(card);
+    this.syncItin();
   },
   collect() {
     const it = [], cod = codigoDePais($('#dest-pais').value);
@@ -221,7 +187,7 @@ const Itinerario = {
       const ta = card.querySelector('.it-tela').value.trim();
       const tg = card.querySelector('.it-telg').value.trim();
       return {
-        destino: dest, dia: card.dataset.dia, tipo: card.dataset.tipo,
+        destino: dest, dia: card.dataset.dia || 'Día 1', tipo: card.dataset.tipo,
         ruta: card.querySelector('.it-ruta').value.trim() || card.dataset.tipo,
         nombre: V.titleCase(card.querySelector('.it-nombre').value.trim()),
         tel: ta ? pre + ta : '', telGuia: tg ? pre + tg : '',
@@ -237,12 +203,6 @@ const Itinerario = {
         card.querySelector('.it-ruta') ? leer(card, '') :
         { campo: card.dataset.tipo,
           valor: card.querySelector('.it-campo').value.trim() }); });
-    $$('.dst-acc').forEach(a => {
-      const dest = a.querySelector('.dst-acc-t').textContent.trim();
-      $$('.it-acc', a).forEach(card => it.push(leer(card, dest)));
-    });
-    $$('#itinerary-container > .it-acc:not(.dst-acc)').forEach(card =>
-      it.push(leer(card, '')));
     return it;
   }
 };

@@ -81,7 +81,7 @@ const Destinos = {
       '<button type="button" class="iconbtn danger" onclick="Destinos.delDest(\'' +
         rid + '\')"><i class="fa-solid fa-xmark"></i></button>';
     $('#destinos-lista-container').appendChild(div);
-    if (window.Itinerario) Itinerario.syncDestinos();
+    if (window.Itinerario) Itinerario.syncItin();
   },
   addItRow(dest, dia, tipo, ruta, x) {
     Itinerario.addRow(dest, dia, tipo, ruta, x); },
@@ -118,7 +118,7 @@ const Destinos = {
   },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
     document.getElementById(rid).remove();
-    if (window.Itinerario) Itinerario.syncDestinos(); } },
+    if (window.Itinerario) Itinerario.syncItin(); } },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-destino'))) return;
@@ -217,5 +217,5 @@ Router.ON_TAB.destinos = () => Destinos.render();
   if (/^dest-(conguia|singuia|moneda)$/.test(id)) Destinos._capRes();
   if (e.target && e.target.classList &&
       e.target.classList.contains('dst-item') && window.Itinerario)
-    Itinerario.syncDestinos();
+    Itinerario.syncItin();
 }));

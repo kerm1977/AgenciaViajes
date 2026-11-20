@@ -213,3 +213,8 @@ label.lbl {
 .it-gtotal, .pit-total { font-size:13px; font-weight:700; color:var(--slate-800);
   text-align:right; margin:.4rem 0 0; }
 .pit-total { font-size:14px; }
+.it-mirror .flex { flex-wrap:wrap; }
+.it-mirror .it-dia { flex:0 0 5.5rem !important; }
+.it-mirror .it-pick { flex:1 1 8rem !important; min-width:0; }
+.it-mirror .it-hd, .it-mirror .it-hh { flex:0 0 4.6rem !important; }
+.it-mirror .it-guia { flex:1 1 6rem !important; min-width:0; }

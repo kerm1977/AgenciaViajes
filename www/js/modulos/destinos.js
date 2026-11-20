@@ -25,10 +25,10 @@ const Destinos = {
         '<i class="fa-solid fa-map-location"></i><p>No hay destinos registrados.</p></div>';
       return;
     }
-    const puedeEditar = Session.can('destinos.editar');
-    const puedeBorrar = Session.can('destinos.eliminar');
+    const puedeEditar = Session.can('destinos.editar'), puedeBorrar = Session.can('destinos.eliminar');
     lista.forEach(d => {
-      const lugares = (d.destinos || []).join(' · ');
+      const lugares = (d.destinos || []).join(' · '),
+            tv = Itinerario.totalViaje(d);
       const card = document.createElement('div');
       card.className = 'card';
       card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between';
@@ -51,6 +51,10 @@ const Destinos = {
             'Aerolínea: <strong>' + esc(d.aerolinea) + '</strong>' +
             (d.vuelo ? ' <span class="hint">· ' + esc(d.vuelo) + '</span>' : '') +
             '</p>' : '') + '</div></div></div>' +
+        (tv.t ? '<div class="card-pad" style="padding-top:.2rem"><hr class="it-hr">' +
+          '<p class="it-gtotal">Total individual: <b>' +
+          Itinerario.fmtT(d, tv.i) + '</b><br>Total general: <b>' +
+          Itinerario.fmtT(d, tv.t) + '</b></p></div>' : '') +
         '<div class="card-pad flex gap1" style="padding-top:0;border-top:1px solid var(--slate-100);align-items:center">' +
           (d.checkin ? '<a href="' + esc(d.checkin) + '" target="_blank" ' +
             'class="btn btn-sm btn-soft" style="flex:1;background:var(--brand-50);color:var(--brand-700)">' +
@@ -90,9 +94,7 @@ const Destinos = {
     Itinerario.addRow(dest, dia, tipo, ruta, x, ev); },
   cancelar() { return Borrador.cancelar(); },
   nuevo() {
-    if (!Session.can('destinos.crear')) {
-      showToast('Sin permiso para crear destinos', 'error'); return;
-    }
+    if (!Session.can('destinos.crear')) { showToast('Sin permiso para crear destinos', 'error'); return; }
     $('#form-destino').reset(); $('#destino-id').value = '';
     $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
     $('#dest-moneda').value = 'USD';
@@ -100,8 +102,7 @@ const Destinos = {
     const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
-    Itinerario.initPickers();
-    Borrador.clear();              // nuevo viaje = formulario desde cero
+    Itinerario.initPickers(); Borrador.clear(); // nuevo = desde cero
     this.addDestino();
     $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
     this._capRes();
@@ -140,8 +141,7 @@ const Destinos = {
       $('#destinos-lista-container').style.border = '1px solid var(--rose-600)';
       setTimeout(() => $('#destinos-lista-container').style.border = 'none', 1800);
       return; }
-    const id = $('#destino-id').value,
-      prev = id ? await DB.get('destinos', id) : null;
+    const id = $('#destino-id').value, prev = id ? await DB.get('destinos', id) : null;
     const obj = {
       id: id || undefined,
       paxConGuia: parseInt($('#dest-conguia').value) || 0, paxSinGuia: parseInt($('#dest-singuia').value) || 0,
@@ -176,6 +176,7 @@ const Destinos = {
     const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre);
     if (evg) obj.guia = evg.nombre;
     if (prev && prev.trans && !obj.trans) obj.trans = prev.trans;
+    if (prev && prev.boleto && !obj.boleto) obj.boleto = prev.boleto;
     const ed = $('#desc-editor');
     if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
     await DB.save('destinos', obj);

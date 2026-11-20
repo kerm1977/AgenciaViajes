@@ -47,9 +47,9 @@ Destinos.pagina = async function (id) {
       : '');
   if (filas) h += '<div class="grid-2 card card-pad">' + filas + '</div>';
   const TG = Itinerario.totalViaje(d);
-  if (TG.t) h += '<hr class="it-hr"><p class="pit-total">Total general: <b>' +
-    Itinerario._fmt(TG.t) + '</b> · Total individual: <b>' +
-    Itinerario._fmt(TG.i) + '</b></p>';
+  if (TG.t) h += '<hr class="it-hr"><p class="pit-total">Total individual: <b>' +
+    Itinerario.fmtT(d, TG.i) + '</b><br>Total general: <b>' +
+    Itinerario.fmtT(d, TG.t) + '</b></p>';
   if ((d.destinos || []).length)
     h += '<h3 class="pit-dia"><i class="fa-solid fa-location-dot"></i> ' +
       'Destinos del viaje</h3><ul class="pit-ol">' +

@@ -222,8 +222,9 @@ const Itinerario = {
       if (v('.it-pb')) { const con = v('.it-pb') +
           (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? 0 : v('.it-ps'));
         tg += con * (n || 1); ti += ns ? con * n / ns : con; } });
-    el.innerHTML = tg ? 'Total general: <b>' + this._fmt(tg) +
-      '</b> · Total individual: <b>' + this._fmt(ti) + '</b>' : ''; },
+    el.innerHTML = tg ? 'Total individual: <b>' + this._fmt(ti) +
+      '</b><br>Total general: <b>' + this._fmt(tg) + '</b>' : ''; },
+  fmtT(d, n) { return (d.moneda === 'CRC' ? '₡' : '$') + n.toFixed(2); },
   /* mismo cálculo sobre el viaje guardado (página del itinerario) */
   totalViaje(d) {
     const cg = d.paxConGuia || 0, sg = d.paxSinGuia || 0;

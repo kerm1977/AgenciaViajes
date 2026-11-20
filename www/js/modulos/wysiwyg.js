@@ -18,8 +18,14 @@ const WYS = {
     return this._last || document.getElementById('desc-editor');
   },
   _toggleQuote(e) {
-    const sel = window.getSelection();
-    if (!sel || !sel.rangeCount) return;
+    let sel = window.getSelection(),
+        inside = sel && sel.rangeCount &&
+          e.contains(sel.getRangeAt(0).commonAncestorContainer);
+    if (!inside) {                     // cursor fuera/vacío: caret al final
+      e.focus();
+      const r0 = document.createRange();
+      r0.selectNodeContents(e); r0.collapse(false);
+      sel.removeAllRanges(); sel.addRange(r0); }
     const r = sel.getRangeAt(0);
     const n = r.commonAncestorContainer.nodeType === 1
       ? r.commonAncestorContainer : r.commonAncestorContainer.parentNode;
@@ -29,9 +35,13 @@ const WYS = {
       bq0.remove();
     } else {                                 // citar: envolver en blockquote
       const bq = document.createElement('blockquote');
-      try { r.surroundContents(bq); }
-      catch (err) { bq.appendChild(r.extractContents()); r.insertNode(bq); }
-      sel.removeAllRanges();
+      if (r.collapsed) { bq.appendChild(document.createElement('br'));
+        r.insertNode(bq); }
+      else { try { r.surroundContents(bq); }
+        catch (err) { bq.appendChild(r.extractContents()); r.insertNode(bq); } }
+      const nr = document.createRange();   // deja el cursor dentro de la cita
+      nr.selectNodeContents(bq); nr.collapse(false);
+      sel.removeAllRanges(); sel.addRange(nr);
     }
     e.dispatchEvent(new Event('input', { bubbles: true }));
   },

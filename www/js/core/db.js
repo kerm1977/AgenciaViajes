@@ -5,7 +5,7 @@ const DB = {
   TABLAS: ['usuarios', 'contactos', 'destinos', 'pasajeros'],
   JSON_FIELDS: { usuarios: ['permisos'],
                  destinos: ['itinerario', 'destinos', 'boleto', 'trans',
-                            'fechas', 'imgfx'] },
+                            'fechas', 'imgfx', 'dias'] },
   SCHEMA: {
     usuarios: 'CREATE TABLE IF NOT EXISTS usuarios (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, email TEXT UNIQUE, pass TEXT, rol TEXT,' +
@@ -18,7 +18,7 @@ const DB = {
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
       ' checkout TEXT, boleto TEXT, trans TEXT, fechas TEXT,' +
-      ' imgfx TEXT, notas TEXT, itinerario TEXT, noincluye TEXT)',
+      ' imgfx TEXT, notas TEXT, itinerario TEXT, dias TEXT, noincluye TEXT)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +
       ' destinoId TEXT, asiento TEXT, checkin TEXT,' +
@@ -34,7 +34,7 @@ const DB = {
     destinos: ['pais TEXT', 'destinos TEXT',
                'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT',
                'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',
-               'imgfx TEXT', 'noincluye TEXT'],
+               'imgfx TEXT', 'noincluye TEXT', 'dias TEXT'],
     pasajeros: ['ap1 TEXT', 'ap2 TEXT', 'pasaporte TEXT', 'fijo TEXT',
                 'checkinUrl TEXT', 'contactoId TEXT',
                 'grupo TEXT', 'pais TEXT', 'lugar TEXT', 'cedula TEXT',

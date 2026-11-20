@@ -42,13 +42,12 @@ Destinos.pagina = async function (id) {
   const sH = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem;text-align:center">' +
     '<i class="fa-solid ' + ic + '"></i> ' + esc(t) + '</p>';
   const sec = [], info = [];            /* cards separadas por sección */
-  if (f.on && (f.desde || f.hasta)) info.push(sH('fa-calendar-days', 'Fechas') +
-    fila('fa-calendar-days', '', esc(f.desde || '') +
-      (f.hasta ? ' → ' + esc(f.hasta) : '')));
+  const fFecha = (f.on && (f.desde || f.hasta))
+    ? fila('fa-calendar-days', 'Fecha', esc(f.desde || '') +
+      (f.hasta ? ' → ' + esc(f.hasta) : '')) : '';
   if (d.aerolinea || bo.clase || bo.ai === '1' || bo.os === '1' || bo.esc === '1')
-    info.push(sH('fa-plane', 'Aerolínea') +
-      fila('fa-plane', '', esc(d.aerolinea || '')) +
-      fila('fa-chair', 'Clase', esc(bo.clase || '')) +
+    info.push(fila('fa-plane', '', esc(d.aerolinea || '')) +
+      fila('fa-chair', 'Clase', esc(bo.clase || '')) + fFecha +
       (bo.ai === '1' ? fila('fa-check', 'Asiento', 'Incluido') : '') +
       ((bo.hdesde || bo.hhasta) ? fila('fa-clock', 'Horario',
         esc((bo.hdesde || '') + (bo.hhasta ? ' – ' + bo.hhasta : ''))) : '') +
@@ -60,6 +59,7 @@ Destinos.pagina = async function (id) {
         Itinerario.fmtT(d, parseFloat(bo.pb) || 0)) : '') +
       '<div class="flex gap1" style="margin-top:.3rem">' +
         lnk(d.checkin || bo.ci, 'Check-in') + '</div>');
+  else if (fFecha) info.push(sH('fa-calendar-days', 'Fechas') + fFecha);
   if (d.trans) info.push(sH('fa-bus', 'Transporte') +
     fila('fa-bus', '', esc(d.trans.tsel === 'TRANSAVI' ? 'TRANSAVI'
       : (d.trans.tnombre || ''))) +

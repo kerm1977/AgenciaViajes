@@ -22,7 +22,7 @@
       <input type="hidden" id="destino-id">
       <section class="wstep open">
         <h3 class="wstep-t">Capacidad y moneda</h3>
-        <p class="wstep-n">Paso 1 de 7</p>
+        <p class="wstep-n">Paso 1 de 8</p>
         <div class="wstep-mid">
           <div class="field">
             <label class="lbl">Moneda</label>
@@ -119,7 +119,17 @@
         <p class="wstep-n">Paso 5 de 8</p>
         <div class="wstep-mid">
           <div class="flex gap1" style="margin-bottom:.5rem">
-            <select id="it-tipo-new" class="select" style="flex:1"></select>
+            <select id="it-tipo-new" class="select" style="flex:1">
+              <option value="">— Campo del viaje —</option>
+              <option>Imagen URL</option><option>Transporte Aéreo</option>
+              <option>Guía</option><option>Descripción / notas</option>
+              <option>Transporte Acuático</option><option>Transporte Terrestre</option>
+              <option>Agencia de Viajes / Tour Operador</option><option>Entradas</option>
+              <option>Acarreo</option><option>Hotel / Hostal / Hospedaje</option>
+              <option>Uber / Didi / Taxi / Bus</option>
+              <option>Centro Turístico / Centro Arqueológico</option>
+              <option>Impuestos</option><option>Otros</option>
+            </select>
           </div>
           <div id="it-general" class="grid gap1"></div>
           <div id="it-gtotal" class="it-gtotal"></div>

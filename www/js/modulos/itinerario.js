@@ -96,7 +96,6 @@ const Itinerario = {
   addRow(dest, dia, tipo, ruta, x, ev) {
     x = x || {};
     const campo = ev ? null : this.CAMPOS[tipo];  /* ev: evento guardado, nunca campo */
-    if (window.Destinos && Destinos.paso) Destinos.paso(3);
     const c = $('#it-general');
     const rid = uid('it');
     [...c.children].forEach(s => {           /* el nuevo colapsa al resto */

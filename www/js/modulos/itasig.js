@@ -39,20 +39,31 @@ Object.assign(Itinerario, {
             '<option value="' + cards.indexOf(k) + '"' +
             (k === sel ? ' selected' : '') + '>' +
             esc(k.querySelector('.it-acc-t').textContent) + '</option>').join('');
-    /* fila fija arriba: elegir día + campo libre */
+    /* fila fija arriba: elegir día + multiselección de campos libres */
     const top = document.createElement('div');
     top.className = 'it-card it-mirror';
     top.innerHTML =
       '<div class="flex gap1" style="align-items:center">' +
         '<select class="select it-dia" style="flex:0 0 6.5rem">' +
           this._dias() + '</select>' +
-        '<select class="select it-pick" style="flex:1">' +
-          '<option value="">— Asignar campo —</option>' + opts() +
-          '</select></div>';
-    const td = top.querySelector('.it-dia'), tp = top.querySelector('.it-pick');
-    tp.addEventListener('change', () => {
-      if (tp.value === '') return;
-      cards[+tp.value].dataset.dia = td.value || 'Día 1'; this.syncItin(); });
+        '<div class="multi" style="flex:1">' +
+          '<button type="button" class="multi-btn" ' +
+            'onclick="this.parentElement.classList.toggle(\'open\')">' +
+            '<span>— Asignar campos —</span>' +
+            '<i class="fa-solid fa-chevron-down muted"></i></button>' +
+          '<div class="multi-panel">' + (free.length
+            ? free.map(k => '<label class="multi-item">' +
+                '<input type="checkbox" value="' + cards.indexOf(k) + '"> ' +
+                esc(k.querySelector('.it-acc-t').textContent) + '</label>')
+              .join('')
+            : '<div class="multi-item"><span class="grupo">Sin campos libres' +
+              '</span></div>') + '</div></div></div>';
+    const td = top.querySelector('.it-dia');
+    top.querySelectorAll('.multi-panel input').forEach(cb =>
+      cb.addEventListener('change', () => {
+        if (!cb.checked) return;
+        cards[+cb.value].dataset.dia = td.value || 'Día 1';
+        this.syncItin(); }));
     c.appendChild(top);
     /* filas asignadas: día + selector de campo + horas + guía + X */
     cards.filter(k => k.dataset.dia).forEach(card => {

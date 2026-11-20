@@ -220,7 +220,7 @@ const Itinerario = {
         const cu = ns && n ? Math.round(con * n / ns) : con;
         tg += cu * (n || 1); ti += cu; } });
     el.innerHTML = tg ? 'Total individual: <b>' + this._fmt(ti) +
-      '</b><br>Total general: <b>' + this._fmt(tg) + '</b>' : ''; },
+      '</b><br>Total por grupo: <b>' + this._fmt(tg) + '</b>' : ''; },
   fmtT(d, n) { return (d.moneda === 'CRC' ? '₡' : '$') + n.toFixed(2); },
   /* mismo cálculo sobre el viaje guardado (página del itinerario) */
   totalViaje(d) {

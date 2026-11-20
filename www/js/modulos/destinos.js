@@ -41,7 +41,7 @@ const Destinos = {
             '</p>' : '') + '</div></div></div>' +
         (tv.t ? '<div class="card-pad" style="padding-top:.2rem"><hr class="it-hr">' +
           '<p class="it-gtotal">Total individual: <b>' +
-          Itinerario.fmtT(d, tv.i) + '</b><br>Total general: <b>' +
+          Itinerario.fmtT(d, tv.i) + '</b><br>Total por grupo: <b>' +
           Itinerario.fmtT(d, tv.t) + '</b></p></div>' : '') +
         '<div class="card-pad flex gap1" style="padding-top:0;border-top:1px solid var(--slate-100);align-items:center">' +
           (d.checkin ? '<a href="' + esc(d.checkin) + '" target="_blank" ' +

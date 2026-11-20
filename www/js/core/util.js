@@ -42,8 +42,21 @@ async function sha256(texto) {
     .map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function descargar(nombre, contenido, mime) {
-  const blob = new Blob([contenido], { type: mime || 'text/plain;charset=utf-8' });
+/* descarga un archivo de texto: nativo = Filesystem(CACHE) + Share;
+   navegador = blob + a.download */
+async function descargar(nombre, contenido, mime) {
+  const FS = plugin('Filesystem'), Sh = plugin('Share');
+  if (FS && Sh && window.Capacitor && Capacitor.isNativePlatform &&
+      Capacitor.isNativePlatform()) {
+    const w = await FS.writeFile({ path: nombre,
+      data: String(contenido), directory: 'CACHE',
+      encoding: 'utf8' }).catch(() => null);
+    if (w && w.uri) {
+      await Sh.share({ title: nombre, url: w.uri }).catch(() => {});
+      return; }
+  }
+  const blob = new Blob([contenido],
+    { type: mime || 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = nombre;

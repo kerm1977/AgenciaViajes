@@ -1,51 +1,75 @@
 /* pasajeros.js — asignación de pasajeros a viajes + check-in */
 'use strict';
-const PAXF = ['grupo', 'pais', 'lugar', 'cedula', 'pasaporte', 'nacimiento',
-  'sangre', 'fijo', 'tel2', 'tel3', 'email', 'emNombre', 'emTel',
-  'cnombre', 'ctel', 'urlmapa', 'horario', 'notas'];
+const PAXF = ['grupo', 'pais', 'lugar', 'cedula', 'pasaporte', 'nacimiento', 'sangre',
+  'fijo', 'tel2', 'tel3', 'email', 'emNombre', 'emTel', 'cnombre', 'ctel', 'urlmapa', 'horario', 'notas'];
 const Pasajeros = {
+  _page: 0, _q: '', _POR: 10,
   async render() {
-    const q = (($('#search-pasajeros') || {}).value || '').toLowerCase();
-    const tb = $('#pasajeros-table-body');
-    if (!tb) return;
-    const dest = await DB.list('destinos');
-    const lista = (await DB.list('pasajeros')).filter(p => {
-      const d = dest.find(x => x.id === p.destinoId);
-      return p.nombre.toLowerCase().includes(q) ||
-             (p.email || '').toLowerCase().includes(q) ||
-             (d && d.nombre.toLowerCase().includes(q));
-    });
-    tb.innerHTML = '';
-    if (!lista.length) {
-      tb.innerHTML = '<tr><td colspan="5" class="empty-state">' +
-        '<i class="fa-solid fa-users"></i><p>Sin pasajeros registrados.</p></td></tr>';
-      return;
-    }
-    const eP = Session.can('pasajeros.editar'), dP = Session.can('pasajeros.eliminar');
-    lista.forEach(p => {
-      const d = dest.find(x => x.id === p.destinoId);
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="bold">' + esc(p.nombre) +
-          (p.asiento ? '<span class="hint" style="display:block">Asiento: ' +
-            esc(p.asiento) + '</span>' : '') + '</td>' +
-        '<td data-label="Contacto" class="text-xs"><div>' + esc(p.codigo ? p.codigo + ' ' : '') +
-          esc(p.telefono || 'Sin tel') + '</div><div class="muted">' +
-          esc(p.email || '') + '</div></td>' +
-        '<td data-label="Destino">' + (d ? esc(d.nombre) : '<span class="muted" style="font-style:italic">Sin asignar</span>') + '</td>' +
-        '<td data-label="Check-in">' + (p.checkin === 'Realizado'
-            ? '<span class="badge badge-brand"><i class="fa-solid fa-check"></i> Realizado</span>'
-            : '<span class="badge badge-amber"><i class="fa-solid fa-clock"></i> Pendiente</span>') +
-          (d && d.checkin ? '<a href="' + esc(d.checkin) + '" target="_blank" ' +
-            'class="hint" style="display:block;color:var(--brand-600)"><i class="fa-solid fa-arrow-up-right-from-square"></i> Enlace</a>' : '') +
-        '</td>' +
-        '<td data-label="Acciones" style="text-align:right;white-space:nowrap">' +
-          (eP ? '<button class="iconbtn" onclick="Pasajeros.editar(\'' + p.id +
-                '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') +
-          (dP ? '<button class="iconbtn danger" onclick="Pasajeros.borrar(\'' + p.id +
-                '\')"><i class="fa-solid fa-trash"></i></button>' : '') + '</td>';
-      tb.appendChild(tr);
-    });
+    const q = (($('#search-pasajeros') || {}).value || '').toLowerCase(),
+          box = $('#pax-acc-list');
+    if (!box) return;
+    if (q !== this._q) { this._q = q; this._page = 0; }
+    const dest = await DB.list('destinos'),
+          ALL = PAXF.concat(['nombre', 'ap1', 'ap2', 'telefono', 'codigo',
+            'destinoId', 'asiento', 'checkin', 'checkinUrl', 'contactoId']),
+          lista = (await DB.list('pasajeros')).filter(p => {
+            const d = dest.find(x => x.id === p.destinoId);
+            return !q || ALL.some(k => k === 'destinoId'
+              ? (d && d.nombre.toLowerCase().includes(q))
+              : String(p[k] || '').toLowerCase().includes(q));
+          }).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    if (this._page * this._POR >= lista.length) this._page = 0;
+    const pags = Math.ceil(lista.length / this._POR),
+          page = lista.slice(this._page * this._POR,
+            (this._page + 1) * this._POR),
+          eP = Session.can('pasajeros.editar'),
+          dP = Session.can('pasajeros.eliminar');
+    box.innerHTML = (lista.length
+      ? page.map(p => this._card(p, dest, eP, dP)).join('')
+      : '<div class="empty-state"><i class="fa-solid fa-users"></i>' +
+        '<p>Sin pasajeros registrados.</p></div>') +
+      (pags > 1 ? '<div class="flex gap1" style="justify-content:center;' +
+        'align-items:center;padding:.4rem 0"><button class="iconbtn" ' +
+        (this._page < 1 ? 'disabled ' : '') +
+        'onclick="Pasajeros.pg(-1)"><i class="fa-solid fa-chevron-left">' +
+        '</i></button><span class="hint">' + (this._page + 1) + ' / ' +
+        pags + '</span><button class="iconbtn" ' +
+        (this._page >= pags - 1 ? 'disabled ' : '') +
+        'onclick="Pasajeros.pg(1)"><i class="fa-solid fa-chevron-right">' +
+        '</i></button></div>' : '');
+  },
+  pg(d) { this._page = Math.max(0, this._page + d); this.render(); },
+  _card(p, dest, eP, dP) {
+    const d = dest.find(x => x.id === p.destinoId),
+          f = (ic, lb, v) => v ? '<p><i class="fa-solid ' + ic + '"></i> <b>' +
+            lb + ':</b> ' + esc(v) + '</p>' : '';
+    return '<div class="it-acc"><div class="it-acc-head">' +
+      '<button type="button" class="it-acc-btn" ' +
+      'onclick="this.closest(\'.it-acc\').classList.toggle(\'open\')">' +
+      '<span class="it-acc-t"><b>' + esc(p.nombre || '') + '</b></span>' +
+      '<span class="hint">' + esc((p.codigo || '') + (p.telefono || '')) +
+      '</span><i class="fa-solid fa-chevron-down"></i></button></div>' +
+      '<div class="it-acc-body">' +
+      f('fa-id-card', 'Cédula', p.cedula) + f('fa-passport', 'Pasaporte', p.pasaporte) +
+      f('fa-cake-candles', 'Nacimiento', p.nacimiento) + f('fa-droplet', 'Sangre', p.sangre) +
+      f('fa-users', 'Grupo', p.grupo) + f('fa-flag', 'País', p.pais) + f('fa-location-dot', 'Lugar', p.lugar) +
+      f('fa-phone', 'Fijo', p.fijo) + f('fa-phone', 'Tel 2', p.tel2) +
+      f('fa-phone', 'Tel 3', p.tel3) + f('fa-envelope', 'Correo', p.email) +
+      f('fa-triangle-exclamation', 'Emergencia', [p.emNombre, p.emTel].filter(Boolean).join(' · ')) +
+      f('fa-plane', 'Viaje', d ? d.nombre : '') + f('fa-chair', 'Asiento', p.asiento) +
+      f('fa-user-clock', 'Contacto', [p.cnombre, p.ctel].filter(Boolean).join(' · ')) +
+      f('fa-clock', 'Horario', p.horario) + f('fa-note-sticky', 'Notas', p.notas) +
+      (p.checkin ? '<p><span class="badge ' + (p.checkin === 'Realizado'
+        ? 'badge-brand' : 'badge-amber') + '">' + p.checkin + '</span></p>' : '') +
+      (p.checkinUrl ? '<p><a href="' + esc(p.checkinUrl) + '" target="_blank" style="color:var(--brand-600)"><i class="fa-solid fa-arrow-up-right-from-square"></i> Enlace check-in</a></p>' : '') +
+      (p.urlmapa ? '<p><a href="' + esc(p.urlmapa) + '" target="_blank" style="color:var(--brand-600)"><i class="fa-solid fa-map"></i> Mapa</a></p>' : '') +
+      '<div class="flex gap1" style="justify-content:flex-end">' +
+      (eP ? '<button class="btn btn-soft" onclick="Pasajeros.editar(\'' + p.id +
+        '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
+      (dP ? '<button class="btn btn-soft" style="color:var(--rose-600)" ' +
+        'onclick="Pasajeros.borrar(\'' + p.id +
+        '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
+      '</div></div></div>';
   },
   async _fillDestinos() {
     const sel = $('#pax-destino');

@@ -3,7 +3,7 @@
   <div class="searchbox">
     <i class="fa-solid fa-search"></i>
     <input type="text" id="search-pasajeros" class="input" oninput="Pasajeros.render()"
-           placeholder="Buscar pasajero o viaje asignado...">
+           placeholder="Buscar por cualquier dato: nombre, cédula, teléfono, viaje...">
   </div>
   <button class="btn btn-primary" onclick="Pasajeros.nuevo()">
     <i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>
@@ -26,15 +26,7 @@
   <button class="iconbtn" title="Fusionar pasajeros" onclick="PaxDir.fusion()">
     <i class="fa-solid fa-code-merge"></i></button>
 </div>
-<div class="tablewrap"><div style="overflow-x:auto">
-  <table>
-    <thead><tr>
-      <th>Pasajero</th><th>Contacto</th><th>Destino / Viaje</th>
-      <th>Check-in</th><th style="text-align:right">Acciones</th>
-    </tr></thead>
-    <tbody id="pasajeros-table-body"></tbody>
-  </table>
-</div></div>
+<div id="pax-acc-list" class="grid" style="gap:.35rem"></div>
 
 <div id="modal-pasajero" class="modal">
   <div class="modal-box">

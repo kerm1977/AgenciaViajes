@@ -121,9 +121,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
         osd = card.querySelector('.it-osd'),
         tot = card.querySelector('.it-tota'),
         inp = (c) => card.querySelector(c);
-  card.querySelector('.it-acc-t').insertAdjacentHTML('afterend',
-    '<span class="hint it-ahint"></span>');
-  const hint = card.querySelector('.it-ahint');
+  const hint = card.querySelector('.it-hint');
   const n = el => parseFloat(el.value) || 0;
   const sim = () => ($('#dest-moneda') || {}).value || '$';
   const total = () => {
@@ -141,7 +139,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
         '<br><b>Total: ' + sim() + T.toFixed(2) + '</b>';
     } else h = '<b>Total: ' + sim() + con.toFixed(2) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
-    hint.textContent = sim() + con.toFixed(2);
+    hint.textContent = sim() + (cg ? con * cg : con).toFixed(2);
     if (Itinerario._gtotal) Itinerario._gtotal();
   };
   card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G

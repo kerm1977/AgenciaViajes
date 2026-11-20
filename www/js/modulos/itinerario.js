@@ -37,11 +37,13 @@ const Itinerario = {
     const pi = card.querySelector('.it-precio');
     const mo = card.querySelector('.it-modo');
     const out = card.querySelector('.it-total');
+    const hnt = card.querySelector('.it-hint');
     if (!pi || !mo || !out) return;
     const precio = parseFloat(pi.value) || 0;
     const modo = mo.value, n = this.pax(), ns = this.paxS();
     if (!precio || !(n || ns)) {
-      out.innerHTML = ''; this._gtotal(); return; }
+      out.innerHTML = ''; if (hnt) hnt.textContent = '';
+      this._gtotal(); return; }
     if (modo === 'grupo') {          /* P/G: precio ÷ capacidad S/G */
       let h = '<hr class="it-hr">P/G ' + this._fmt(precio);
       if (ns) h += ' ÷ ' + ns + ' S/G = ' +
@@ -55,6 +57,8 @@ const Itinerario = {
         this._fmt(T / ns) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(T) + '</b>';
     }
+    if (hnt) hnt.textContent =
+      this._fmt(modo === 'grupo' ? precio : precio * n);
     this._gtotal();
   },
   initPickers() {
@@ -106,6 +110,7 @@ const Itinerario = {
         '<button type="button" class="it-acc-btn" ' +
           'onclick="Itinerario.tog(this)">' +
           '<span class="it-acc-t">' + esc(tipo) + '</span>' +
+          '<span class="hint it-hint"></span>' +
           '<i class="fa-solid fa-chevron-down"></i></button>' +
         '<button type="button" class="iconbtn danger" title="Quitar" ' +
           'onclick="Itinerario.delRow(\'' + rid + '\')">' +

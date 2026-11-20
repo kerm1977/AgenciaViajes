@@ -49,7 +49,7 @@ const Destinos = {
             '<i class="fa-solid fa-square-check"></i> Check-in</a>' : '') +
           '<button class="btn btn-sm btn-soft" onclick="Destinos.detalle(\'' + d.id + '\')">' +
             '<i class="fa-solid fa-route"></i> Itinerario</button>' +
-          (puedePax ? '<button class="iconbtn" title="Agregar pasajeros" onclick="Destinos.paxNuevo(\'' + d.id + '\')"><i class="fa-solid fa-user-plus"></i></button>' : '') +
+          (puedePax && d.fechas && d.fechas.on ? '<button class="iconbtn" title="Agregar pasajeros" onclick="Destinos.paxNuevo(\'' + d.id + '\')"><i class="fa-solid fa-user-plus"></i></button>' : '') +
           (puedeEditar ? '<button class="iconbtn" onclick="Destinos.editar(\'' + d.id + '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') + (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>';
       grid.appendChild(card);

@@ -159,27 +159,35 @@ const Uploader = {
     el.addEventListener('contextmenu', e => {
       e.preventDefault(); this.fxModal(d); });
   },
-  /* aplica posición/zoom/rotación/blur/opacidad a un <img> */
+  /* aplica posición X/Y/zoom/rotación/blur/opacidad a un <img> y sincroniza
+     el fondo del div para que nunca se vea cortada */
   applyFx(el, fx) {
     if (!el) return;
-    const f = Object.assign({ x: 0, s: 100, r: 0, b: 0, o: 100 }, fx || {});
+    const f = Object.assign({ x: 0, y: 0, s: 100, r: 0, b: 0, o: 100 },
+      fx || {});
     el.style.transformOrigin = 'center';
-    el.style.transform = 'translateX(' + f.x + '%) scale(' + f.s / 100 +
-      ') rotate(' + f.r + 'deg)';
+    el.style.transform = 'translate(' + f.x + '%,' + f.y + '%) scale(' +
+      f.s / 100 + ') rotate(' + f.r + 'deg)';
     el.style.filter = 'blur(' + f.b + 'px) opacity(' + f.o / 100 + ')';
+    const dv = el.parentElement;
+    if (dv && dv.style.backgroundImage) {
+      dv.style.backgroundPosition = (50 - f.x) + '% ' + (50 - f.y) + '%';
+      dv.style.backgroundSize = f.s + '% auto';
+    }
   },
   /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
   fxModal(d) {
     this._lp = Date.now();
     DC && DC.ev('img:fxModal', 'abriendo para ' + d.id);
     if (document.getElementById('upl-fx')) return;
-    const fx = Object.assign({ x: 0, s: 100, r: 0, b: 0, o: 100 },
+    const fx = Object.assign({ x: 0, y: 0, s: 100, r: 0, b: 0, o: 100 },
       d.imgfx || {});
     const bd = document.createElement('div');
     bd.id = 'upl-fx'; bd.className = 'upl-fx';
     bd.innerHTML = '<div class="upl-fx-card"><h4 style="margin:0 0 .5rem">' +
       'Ajustar imagen</h4>' +
-      [['x', 'Izq / Der', -50, 50], ['s', 'Zoom', 50, 200],
+      [['x', 'Izq / Der', -50, 50], ['y', 'Arr / Abj', -50, 50],
+       ['s', 'Zoom', 50, 200],
        ['r', 'Rotar', -180, 180], ['b', 'Desenfoque', 0, 8],
        ['o', 'Opacidad', 20, 100]].map(a =>
         '<label class="upl-fx-r"><span>' + a[1] + '</span>' +

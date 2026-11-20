@@ -9,7 +9,7 @@ const PdfViaje = {
     const J = window.jspdf && window.jspdf.jsPDF;
     if (!J) { showToast('jsPDF no cargado', 'error'); return; }
     const doc = new J(), W = 210, M = 14, CW = W - M * 2, B = 297,
-          f = d.fechas || {}, bo = d.boleto || {},
+          f = d.fechas || {}, bo = d.boleto || {}, MC = !!d.mostrarCostos,
           txt = this._txt, tint = this._tint;
     let y = 0, pag = 1;
     const pie = () => { doc.setDrawColor(226, 232, 240);
@@ -52,15 +52,22 @@ const PdfViaje = {
     doc.text(doc.splitTextToSize(String(d.nombre || 'Viaje'), CW)[0], M, 17);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
     doc.text([d.pais, f.on && f.desde ? f.desde +
-      (f.hasta ? ' → ' + f.hasta : '') : '']
+      (f.hasta ? ' → ' + f.hasta : '') : '', 'Moneda: ' + (d.moneda || 'USD')]
       .filter(Boolean).join('   ·   '), M, 23.5);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    doc.text('COTIZACIÓN', W - M, 8, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    doc.text('Folio ' + String(d.id || '').slice(0, 8).toUpperCase(),
+      W - M, 13.5, { align: 'right' });
+    doc.text('Emitida: ' + new Date().toLocaleDateString('es-ES'),
+      W - M, 18, { align: 'right' });
     y = 34;
     /* portada: imagen con proporción real (cover; marco = relación del canvas) */
     const img = await this._imgFx(d);
     if (img) { const hi = CW * this._imgH / this._imgW;
       doc.addImage(img, 'JPEG', M, y, CW, hi); y += hi + 6; }
     const TG = Itinerario.totalViaje(d);
-    if (TG.i) { doc.setFillColor(15, 157, 143);
+    if (MC && TG.i) { doc.setFillColor(15, 157, 143);
       doc.roundedRect(M, y, CW, 11, 2, 2, 'F');
       doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
       doc.setFontSize(10.5);
@@ -83,6 +90,8 @@ const PdfViaje = {
       info.push('Escala: ' + [bo.escp, bo.escv, bo.esch, bo.esca]
         .filter(Boolean).join(' · '));
     if (txt(d.notas)) info.push(txt(d.notas));
+    if (MC && TG.i)
+      info.push('Total cotización por persona: ' + Itinerario.fmtT(d, TG.i));
     tarjeta('Información del viaje', [15,157,143], [248,250,252],
       [226,232,240], info);
     /* hoja dedicada: Incluye + No incluye + Destinos */
@@ -118,7 +127,7 @@ const PdfViaje = {
           (it.destino ? '  ·  ' + it.destino : '') });
         if (it.ruta && it.ruta !== it.tipo)
           segs.push({ k: 'p', t: it.ruta });
-        if (it.verinfo && it.precio)
+        if (MC && it.verinfo && it.precio)
           segs.push({ k: 'p', t: Itinerario.fmtT(d, it.precio) +
             (it.modo === 'grupo' ? ' · por grupo' : ' · por persona') });
         if (it.hdesde || it.hhasta)

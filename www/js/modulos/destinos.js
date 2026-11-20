@@ -103,15 +103,10 @@ const Destinos = {
     Itinerario.initPickers();
     this.paxReset && this.paxReset();  const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     this.addDestino();
-    $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje'; this._capRes();
+    $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
     $('#pag-destino').classList.add('open'); this.togFechas();
     const dr = Borrador.get(); if (dr && !dr.editId) Borrador.restore(dr);
-  },
-  _capRes() {
-    const r = $('#cap-acc-res'); if (!r) return;
-    const c = $('#dest-conguia').value, s = $('#dest-singuia').value;
-    r.textContent = ($('#dest-moneda').value === 'CRC' ? '₡' : '$') +
-      (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
+    this.paso(1);
   },
   togFechas() {
     $$('#dest-fechas-wrap').forEach(w => w.style.display =
@@ -123,10 +118,13 @@ const Destinos = {
       return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
     const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
     if (a) a.textContent = t('#dest-fdesde'); if (b) b.textContent = t('#dest-fhasta'); },
-  acc(id, stay) {
-    ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc', 'pax-acc'].forEach(a => {
-      const el = document.getElementById(a); if (el) el.classList.toggle(
-        'open', a === id && (stay || !el.classList.contains('open'))); }); },
+  _paso: 0,
+  paso(n) {
+    const ss = $$('#form-destino .wstep'); if (!ss.length) return;
+    n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
+    ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));
+    const b = $('.pag-itin-body'); if (b) b.scrollTop = 0;
+  },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
     document.getElementById(rid).remove();
     if (window.Itinerario) Itinerario.syncItin(); } },
@@ -193,7 +191,6 @@ const Destinos = {
     $('#dest-conguia').value = d.paxConGuia || '';
     $('#dest-singuia').value = d.paxSinGuia || '';
     $('#dest-moneda').value = d.moneda || 'USD';
-    setTimeout(() => Destinos._capRes(), 0);
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const edc = $('#desc-editor'); if (edc) edc.innerHTML = d.notas || '';
@@ -220,6 +217,7 @@ const Destinos = {
     $('#pag-destino').classList.add('open');
     if (this.paxCargar) await this.paxCargar(id);
     const dr = Borrador.get(); if (dr && dr.editId === id) Borrador.restore(dr);
+    this.paso(1);
   },
   async borrar(id) {
     if (!Session.can('destinos.eliminar')) {
@@ -243,7 +241,6 @@ Router.ON_TAB.destinos = () => Destinos.render();
       /^dest-(conguia|pais|moneda|fdesde|fhasta|tiene-fechas)$/.test(id) &&
       window.Itinerario) Itinerario.refresh();
   if (/^dest-f(desde|hasta)$/.test(id)) Destinos._fechasTxt();
-  if (/^dest-(conguia|singuia|moneda)$/.test(id)) Destinos._capRes();
   if (e.target && e.target.classList &&
       e.target.classList.contains('dst-item') && window.Itinerario)
     Itinerario.syncItin();

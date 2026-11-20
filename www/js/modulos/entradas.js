@@ -19,7 +19,7 @@ Itinerario.entradasCard = function (ruta, x) {
     L('Nombre del contacto o guía', '<input type="text" ' +
       'class="input it-nombre" value="' + esc(x.nombre || '') + '">') +
     tel('it-telg', 'Teléfono del contacto o guía', x.telGuia) +
-    '<div class="it-chks">' +
+    '<div class="it-chks it-chks-lnk">' +
       '<label class="it-aic"><input type="checkbox" class="it-cmap"' +
         (x.maps ? ' checked' : '') +
         '> Agregar enlace de Google Maps</label>' +

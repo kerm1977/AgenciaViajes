@@ -92,6 +92,20 @@
           </select>
         </div>
       </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Enlace check-in</label>
+          <input type="url" id="pax-checkin-url" class="input"
+                 placeholder="https://checkin.aerolinea.com"
+                 oninput="const b=document.getElementById('pax-wa');if(b)b.style.display=this.value.trim()?'':'none';">
+        </div>
+        <div class="field">
+          <label class="lbl">&nbsp;</label>
+          <button type="button" id="pax-wa" class="btn btn-soft"
+                  style="display:none" onclick="Pasajeros.enviarCheckin()">
+            <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+        </div>
+      </div>
       <div class="modal-foot" style="padding-left:0;padding-right:0">
         <button type="button" class="btn btn-soft" onclick="closeModal('modal-pasajero')">Cancelar</button>
         <button type="submit" class="btn btn-primary">Guardar Pasajero</button>

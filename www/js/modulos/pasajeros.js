@@ -59,6 +59,7 @@ const Pasajeros = {
       showToast('Sin permiso para agregar pasajeros', 'error'); return;
     }
     $('#form-pasajero').reset(); $('#pasajero-id').value = '';
+    const w = $('#pax-wa'); if (w) w.style.display = 'none';
     llenarCodigos($('#pax-codigo'));
     await this._fillDestinos();
     $('#modal-pasajero-title').textContent = 'Asignar Pasajero a Viaje';
@@ -81,7 +82,8 @@ const Pasajeros = {
       email: V.emailNorm($('#pax-email').value),
       destinoId: $('#pax-destino').value,
       asiento: $('#pax-asiento').value.trim().toUpperCase(),
-      checkin: $('#pax-checkin-estado').value
+      checkin: $('#pax-checkin-estado').value,
+      checkinUrl: $('#pax-checkin-url').value.trim()
     });
     closeModal('modal-pasajero');
     showToast(id ? 'Pasajero actualizado' : 'Pasajero asignado');
@@ -104,8 +106,24 @@ const Pasajeros = {
     $('#pax-destino').value = p.destinoId;
     $('#pax-asiento').value = p.asiento || '';
     $('#pax-checkin-estado').value = p.checkin || 'Pendiente';
+    $('#pax-checkin-url').value = p.checkinUrl || '';
+    const w = $('#pax-wa'); if (w) w.style.display = p.checkinUrl ? '' : 'none';
     $('#modal-pasajero-title').textContent = 'Editar Pasajero';
     openModal('modal-pasajero');
+  },
+  /* abre WhatsApp al celular del pasajero con el enlace de check-in */
+  enviarCheckin() {
+    const u = ($('#pax-checkin-url') || {}).value || '',
+          tel = ((($('#pax-codigo') || {}).value || '') +
+                 (($('#pax-telefono') || {}).value || '')).replace(/\D/g, ''),
+          nom = V.titleCase((($('#pax-nombre') || {}).value || '') + ' ' +
+                 (($('#pax-ap1') || {}).value || '')).trim();
+    if (!u.trim()) return showToast('Pegá el enlace de check-in', 'warn');
+    if (!tel) return showToast('El pasajero no tiene teléfono celular', 'warn');
+    const msg = 'Hola ' + (nom || 'viajero') +
+      ', aquí tienes el enlace para hacer tu check-in: ' + u.trim();
+    window.open('https://wa.me/' + tel + '?text=' +
+      encodeURIComponent(msg), '_blank');
   },
   async borrar(id) {
     if (!Session.can('pasajeros.eliminar')) {

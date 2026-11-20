@@ -200,6 +200,8 @@
 #pag-destino .it-acc.open .it-acc-body { gap:.45rem; }
 .it-escw, .it-tbody { display:grid; gap:.45rem; }
 .fl[hidden], .it-escw[hidden], .it-tbody[hidden] { display:none !important; }
+.fl-p { background:rgba(217,119,6,.07); padding:.45rem .55rem;
+  border-radius:.55rem; }
 
 /* selector de pais */
 .pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.7rem .9rem;

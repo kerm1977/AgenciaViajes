@@ -34,13 +34,12 @@ const Itinerario = {
       '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
     return s + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
-  _l(lab, h) { return '<div class="fl"><span class="fl-l">' + lab + '</span>' + h + '</div>'; },
+  _l(lab, h, cls) { return '<div class="fl' + (cls ? ' ' + cls : '') +
+    '"><span class="fl-l">' + lab + '</span>' + h + '</div>'; },
   _dias() { let o = ''; for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
-    const pi = card.querySelector('.it-precio');
-    const mo = card.querySelector('.it-modo');
-    const out = card.querySelector('.it-total');
-    const hnt = card.querySelector('.it-hint');
+    const pi = card.querySelector('.it-precio'), mo = card.querySelector('.it-modo'),
+          out = card.querySelector('.it-total'), hnt = card.querySelector('.it-hint');
     if (!pi || !mo || !out) return;
     const precio = parseFloat(pi.value) || 0;
     const modo = mo.value, n = this.pax(), ns = this.paxS();
@@ -152,10 +151,10 @@ const Itinerario = {
     const inp = (lab, t, cls, v) => this._l(lab, '<input type="' + t +
       '" value="' + esc(v || '') + '" class="input ' + cls + '">');
     const transp = /^Transporte\s/.test(tipo || '');
-    const costos = '<div class="grid-2">' +
+    const costos = '<hr class="it-hr"><div class="grid-2">' +
         this._l(transp ? 'Monto' : 'Precio del servicio',
           '<input type="number" min="0" step="1" value="' +
-          esc(x.precio || '') + '" class="input it-precio">') +
+          esc(x.precio || '') + '" class="input it-precio">', 'fl-p') +
         this._l('Cobro', '<select class="select it-modo">' +
           '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') +
             '>' + (transp ? 'P/P — por persona' : 'Por persona') + '</option>' +

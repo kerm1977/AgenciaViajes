@@ -64,8 +64,9 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const nombres = Object.keys(AEROLINEAS);
   const asientoInc = x.ai === '1' || x.ai === true;
   card.dataset.aero = '1';
-  const fl = (l, h, hd) => '<div class="fl"' + (hd ? ' hidden' : '') +
-    '><span class="fl-l">' + l + '</span>' + h + '</div>';
+  const fl = (l, h, hd, cls) => '<div class="fl' + (cls ? ' ' + cls : '') +
+    '"' + (hd ? ' hidden' : '') + '><span class="fl-l">' + l + '</span>' +
+    h + '</div>';
   const osOn = x.os === '1' || x.os === true;
   card.querySelector('.it-acc-body').innerHTML =
     fl('Aerolínea', '<select class="select it-aero">' +
@@ -79,16 +80,19 @@ Itinerario.aeroCard = function (card, nombre, x) {
     '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
     fl('Clase', '<select class="select it-clase"><option value="">' +
       '— Clase —</option></select>') +
+    '<hr class="it-hr">' +
     fl('Precio boleto', '<input type="number" min="0" step="1" value="' +
-      esc(x.pb || '') + '" class="input it-pb">') +
+      esc(x.pb || '') + '" class="input it-pb">', 0, 'fl-p') +
     '<label class="it-aic"><input type="checkbox" class="it-ai"' +
       (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
     fl('Costo del asiento', '<input type="number" min="0" step="1" ' +
-      'class="input it-ps" value="' + esc(x.ps || '') + '">', asientoInc) +
+      'class="input it-ps" value="' + esc(x.ps || '') + '">',
+      asientoInc, 'fl-p') +
     '<label class="it-aic"><input type="checkbox" class="it-os"' +
       (osOn ? ' checked' : '') + '> Otros servicios</label>' +
     fl('Precio del servicio', '<input type="number" min="0" step="1" ' +
-      'class="input it-osv" value="' + esc(x.osv || '') + '">', !osOn) +
+      'class="input it-osv" value="' + esc(x.osv || '') + '">',
+      !osOn, 'fl-p') + '<hr class="it-hr">' +
     fl('¿Qué incluye?', '<input class="input it-osd" value="' +
       esc(x.osd || '') + '">', !osOn) +
     '<label class="it-aic"><input type="checkbox" class="it-esc"' +

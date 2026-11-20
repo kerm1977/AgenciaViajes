@@ -98,7 +98,7 @@ const Destinos = {
   togFechas() {
     const on = $('#dest-tiene-fechas').checked;
     $$('#dest-fechas-wrap').forEach(w => w.style.display = on ? 'grid' : 'none');
-    const fn = $('#f-nombre'); if (fn) fn.style.marginTop = on ? '.4rem' : '2.4rem';
+    const fn = $('#f-nombre'); if (fn) fn.style.marginTop = on ? '0' : '2.4rem';
     this._fechasTxt(); },
   _fechasTxt() {
     const t = id => { const v = ($(id) || {}).value; if (!v) return '';
@@ -111,6 +111,7 @@ const Destinos = {
     const ss = $$('#form-destino .wstep'); if (!ss.length) return;
     n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
     ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));
+    this.togFechas();
     const b = $('.pag-itin-body'); if (b) b.scrollTop = 0;
   },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {

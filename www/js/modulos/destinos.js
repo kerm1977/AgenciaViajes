@@ -156,6 +156,7 @@ const Destinos = {
       imagen: (prev && prev.imagen) || '', imgfx: prev ? prev.imgfx : null,
       guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: []
     };
+    if (Itinerario.collectDias) obj.dias = Itinerario.collectDias();
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {
       const c = Itinerario.CAMPOS[i.campo];
@@ -217,6 +218,7 @@ const Destinos = {
     });
     (d.itinerario || []).forEach(it => { if (Itinerario.CAMPOS[it.tipo]) return; /* ya se recrean desde el campo */
       this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1); });
+    if (Itinerario.setDias) Itinerario.setDias(d.dias);
     Itinerario.refresh();
     $('#modal-destino-title').textContent = 'Editar Destino y Viaje';
     $('#pag-destino').classList.add('open');

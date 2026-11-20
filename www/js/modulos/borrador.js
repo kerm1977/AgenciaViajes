@@ -26,7 +26,8 @@ const Borrador = {
             hasta: $('#dest-fhasta').value },
           destinos: $$('#destinos-lista-container .dst-item, #destinos-lista-container .dst-txt')
             .map(i => (i.value !== undefined ? i.value : i.textContent)).filter(s => s.trim()),
-          itinerario: Itinerario.collect()
+          itinerario: Itinerario.collect(),
+          dias: (Itinerario.collectDias && Itinerario.collectDias()) || []
         };
         localStorage.setItem(this.KEY, JSON.stringify(d));
       } catch (e) {}
@@ -66,6 +67,7 @@ const Borrador = {
       }
       else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it, 1);
     });
+    if (Itinerario.setDias) Itinerario.setDias(d.dias);
     Itinerario.refresh();
   },
   async cancelar() {

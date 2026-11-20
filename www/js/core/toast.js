@@ -16,6 +16,21 @@ function showToast(msg, type) {
   }, 3000);
 }
 
+/* aviso informativo (un solo botón) */
+function aviso(msg, titulo) {
+  const ov = document.createElement('div');
+  ov.className = 'modal open';
+  ov.innerHTML =
+    '<div class="modal-box" style="max-width:22rem"><div class="modal-head">' +
+    '<h3>' + esc(titulo || 'Aviso') + '</h3></div>' +
+    '<div class="modal-body"><p class="text-sm">' + esc(msg) + '</p></div>' +
+    '<div class="modal-foot"><button class="btn btn-primary" ' +
+    'data-x="1">Entendido</button></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => {
+    if (e.target === ov || e.target.closest('[data-x]')) ov.remove(); });
+}
+
 /* confirmación estilo app (promesa booleana) */
 function confirmar(msg, titulo) {
   return new Promise(res => {

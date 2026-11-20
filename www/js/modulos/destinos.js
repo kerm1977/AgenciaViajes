@@ -111,7 +111,8 @@ const Destinos = {
     const ss = $$('#form-destino .wstep'); if (!ss.length) return;
     if (this._paso === 2 && n > 2 && $('#dest-tiene-fechas').checked &&
         (!$('#dest-fdesde').value || !$('#dest-fhasta').value)) {
-      showToast('Poné las fechas Desde y Hasta, o desmarcá "Cuenta con fechas"', 'error');
+      aviso('No podés dejar los campos de fechas vacíos, tenés que llenarlos.',
+        'Fechas del viaje');
       return; }
     n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
     ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));

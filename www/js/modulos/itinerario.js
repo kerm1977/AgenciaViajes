@@ -144,8 +144,8 @@ const Itinerario = {
       return c && v.startsWith(c) ? v.slice(c.length).trim() : v; };
     const tel = (cls, ph, v) =>
       '<div class="it-tel"><span class="it-cod">' + cod + '</span>' +
-        '<input type="tel" placeholder="' + ph + '" data-norm="digitos" ' +
-          'value="' + esc(stripCod(v)) + '" class="input ' + cls + '"></div>';
+      '<input type="tel" placeholder="' + ph + '" data-norm="tel" value="' +
+      esc(stripCod(v)) + '" class="input ' + cls + '"></div>';
     const transp = /^Transporte\s/.test(tipo || '');
     const costos = '<div class="grid-2">' +
         '<input type="number" min="0" step="0.01" placeholder="' +
@@ -179,8 +179,8 @@ const Itinerario = {
             'value="' + esc(x.maps || '') + '" class="input it-maps">' +
           this._wys(x.desc)) + costos;
     c.appendChild(card);
-    card.addEventListener('input', () => this._calc(card));
-    card.addEventListener('change', () => this._calc(card));
+    if (window.wireNormalizadores) wireNormalizadores(card);
+    ['input','change'].forEach(t => card.addEventListener(t, () => this._calc(card)));
     card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     this._calc(card);
     this.syncItin();

@@ -163,6 +163,11 @@
 #pag-destino .input, #pag-destino .selbtn { padding:.62rem .8rem; }
 #pag-destino .btn { font-size:1rem; }
 #pag-destino .card, #pag-destino .it-acc { font-size:1rem; }
+#pag-destino .wstep { overflow-x:hidden; }
+#pag-destino .it-acc-body > *, #pag-destino .grid-2 > * { min-width:0; max-width:100%; }
+#pag-destino .it-acc-body .input, #pag-destino .it-acc-body .selbtn,
+#pag-destino .it-acc-body textarea { width:100%; max-width:100%; }
+#pag-destino .it-acc, #pag-destino .it-acc-body { width:100%; min-width:0; }
 #desc-editor { min-height:9rem; width:100%;
   border:1px solid rgba(217,119,6,.35); border-radius:var(--r-md);
   background:rgba(255,255,255,.72); padding:.62rem .8rem;

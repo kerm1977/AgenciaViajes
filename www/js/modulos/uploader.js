@@ -17,9 +17,15 @@ const Uploader = {
     return new Promise(res => {
       const inp = document.createElement('input');
       inp.type = 'file'; inp.accept = 'image/*';
+      /* el input va al DOM invisible: fuera del DOM Android no entrega
+         el onchange y el picker parece muerto */
+      inp.style.cssText = 'position:fixed;left:-9999px;top:0;' +
+        'width:1px;height:1px;opacity:0;pointer-events:none';
+      document.body.appendChild(inp);
       inp.onchange = () => {
         const f = inp.files && inp.files[0];
         DC && DC.ev('img:pick', f ? f.name + ' ' + f.size + 'B' : 'cancelado');
+        inp.remove();
         if (!f) return res(null);
         const r = new FileReader();
         r.onload = async () =>

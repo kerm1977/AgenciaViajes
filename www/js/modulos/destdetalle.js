@@ -81,20 +81,24 @@ Destinos.pagina = async function (id) {
     (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
   const dias = Object.keys(porDia).sort((a, b) =>
     parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
-  const ftag = dia => {
+  const COLS = ['#0f9d8f', '#7c3aed', '#0284c7', '#e11d48', '#d97706', '#4f46e5'],
+        ftag = dia => {
     if (!(f.on && f.desde)) return '';
     const n = parseInt((dia || '').replace(/\D/g, '')) || 1,
           dd = new Date(f.desde + 'T00:00:00');
     dd.setDate(dd.getDate() + n - 1);
-    return ' · ' + dd.getDate() + '/' + (dd.getMonth() + 1) +
-      '/' + dd.getFullYear(); };
+    return dd.toLocaleDateString('es-ES', { weekday: 'long',
+      day: 'numeric', month: 'long', year: 'numeric' }); };
   h += dias.length
     ? '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>'
     : '';
-  dias.forEach(dia => {
-    h += '<div class="pit-ev"><p class="pit-ev-t">' +
-      '<i class="fa-solid fa-calendar-day"></i> ' + esc(dia) +
-      esc(ftag(dia)) + '</p><div class="pit-tk-dash"></div>' +
+  dias.forEach((dia, ix) => {
+    const fd = ftag(dia);
+    h += '<div class="pit-ev" style="--dc:' + COLS[ix % COLS.length] +
+      '"><p class="pit-ev-t">' +
+      '<i class="fa-solid fa-calendar-day"></i> ' + esc(dia) + '</p>' +
+      (fd ? '<p class="pit-dd">' + esc(fd) + '</p>' : '') +
+      '<div class="pit-tk-dash"></div>' +
       porDia[dia].map(it => {
         const q = encodeURIComponent(
           [it.destino, d.pais].filter(Boolean).join(', '));

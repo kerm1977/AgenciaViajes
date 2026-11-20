@@ -87,6 +87,10 @@ const Exportar = {
      (blur/rotar/opacidad no aplican a PDF) + itinerario por día + pasajeros */
   async pdfViaje(id) {
     if (!Session.can('exportar')) { showToast('Sin permiso', 'error'); return; }
+    try { await this._pdfViaje(id); }
+    catch (e) { console.error('pdfViaje', e);
+      showToast('Error al generar el PDF: ' + (e && e.message), 'error'); } },
+  async _pdfViaje(id) {
     const J = window.jspdf && window.jspdf.jsPDF;
     if (!J) { showToast('jsPDF no cargado', 'error'); return; }
     const d = await DB.get('destinos', id);
@@ -171,8 +175,8 @@ const Exportar = {
     const n = parseInt((dia || '').replace(/\D/g, '')) || 1,
           dd = new Date(desde + 'T00:00:00');
     dd.setDate(dd.getDate() + n - 1);
-    return ' · ' + dd.getDate() + '/' + (dd.getMonth() + 1) +
-      '/' + dd.getFullYear();
+    return ' · ' + dd.toLocaleDateString('es-ES', { weekday: 'long',
+      day: 'numeric', month: 'long', year: 'numeric' });
   },
   /* imagen del viaje compuesta con sus ajustes (cover + posición + zoom) */
   _imgFx(d) {

@@ -233,17 +233,17 @@ label.lbl {
 .pit-lnk:hover { text-decoration:underline; }
 .pit-ck { font-size:10.5px; padding:.05rem .4rem; border-radius:99px; background:var(--amber-50); color:var(--amber-700); }
 .pit-ck.ok { background:#d1fae5; color:#065f46; }
-.pit-ev { position:relative; background:#fff; padding:.55rem .8rem .6rem .9rem;
-  border:1.5px solid var(--slate-200); border-radius:12px;
+.pit-ev { position:relative; background:color-mix(in srgb,var(--dc,#fff) 7%,#fff); padding:.55rem .8rem .6rem .9rem;
+  border:1.5px solid var(--dc,var(--slate-200)); border-radius:12px;
   margin-bottom:.45rem; box-shadow:0 1px 2px rgba(0,0,0,.05); }
 .pit-ev:before, .pit-ev:after { content:''; position:absolute; top:50%; transform:translateY(-50%);
-  width:16px; height:16px; border-radius:50%; background:#fff; border:1.5px solid var(--slate-200); }
-.pit-ev:before { left:-9px; clip-path:inset(0 0 0 50%); }
-.pit-ev:after { right:-9px; clip-path:inset(0 50% 0 0); }
-.pit-ev-t { font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--brand-700); margin:0 0 .1rem; }
+  width:16px; height:16px; border-radius:50%; background:#fff; border:1.5px solid var(--dc,var(--slate-200)); }
+.pit-ev:before { left:-9px; clip-path:inset(0 0 0 50%); } .pit-ev:after { right:-9px; clip-path:inset(0 50% 0 0); }
+.pit-ev-t { font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--dc,var(--brand-700)); margin:0 0 .1rem; }
 .pit-tk-time { font-size:16px; font-weight:800; letter-spacing:.5px; color:var(--slate-800); font-variant-numeric:tabular-nums; margin:.1rem 0; }
-.pit-tk-dash { border-top:1.5px dashed var(--slate-300); margin:.35rem -.2rem .45rem; } .pit-ev p { margin:.1rem 0; font-size:13px; color:var(--slate-700); }
+.pit-tk-dash { border-top:1.5px dashed var(--dc,var(--slate-300)); margin:.35rem -.2rem .45rem; } .pit-ev p { margin:.1rem 0; font-size:13px; color:var(--slate-700); }
 .pit-precio { text-align:center; margin:.25rem 0 .55rem; font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; letter-spacing:.5px; } .pit-precio b { display:block; font-size:21px; color:var(--brand-700); letter-spacing:0; }
 .grp-lista { max-height:14rem; overflow-y:auto; display:flex; flex-direction:column; gap:.35rem; margin:.3rem 0; } .grp-hit { display:flex; align-items:center; gap:.5rem; padding:.45rem .55rem; border:1px solid var(--slate-200); border-radius:8px; background:#fff; cursor:pointer; }
 .it-vi { display:inline-flex; align-items:center; gap:.3rem; font-size:11.5px; color:var(--slate-600); white-space:nowrap; margin-top:.25rem; } .pit-desc { font-size:12.5px; color:var(--slate-600); margin:.15rem 0; }
 .pax-nm { color:var(--brand-700); cursor:pointer; }
+.pit-dd { font-size:15px; font-weight:800; color:var(--slate-800); letter-spacing:.2px; margin:.05rem 0; text-transform:capitalize; }

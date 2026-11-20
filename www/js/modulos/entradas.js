@@ -23,12 +23,12 @@ Itinerario.entradasCard = function (ruta, x) {
       '<label class="it-aic"><input type="checkbox" class="it-cmap"' +
         (x.maps ? ' checked' : '') +
         '> Agregar enlace de Google Maps</label>' +
+      L('Enlace Google Maps', '<input type="url" class="input it-maps" ' +
+        'value="' + esc(x.maps || '') + '">', !x.maps) +
       '<label class="it-aic"><input type="checkbox" class="it-cwaz"' +
         (x.waze ? ' checked' : '') +
-        '> Agregar enlace de Waze</label></div>' +
-    L('Enlace Google Maps', '<input type="url" class="input it-maps" ' +
-      'value="' + esc(x.maps || '') + '">', !x.maps) +
-    L('Enlace Waze', '<input type="url" class="input it-waze" ' +
-      'value="' + esc(x.waze || '') + '">', !x.waze) +
+        '> Agregar enlace de Waze</label>' +
+      L('Enlace Waze', '<input type="url" class="input it-waze" ' +
+        'value="' + esc(x.waze || '') + '">', !x.waze) + '</div>' +
     L('Descripción', It._wys(x.desc));
 };

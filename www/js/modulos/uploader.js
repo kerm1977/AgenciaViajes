@@ -56,9 +56,7 @@ const Uploader = {
     if (dv) {                                    // visible al instante
       const im = dv.querySelector('img');
       if (im) { im.onerror = null; im.src = pick.dataURL; }
-      dv.style.backgroundImage = 'url("' + pick.dataURL + '")';
-      dv.style.backgroundSize = 'cover';
-      dv.style.backgroundPosition = 'center';
+      dv.style.backgroundImage = '';   // una sola capa: el <img>
     }
     let n = '';
     try {                                        // verificación real: ¿hay archivos?
@@ -130,9 +128,7 @@ const Uploader = {
       if (!s) { DC && DC.ev('img:put', '∅ VACÍO'); return; }
       DC && DC.ev('img:put', String(s).slice(0, 46) + '…' + s.length + 'B');
       if (im) { im.onerror = null; im.src = s; }
-      el.style.backgroundImage = 'url("' + s + '")';
-      el.style.backgroundSize = 'cover';
-      el.style.backgroundPosition = 'center';
+      el.style.backgroundImage = '';   // una sola capa: el <img>
     };
     /* orden: cache → archivo Uploader → data: → b64 válido (SQLite puede
        truncar el respaldo; solo se usa si el archivo no resuelve) */
@@ -169,11 +165,6 @@ const Uploader = {
     el.style.transform = 'translate(' + f.x + '%,' + f.y + '%) scale(' +
       f.s / 100 + ') rotate(' + f.r + 'deg)';
     el.style.filter = 'blur(' + f.b + 'px) opacity(' + f.o / 100 + ')';
-    const dv = el.parentElement;
-    if (dv && dv.style.backgroundImage) {
-      dv.style.backgroundPosition = (50 - f.x) + '% ' + (50 - f.y) + '%';
-      dv.style.backgroundSize = f.s + '% auto';
-    }
   },
   /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
   fxModal(d) {

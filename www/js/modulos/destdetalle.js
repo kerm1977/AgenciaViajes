@@ -169,6 +169,10 @@ Destinos.pagina = async function (id) {
     sH('fa-circle-info', 'Información del viaje') + '<hr class="it-hr" style="margin-bottom:10px">' +
     info.join('<hr class="it-hr" style="margin-bottom:10px">') + '</div>' : '') +
     sec.map(s => '<div class="card card-pad">' + s + '</div>').join('');
+  h += '<label class="it-vi" style="display:flex;margin:.4rem 0">' +
+    '<input type="checkbox" ' + (MC ? 'checked' : '') +
+    ' onchange="Destinos.togMC(\'' + d.id + '\', this.checked)">' +
+    ' Mostrar precios</label>';
   h += '<div class="flex gap1" style="margin:.6rem 0">' +
     '<button class="btn btn-primary" style="flex:1" onclick="Exportar.pdfViaje(\'' + d.id +
     '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
@@ -177,6 +181,10 @@ Destinos.pagina = async function (id) {
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta
   $('#pag-itin').classList.add('open');
 };
+Destinos.togMC = async function (id, v) {
+  const d = await DB.get('destinos', id); if (!d) return;
+  d.mostrarCostos = v ? 1 : 0; await DB.put('destinos', d);
+  this.pagina(id); };
 Destinos.togPax = function (h3) {
   const b = h3.parentElement.querySelector('.pit-pax'); if (!b) return;
   b.classList.toggle('pit-off');

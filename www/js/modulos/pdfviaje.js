@@ -22,9 +22,9 @@ const PdfViaje = {
       doc.setLineWidth(.35); doc.line(M, y, W - M, y); y += 6; },
     seccion = t => { need(11); y += 3;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-      doc.setTextColor(15, 157, 143);
+      doc.setTextColor(217, 119, 6);
       doc.text(t.toUpperCase(), M, y); y += 2;
-      doc.setDrawColor(15, 157, 143); doc.setLineWidth(.5);
+      doc.setDrawColor(217, 119, 6); doc.setLineWidth(.5);
       doc.line(M, y, W - M, y); y += 5; },
     kv = (l, v) => { if (!v) return; need(5.4);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
@@ -42,7 +42,7 @@ const PdfViaje = {
         need(4.6); doc.text(l, M + (g || 0), y); y += 4.6; }); };
     /* ── encabezado tipo cotización ── */
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-    doc.setTextColor(15, 157, 143);
+    doc.setTextColor(217, 119, 6);
     doc.text('LA TRIBU DE LOS LIBRES TRAVELS', M, y);
     doc.setFontSize(15); doc.setTextColor(30, 41, 59);
     doc.text('COTIZACIÓN', W - M, y, { align: 'right' });
@@ -125,9 +125,8 @@ const PdfViaje = {
             it.lugar ? 'Lugar: ' + it.lugar : '',
             (it.hdesde || it.hhasta) ? 'Hora: ' + (it.hdesde || '') +
               (it.hhasta ? ' – ' + it.hhasta : '') : '',
-            MC && it.verinfo && it.precio ?
-              Itinerario.fmtT(d, it.precio) +
-              (it.modo === 'grupo' ? ' · por grupo' : ' · por persona') : '']
+            MC && it.verinfo && it.precio && it.modo !== 'grupo' ?
+              Itinerario.fmtT(d, it.precio) + ' · por persona' : '']
             .filter(Boolean);
           bullet(partes.join('   —   '), 3); });
         y += 1.5; }); }
@@ -135,7 +134,7 @@ const PdfViaje = {
     const TG = Itinerario.totalViaje(d);
     if (MC && TG.i) {
       need(16); y += 4;
-      doc.setFillColor(15, 157, 143);
+      doc.setFillColor(217, 119, 6);
       doc.roundedRect(M, y, CW, 12, 2, 2, 'F');
       doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
       doc.setFontSize(10.5);

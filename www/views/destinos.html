@@ -22,7 +22,7 @@
       <input type="hidden" id="destino-id">
       <section class="wstep open">
         <h3 class="wstep-t">Capacidad y moneda</h3>
-        <p class="wstep-n">Paso 1 de 6</p>
+        <p class="wstep-n">Paso 1 de 7</p>
         <div class="wstep-mid">
           <div class="field">
             <label class="lbl">Moneda</label>
@@ -45,15 +45,11 @@
             </div>
           </div>
         </div>
-        <div class="wstep-nav">
-          <span></span>
-          <button type="button" class="btn btn-primary" onclick="Destinos.paso(2)">
-            Siguiente <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
+        <div class="wstep-nav"><span></span><button type="button" class="btn btn-primary" onclick="Destinos.paso(2)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep">
         <h3 class="wstep-t">Información del viaje</h3>
-        <p class="wstep-n">Paso 2 de 6</p>
+        <p class="wstep-n">Paso 2 de 7</p>
         <div>
           <div class="field">
             <label class="lbl">País *</label>
@@ -97,25 +93,23 @@
             </div>
             <div id="desc-editor" class="wys-edit" contenteditable="true"></div>
           </div>
-          <div class="field">
-            <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:.4rem">
-              <label class="lbl" style="margin:0">Destinos del viaje *</label>
-              <button type="button" class="btn btn-sm btn-soft" onclick="Destinos.addDestino()">
-                <i class="fa-solid fa-plus"></i> Agregar destino</button>
-            </div>
-            <div id="destinos-lista-container" class="grid gap1" style="max-height:10rem;overflow-y:auto"></div>
-          </div>
         </div>
-        <div class="wstep-nav">
-          <button type="button" class="btn btn-soft" onclick="Destinos.paso(1)">
-            <i class="fa-solid fa-arrow-left"></i> Anterior</button>
-          <button type="button" class="btn btn-primary" onclick="Destinos.paso(3)">
-            Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(1)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(3)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
+      </section>
+      <section class="wstep">
+        <h3 class="wstep-t">Destinos del viaje</h3>
+        <p class="wstep-n">Paso 3 de 7</p>
+        <div class="field">
+          <button type="button" class="btn btn-primary" style="width:100%;margin-bottom:.6rem"
+                  onclick="Destinos.addDestino()">
+            <i class="fa-solid fa-plus"></i> Agregar destino</button>
+          <div id="destinos-lista-container" class="grid gap1"></div>
         </div>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(2)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(4)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep" id="wstep-costos">
         <h3 class="wstep-t">Costos y pagos</h3>
-        <p class="wstep-n">Paso 3 de 6</p>
+        <p class="wstep-n">Paso 4 de 7</p>
         <div>
           <div class="flex gap1" style="margin-bottom:.5rem">
             <select id="it-tipo-new" class="select" style="flex:1"></select>
@@ -123,54 +117,34 @@
           <div id="it-general" class="grid gap1"></div>
           <div id="it-gtotal" class="it-gtotal"></div>
         </div>
-        <div class="wstep-nav">
-          <button type="button" class="btn btn-soft" onclick="Destinos.paso(2)">
-            <i class="fa-solid fa-arrow-left"></i> Anterior</button>
-          <button type="button" class="btn btn-primary" onclick="Destinos.paso(4)">
-            Siguiente <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(3)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(5)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep">
         <h3 class="wstep-t">Itinerario</h3>
-        <p class="wstep-n">Paso 4 de 6</p>
+        <p class="wstep-n">Paso 5 de 7</p>
         <div><div id="itinerary-container" class="grid gap1"></div></div>
-        <div class="wstep-nav">
-          <button type="button" class="btn btn-soft" onclick="Destinos.paso(3)">
-            <i class="fa-solid fa-arrow-left"></i> Anterior</button>
-          <button type="button" class="btn btn-primary" onclick="Destinos.paso(5)">
-            Siguiente <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(4)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(6)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep">
         <h3 class="wstep-t">Pasajeros</h3>
-        <p class="wstep-n">Paso 5 de 6</p>
+        <p class="wstep-n">Paso 6 de 7</p>
         <div>
           <ol id="pax-lista" class="pit-ol"></ol>
           <button type="button" class="btn btn-soft" style="margin-top:.35rem"
                   onclick="Destinos.paxNuevo()">
             <i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>
         </div>
-        <div class="wstep-nav">
-          <button type="button" class="btn btn-soft" onclick="Destinos.paso(4)">
-            <i class="fa-solid fa-arrow-left"></i> Anterior</button>
-          <button type="button" class="btn btn-primary" onclick="Destinos.paso(6)">
-            Siguiente <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(5)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(7)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep">
         <h3 class="wstep-t">Lo que NO incluye</h3>
-        <p class="wstep-n">Paso 6 de 6</p>
+        <p class="wstep-n">Paso 7 de 7</p>
         <div class="field" style="margin-top:.4rem">
           <label class="lbl">Lo que NO incluye</label>
           <textarea id="dest-noincluye" class="input" rows="4"
             placeholder="Ej. Propinas, bebidas alcohólicas, impuestos de salida… (una por línea)"></textarea>
         </div>
-        <div class="wstep-nav">
-          <button type="button" class="btn btn-soft" onclick="Destinos.paso(5)">
-            <i class="fa-solid fa-arrow-left"></i> Anterior</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar Destino</button>
-        </div>
+        <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(6)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Destino</button></div>
       </section>
     </form></div>
   </div>

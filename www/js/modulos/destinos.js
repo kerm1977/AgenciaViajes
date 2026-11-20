@@ -101,8 +101,8 @@ const Destinos = {
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
-    const draft = Borrador.get();
-    if (draft) Borrador.restore(draft); else this.addDestino();
+    Borrador.clear();              // nuevo viaje = formulario desde cero
+    this.addDestino();
     $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
     this._capRes();
     openModal('modal-destino'); this.togFechas();

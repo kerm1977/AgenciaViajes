@@ -59,11 +59,13 @@ const Pasajeros = {
       f('fa-plane', 'Viaje', d ? d.nombre : '') + f('fa-chair', 'Asiento', p.asiento) +
       f('fa-user-clock', 'Contacto', [p.cnombre, p.ctel].filter(Boolean).join(' · ')) +
       f('fa-clock', 'Horario', p.horario) + f('fa-note-sticky', 'Notas', p.notas) +
-      (p.checkin ? '<p><span class="badge ' + (p.checkin === 'Realizado'
-        ? 'badge-brand' : 'badge-amber') + '">' + p.checkin + '</span></p>' : '') +
+      (p.checkin ? '<p><span class="badge ' + (p.checkin === 'Realizado' ? 'badge-brand' : 'badge-amber') + '">' + p.checkin + '</span></p>' : '') +
       (p.checkinUrl ? '<p><a href="' + esc(p.checkinUrl) + '" target="_blank" style="color:var(--brand-600)"><i class="fa-solid fa-arrow-up-right-from-square"></i> Enlace check-in</a></p>' : '') +
       (p.urlmapa ? '<p><a href="' + esc(p.urlmapa) + '" target="_blank" style="color:var(--brand-600)"><i class="fa-solid fa-map"></i> Mapa</a></p>' : '') +
       '<div class="flex gap1" style="justify-content:flex-end">' +
+      (p.telefono ? '<a class="btn btn-soft" target="_blank" style="color:#25D366" ' +
+        'href="https://wa.me/' + String((p.codigo || '') + p.telefono).replace(/\D/g, '') +
+        '"><i class="fa-brands fa-whatsapp"></i></a>' : '') +
       (eP ? '<button class="btn btn-soft" onclick="Pasajeros.editar(\'' + p.id +
         '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
       (dP ? '<button class="btn btn-soft" style="color:var(--rose-600)" ' +

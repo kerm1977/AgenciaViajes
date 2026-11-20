@@ -69,6 +69,8 @@ const Uploader = {
       dv.style.backgroundSize = 'cover';
       dv.style.backgroundPosition = 'center';
     }
+    const hero = document.querySelector('#pag-itin-body .pit-hero');
+    if (hero && Destinos._detId === id) this.bindImg(hero, d);
     let n = '';
     try {                                        // verificación real: ¿hay archivos?
       const r = await this._fs().readdir({
@@ -158,7 +160,7 @@ const Uploader = {
       const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
       pt = setTimeout(() => { pt = null;
         DC && DC.ev('img:editor', 'pulsación larga → fxModal');
-        this.fxModal(d); }, 550); });
+        this.fxModal(d, el); }, 550); });
     el.addEventListener('touchmove', e => {      // tolera temblor de dedo
       if (!pt) return;
       const t = e.touches[0];
@@ -167,7 +169,7 @@ const Uploader = {
     ['touchend', 'touchcancel'].forEach(ev =>
       el.addEventListener(ev, () => { clearTimeout(pt); pt = null; }));
     el.addEventListener('contextmenu', e => {
-      e.preventDefault(); this.fxModal(d); });
+      e.preventDefault(); this.fxModal(d, el); });
   },
   /* fx sobre la capa de fondo: X/Y mueven la posición, zoom el tamaño;
      la imagen nunca se corta, solo se desplaza/escala dentro del marco */
@@ -182,10 +184,12 @@ const Uploader = {
     el.style.filter = 'blur(' + f.b + 'px) opacity(' + f.o / 100 + ')';
   },
   /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
-  fxModal(d) {
+  fxModal(d, el) {
     this._lp = Date.now();
     DC && DC.ev('img:fxModal', 'abriendo para ' + d.id);
     if (document.getElementById('upl-fx')) return;
+    const dv = el || document.querySelector(
+      '.dest-img[onclick*="\'' + d.id + '\'"]');
     const fx = Object.assign({ x: 0, y: 0, s: 100, r: 0, b: 0, o: 100 },
       d.imgfx || {});
     const bd = document.createElement('div');
@@ -205,11 +209,7 @@ const Uploader = {
         'id="upl-fx-ok" style="flex:1">Guardar</button></div></div>';
     document.body.appendChild(bd);
     bd.addEventListener('click', e => {                        // tocar fuera cierra
-      if (e.target === bd) { this.applyFx(
-        document.querySelector('.dest-img[onclick*="\'' + d.id + '\'"]'),
-        d.imgfx); cerrar(); } });
-    const dv = document.querySelector(
-      '.dest-img[onclick*="\'' + d.id + '\'"]');
+      if (e.target === bd) { this.applyFx(dv, d.imgfx); cerrar(); } });
     bd.querySelectorAll('input').forEach(i =>
       i.addEventListener('input', () => {
         fx[i.dataset.k] = +i.value; this.applyFx(dv, fx); }));

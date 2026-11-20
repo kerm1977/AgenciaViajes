@@ -9,18 +9,17 @@ Destinos.pagina = async function (id) {
   const d = await DB.get('destinos', id);
   if (!d) return;
   Destinos._detId = id;
-  const imgUrl = await Uploader.url(d.imagen, (d.imgfx || {}).b64),
-        fx = d.imgfx || {},
-        fxCss = fx.x || fx.s ? ';background-position:' +
-          (50 + (fx.x || 0)) + '% center;background-size:' +
-          (fx.s || 100) + '%' : '';
+  const imgUrl = await Uploader.url(d.imagen, (d.imgfx || {}).b64);
   let h = '<div class="pit-hero" style="background-image:url(' +
-    (imgUrl || Destinos.IMG_DEF) + ')' + fxCss + '"><div class="pit-hero-t"><h2>' +
+    (imgUrl || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
     esc(d.nombre) + '</h2><p>' + esc(d.pais || '—') +
     (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
       (d.paxSinGuia || 0) + ' pagan' : '') +
     ((d.destinos || []).length ? '<br>' + esc(d.destinos.join(' · ')) : '') +
-    '</p></div></div>';
+    '</p></div></div>' +
+    '<div class="flex gap1" style="margin:.45rem 0">' +
+    '<button class="btn" onclick="Exportar.pdfViaje(\'' + d.id +
+    '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
     esc(d.notas) + '</div>';
   const fila = (ic, l, v) =>
@@ -100,5 +99,7 @@ Destinos.pagina = async function (id) {
           esc(p.asiento) + ')</span>' : '') + '</span>').join('') + '</div>'
       : '<p class="hint">No hay pasajeros asignados a este viaje.</p>');
   $('#pag-itin-body').innerHTML = h;
+  const hero = $('#pag-itin-body .pit-hero');
+  if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta
   $('#pag-itin').classList.add('open');
 };

@@ -107,10 +107,10 @@
         <h3 class="wstep-t">Destinos del viaje</h3>
         <p class="wstep-n">Paso 4 de 8</p>
         <div class="field wstep-mid wide">
-          <button type="button" class="btn btn-primary" style="width:100%;margin-bottom:.6rem"
+          <div id="destinos-lista-container" class="grid gap1"></div>
+          <button type="button" class="btn btn-primary" style="width:100%;margin-top:auto"
                   onclick="Destinos.addDestino()">
             <i class="fa-solid fa-plus"></i> Agregar destino</button>
-          <div id="destinos-lista-container" class="grid gap1"></div>
         </div>
         <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(3)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(5)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>

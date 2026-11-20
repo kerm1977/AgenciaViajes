@@ -133,6 +133,7 @@ const Uploader = {
       el.style.backgroundSize = 'cover';
       el.style.backgroundPosition = 'center';
       el.style.backgroundRepeat = 'no-repeat';
+      this.applyFx(el, d.imgfx);   // uf: resuelve async — fx después de pintar
     };
     /* orden: cache → archivo Uploader → data: → b64 válido (SQLite puede
        truncar el respaldo; solo se usa si el archivo no resuelve) */

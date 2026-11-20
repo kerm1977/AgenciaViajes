@@ -143,9 +143,8 @@ Itinerario.aeroCard = function (card, nombre, x) {
         '<br><b>Total: ' + sim() + (cu * cg).toFixed(0) + '</b>';
     } else h = '<b>Total: ' + sim() + con.toFixed(0) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
-    hint.textContent = cg && sg
-      ? 'S/G ' + sim() + Math.round(con * cg / sg) + ' · C/G ' + sim() + con
-      : 'C/G ' + sim() + con;
+    hint.textContent = 'C/G ' + sim() + con + ' · S/G ' + sim() +
+      (sg ? Math.round(con * cg / sg) : con);
     if (Itinerario._gtotal) Itinerario._gtotal();
   };
   card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G

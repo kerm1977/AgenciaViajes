@@ -129,13 +129,21 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const total = () => {
     const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
     const con = base + (ai.checked ? 0 : n(ps));
-    tot.innerHTML = base || con
-      ? '<hr class="it-hr"><b>Total: ' + sim() + con.toFixed(2) + '</b>' +
-        (ai.checked ? '' : ' <span class="hint">(sin asiento: ' +
-          sim() + base.toFixed(2) + ')</span>')
-      : '';
-    hint.textContent = con ? sim() + con.toFixed(2) : '';
+    const cg = Itinerario.pax(), sg = Itinerario.paxS();
+    if (!con) { tot.innerHTML = ''; hint.textContent = ''; return; }
+    let h;
+    if (cg) {   /* boleto P/P: precio × C/G, repartido entre S/G */
+      const T = con * cg;
+      h = 'P/P ' + sim() + con.toFixed(2) + ' × ' + cg + ' C/G = ' +
+        sim() + T.toFixed(2) +
+        (sg ? '<br>÷ ' + sg + ' S/G = ' + sim() + (T / sg).toFixed(2) +
+          ' c/u' : '') +
+        '<br><b>Total: ' + sim() + T.toFixed(2) + '</b>';
+    } else h = '<b>Total: ' + sim() + con.toFixed(2) + '</b>';
+    tot.innerHTML = '<hr class="it-hr">' + h;
+    hint.textContent = sim() + con.toFixed(2);
   };
+  card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G
   const pintar = () => {
     const a = AEROLINEAS[sel.value];
     /* enlaces: precarga del catálogo solo si el campo sigue vacío —
@@ -155,6 +163,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
     const tt = card.querySelector('.it-acc-t');
     if (tt) tt.textContent = sel.value
       ? 'Aerolínea · ' + sel.value : 'Aerolínea';
+    total();
     cls.innerHTML = '<option value="">— Clase —</option>' +
       (a ? a.clases.map(c => '<option' + (c === x.clase ? ' selected' : '') +
         '>' + esc(c) + '</option>').join('') : '');

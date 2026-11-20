@@ -79,8 +79,10 @@ const Itinerario = {
   refresh() {
     $$('#itinerary-container .it-cod, #it-general .it-cod').forEach(cod =>
       cod.textContent = codigoDePais(($('#dest-pais') || {}).value) || '—');
-    $$('#itinerary-container .it-precio').forEach(p =>
+    $$('#itinerary-container .it-precio, #it-general .it-precio').forEach(p =>
       this._calc(p.closest('.it-acc')));
+    $$('#it-general .it-acc, #itinerary-container .it-acc')
+      .forEach(c => { if (c._tot) c._tot(); });
     this.syncItin();
   },
   addRow(dest, dia, tipo, ruta, x, ev) {

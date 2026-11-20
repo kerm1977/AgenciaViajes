@@ -233,15 +233,15 @@ const Destinos = {
 Router.ON_TAB.destinos = () => Destinos.render();
 ['input', 'change'].forEach(t => document.addEventListener(t, e => {
   const id = e.target && e.target.id || '';
-  if (id === 'dest-conguia') {
-    const sg = $('#dest-singuia');
-    if (sg) sg.value = Math.max(0, (parseInt(e.target.value) || 0) - 2);
-  }
-  if (id !== 'dest-singuia' &&
-      /^dest-(conguia|pais|moneda|fdesde|fhasta|tiene-fechas)$/.test(id) &&
+  if (id === 'dest-conguia') { const sg = $('#dest-singuia');
+    if (sg) sg.value = Math.max(0, (parseInt(e.target.value) || 0) - 2); }
+  if (id !== 'dest-singuia' && /^dest-(conguia|pais|moneda|fdesde|fhasta|tiene-fechas)$/.test(id) &&
       window.Itinerario) Itinerario.refresh();
   if (/^dest-f(desde|hasta)$/.test(id)) Destinos._fechasTxt();
-  if (e.target && e.target.classList &&
-      e.target.classList.contains('dst-item') && window.Itinerario)
-    Itinerario.syncItin();
+  if (e.target && e.target.classList && e.target.classList.contains('dst-item') &&
+      window.Itinerario) Itinerario.syncItin();
 }));
+document.addEventListener('focusin', e => {   /* subir el campo sobre el teclado */
+  if (e.target && e.target.classList && e.target.classList.contains('dst-item'))
+    setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 350);
+});

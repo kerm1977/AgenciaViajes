@@ -216,6 +216,7 @@
 .it-day.open .it-day-b { display:block; font-size:1.05rem; }
 .it-day-f { font-size:.72rem; font-weight:700; }
 .it-day.open .it-day-f { font-size:.82rem; }
+.it-day.open { margin-bottom:10px; }
 .it-day .multi { margin-top:.4rem; }
 .it-lugs { display:flex; flex-wrap:wrap; gap:.35rem; margin:.35rem 0 0; }
 .it-lug { font-size:.7rem; font-weight:700; padding:.18rem .55rem;

@@ -41,12 +41,15 @@ Destinos.pagina = async function (id) {
       '">' + t + '</a>' : '';
   const sH = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem;text-align:center">' +
     '<i class="fa-solid ' + ic + '"></i> ' + esc(t) + '</p>';
+  const sHL = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem">' +
+    '<i class="fa-solid ' + ic + '"></i> ' + esc(t) + '</p>';
   const sec = [], info = [];            /* cards separadas por sección */
   const fFecha = (f.on && (f.desde || f.hasta))
     ? fila('fa-calendar-days', 'Fecha', esc(f.desde || '') +
       (f.hasta ? ' → ' + esc(f.hasta) : '')) : '';
   if (d.aerolinea || bo.clase || bo.ai === '1' || bo.os === '1' || bo.esc === '1')
-    info.push(fila('fa-plane', '', esc(d.aerolinea || '')) +
+    info.push(sHL('fa-plane', 'Aerolínea') +
+      fila('fa-plane', '', esc(d.aerolinea || '')) +
       fila('fa-chair', 'Clase', esc(bo.clase || '')) + fFecha +
       (bo.ai === '1' ? fila('fa-check', 'Asiento', 'Incluido') : '') +
       ((bo.hdesde || bo.hhasta) ? fila('fa-clock', 'Horario',
@@ -59,17 +62,17 @@ Destinos.pagina = async function (id) {
         Itinerario.fmtT(d, parseFloat(bo.pb) || 0)) : '') +
       '<div class="flex gap1" style="margin-top:.3rem">' +
         lnk(d.checkin || bo.ci, 'Check-in') + '</div>');
-  else if (fFecha) info.push(sH('fa-calendar-days', 'Fechas') + fFecha);
-  if (d.trans) info.push(sH('fa-bus', 'Transporte') +
+  else if (fFecha) info.push(sHL('fa-calendar-days', 'Fechas') + fFecha);
+  if (d.trans) info.push(sHL('fa-bus', 'Transporte') +
     fila('fa-bus', '', esc(d.trans.tsel === 'TRANSAVI' ? 'TRANSAVI'
       : (d.trans.tnombre || ''))) +
     fila('fa-phone', 'Teléfono', esc(d.trans.ttel || '')) +
     (d.trans.tdesc ? '<div class="pit-desc">' + d.trans.tdesc + '</div>' : ''));
-  else if (d.transporte) info.push(sH('fa-bus', 'Transporte') +
+  else if (d.transporte) info.push(sHL('fa-bus', 'Transporte') +
     fila('fa-bus', '', esc(d.transporte)));
   (d.itinerario || []).forEach(it => {
     if (it.campo) return;                /* aéreo/transporte ya salen arriba */
-    info.push(sH(ICON[it.tipo] || 'fa-circle-check', it.tipo || 'Campo') +
+    info.push(sHL(ICON[it.tipo] || 'fa-circle-check', it.tipo || 'Campo') +
       fila(ICON[it.tipo] || 'fa-circle-check', '',
         esc(it.nombre || it.ruta || '')) +
       fila('fa-phone', 'Teléfono', esc(it.tel || '')) +

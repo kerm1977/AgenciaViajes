@@ -55,8 +55,10 @@ const Uploader = {
       '.dest-img[onclick*="\'' + id + '\'"]');
     if (dv) {                                    // visible al instante
       const im = dv.querySelector('img');
-      if (im) { im.onerror = null; im.src = pick.dataURL; }
-      dv.style.backgroundImage = '';   // una sola capa: el <img>
+      if (im) im.style.display = 'none';       // una sola capa: el fondo
+      dv.style.backgroundImage = 'url("' + pick.dataURL + '")';
+      dv.style.backgroundSize = 'cover';
+      dv.style.backgroundPosition = 'center';
     }
     let n = '';
     try {                                        // verificación real: ¿hay archivos?
@@ -122,13 +124,15 @@ const Uploader = {
     DC && DC.ev('img:bind', d.id + ' → ' + String(d.imagen || '∅').slice(0, 40));
     const b64 = d.imgfx && d.imgfx.b64 &&
       String(d.imgfx.b64).indexOf('data:image/') === 0 ? d.imgfx.b64 : null;
-    /* fuerza bruta: la fuente se pinta como <img> Y como fondo del div —
-       aunque una capa falle, la otra se ve */
+    /* una sola capa: el fondo del div — el <img> queda oculto */
     const put = s => {
       if (!s) { DC && DC.ev('img:put', '∅ VACÍO'); return; }
       DC && DC.ev('img:put', String(s).slice(0, 46) + '…' + s.length + 'B');
-      if (im) { im.onerror = null; im.src = s; }
-      el.style.backgroundImage = '';   // una sola capa: el <img>
+      if (im) im.style.display = 'none';
+      el.style.backgroundImage = 'url("' + s + '")';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
     };
     /* orden: cache → archivo Uploader → data: → b64 válido (SQLite puede
        truncar el respaldo; solo se usa si el archivo no resuelve) */
@@ -138,7 +142,7 @@ const Uploader = {
     else if (/^uf:/.test(d.imagen || ''))
       this.url(d.imagen).then(u => put(u || b64));
     else put(b64);
-    this.applyFx(im, d.imgfx);
+    this.applyFx(el, d.imgfx);
     let pt = null, sx = 0, sy = 0;
     el.addEventListener('touchstart', e => {
       const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
@@ -155,15 +159,16 @@ const Uploader = {
     el.addEventListener('contextmenu', e => {
       e.preventDefault(); this.fxModal(d); });
   },
-  /* aplica posición X/Y/zoom/rotación/blur/opacidad a un <img> y sincroniza
-     el fondo del div para que nunca se vea cortada */
+  /* fx sobre la capa de fondo: X/Y mueven la posición, zoom el tamaño;
+     la imagen nunca se corta, solo se desplaza/escala dentro del marco */
   applyFx(el, fx) {
     if (!el) return;
     const f = Object.assign({ x: 0, y: 0, s: 100, r: 0, b: 0, o: 100 },
       fx || {});
-    el.style.transformOrigin = 'center';
-    el.style.transform = 'translate(' + f.x + '%,' + f.y + '%) scale(' +
-      f.s / 100 + ') rotate(' + f.r + 'deg)';
+    el.style.backgroundPosition = (50 - f.x) + '% ' + (50 - f.y) + '%';
+    el.style.backgroundSize = f.s === 100 ? 'cover' : f.s + '% auto';
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.transform = f.r ? 'rotate(' + f.r + 'deg)' : '';
     el.style.filter = 'blur(' + f.b + 'px) opacity(' + f.o / 100 + ')';
   },
   /* barra inferior con sliders; Guardar persiste d.imgfx en la base */
@@ -191,16 +196,16 @@ const Uploader = {
     document.body.appendChild(bd);
     bd.addEventListener('click', e => {                        // tocar fuera cierra
       if (e.target === bd) { this.applyFx(
-        document.querySelector('.dest-img[onclick*="\'' + d.id + '\'"] img'),
+        document.querySelector('.dest-img[onclick*="\'' + d.id + '\'"]'),
         d.imgfx); cerrar(); } });
-    const im = document.querySelector(
-      '.dest-img[onclick*="\'' + d.id + '\'"] img');
+    const dv = document.querySelector(
+      '.dest-img[onclick*="\'' + d.id + '\'"]');
     bd.querySelectorAll('input').forEach(i =>
       i.addEventListener('input', () => {
-        fx[i.dataset.k] = +i.value; this.applyFx(im, fx); }));
+        fx[i.dataset.k] = +i.value; this.applyFx(dv, fx); }));
     const cerrar = () => bd.remove();
     bd.querySelector('#upl-fx-x').onclick = () => {
-      this.applyFx(im, d.imgfx); cerrar(); };
+      this.applyFx(dv, d.imgfx); cerrar(); };
     bd.querySelector('#upl-fx-ok').onclick = async () => {
       d.imgfx = fx; await DB.save('destinos', d);
       showToast('Ajustes de imagen guardados'); cerrar();

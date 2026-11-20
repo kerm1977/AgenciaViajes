@@ -128,7 +128,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
         inp = (c) => card.querySelector(c);
   const hint = card.querySelector('.it-hint');
   const n = el => parseFloat(el.value) || 0;
-  const sim = () => ($('#dest-moneda') || {}).value || '$';
+  const sim = () => ($('#dest-moneda') || {}).value === 'CRC' ? '₡' : '$';
   const total = () => {
     const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
     const con = base + (ai.checked ? n(ps) : 0);

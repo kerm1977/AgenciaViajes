@@ -57,10 +57,14 @@ const Itinerario = {
         this._fmt(T / ns) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(T) + '</b>';
     }
-    if (hnt) hnt.textContent =
-      this._fmt(modo === 'grupo' ? precio : precio * n);
+    if (hnt) hnt.textContent = this._fmt(this._ind(modo, precio));
     this._gtotal();
   },
+  /* total individual del servicio: el "c/u" de la fórmula */
+  _ind(modo, p) {
+    const n = this.pax(), ns = this.paxS();
+    if (modo === 'grupo') return ns ? p / ns : p;
+    return ns ? p * n / ns : p; },
   initPickers() {
     const t = $('#it-tipo-new'); if (!t) return;
     t.innerHTML = '<option value="">— Campo del viaje —</option>' +
@@ -206,23 +210,31 @@ const Itinerario = {
   /* gran total en vivo: Σ total de cada tarjeta con fórmula (Costos y pagos) */
   _gtotal() {
     const el = $('#it-gtotal'); if (!el) return;
-    const n = this.pax(); let tg = 0;
+    const n = this.pax(), ns = this.paxS(); let tg = 0, ti = 0;
     $$('#it-general .it-acc').forEach(c => {
       const v = s => parseFloat((c.querySelector(s) || {}).value) || 0,
             ck = s => !!(c.querySelector(s) || {}).checked,
             mo = c.querySelector('.it-modo');
-      if (v('.it-precio')) tg += (mo && mo.value === 'grupo' || !n)
-        ? v('.it-precio') : v('.it-precio') * n;
-      if (v('.it-pb')) tg += (v('.it-pb') + (ck('.it-os') ? v('.it-osv') : 0) +
-        (ck('.it-ai') ? 0 : v('.it-ps'))) * (n || 1); });
-    el.innerHTML = tg ? 'Total general: <b>' + this._fmt(tg) + '</b>' : ''; },
+      if (v('.it-precio')) { const m =
+            mo && mo.value === 'grupo' ? 'grupo' : 'persona';
+        tg += (m === 'grupo' || !n) ? v('.it-precio') : v('.it-precio') * n;
+        ti += this._ind(m, v('.it-precio')); }
+      if (v('.it-pb')) { const con = v('.it-pb') +
+          (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? 0 : v('.it-ps'));
+        tg += con * (n || 1); ti += ns ? con * n / ns : con; } });
+    el.innerHTML = tg ? 'Total general: <b>' + this._fmt(tg) +
+      '</b> · Total individual: <b>' + this._fmt(ti) + '</b>' : ''; },
   /* mismo cálculo sobre el viaje guardado (página del itinerario) */
   totalViaje(d) {
-    const cg = d.paxConGuia || 0; let T = 0;
-    (d.itinerario || []).forEach(it => { if (it.precio)
-      T += (it.modo === 'grupo' || !cg) ? it.precio : it.precio * cg; });
-    const b = d.boleto; if (b) T += ((parseFloat(b.pb) || 0) +
-      (b.os === '1' ? parseFloat(b.osv) || 0 : 0) +
-      (b.ai === '1' ? 0 : parseFloat(b.ps) || 0)) * (cg || 1);
-    return T; }
+    const cg = d.paxConGuia || 0, sg = d.paxSinGuia || 0;
+    let T = 0, I = 0;
+    (d.itinerario || []).forEach(it => { if (it.precio) {
+      T += (it.modo === 'grupo' || !cg) ? it.precio : it.precio * cg;
+      I += it.modo === 'grupo' ? (sg ? it.precio / sg : it.precio)
+        : (sg ? it.precio * cg / sg : it.precio); } });
+    const b = d.boleto; if (b) { const con = (parseFloat(b.pb) || 0) +
+        (b.os === '1' ? parseFloat(b.osv) || 0 : 0) +
+        (b.ai === '1' ? 0 : parseFloat(b.ps) || 0);
+      T += con * (cg || 1); I += sg ? con * cg / sg : con; }
+    return { t: T, i: I }; }
 };

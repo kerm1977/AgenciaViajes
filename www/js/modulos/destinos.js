@@ -96,8 +96,9 @@ const Destinos = {
     this.paso(1);
   },
   togFechas() {
-    $$('#dest-fechas-wrap').forEach(w => w.style.display =
-      $('#dest-tiene-fechas').checked ? 'grid' : 'none');
+    const on = $('#dest-tiene-fechas').checked;
+    $$('#dest-fechas-wrap').forEach(w => w.style.display = on ? 'grid' : 'none');
+    const fn = $('#f-nombre'); if (fn) fn.style.marginTop = on ? '.4rem' : '2.4rem';
     this._fechasTxt(); },
   _fechasTxt() {
     const t = id => { const v = ($(id) || {}).value; if (!v) return '';

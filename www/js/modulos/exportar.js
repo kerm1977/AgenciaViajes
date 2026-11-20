@@ -101,13 +101,38 @@ const Exportar = {
       if (y > 285) { doc.addPage(); y = 15; }
       doc.text(l, 14, y); y += 4.6; });
     doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-    const f = d.fechas || {};
-    line('País: ' + (d.pais || '—') +
-      ((d.destinos || []).length ? ' · ' + d.destinos.join(', ') : ''));
+    const f = d.fechas || {}, bo = d.boleto || {},
+          txt = s => { const v = document.createElement('div');
+            v.innerHTML = s || ''; return (v.textContent || '').trim(); },
+          TG = Itinerario.totalViaje(d);
+    line('País: ' + (d.pais || '—'));
     if (f.on && (f.desde || f.hasta))
       line('Fechas: ' + (f.desde || '') + ' → ' + (f.hasta || ''));
-    if (d.paxConGuia) line('Capacidad: ' + d.paxConGuia + ' van / ' +
-      (d.paxSinGuia || 0) + ' pagan');
+    if (TG.i) { doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+      line('PRECIO POR PERSONA: ' + Itinerario.fmtT(d, TG.i));
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); }
+    doc.setFont('helvetica', 'bold'); line('INCLUYE');
+    doc.setFont('helvetica', 'normal');
+    if (d.guia) line('  Guía: ' + d.guia);
+    if (d.transporte) line('  Transporte: ' + d.transporte);
+    if (d.aerolinea || d.vuelo)
+      line('  Aerolínea: ' + (d.aerolinea || '') +
+        (d.vuelo ? ' · ' + d.vuelo : '') +
+        (d.checkin ? ' · Check-in: ' + d.checkin : ''));
+    if (bo.hdesde || bo.hhasta)
+      line('  Vuelo: ' + (bo.hdesde || '') +
+        (bo.hhasta ? ' – ' + bo.hhasta : ''));
+    if (bo.esc === '1')
+      line('  Escala: ' + [bo.escp, bo.escv, bo.esch, bo.esca]
+        .filter(Boolean).join(' · '));
+    if (txt(d.notas)) line('  ' + txt(d.notas));
+    (d.itinerario || []).forEach(it => {
+      const lbl = it.nombre || it.ruta || it.tipo;
+      if (lbl && lbl !== it.tipo) line('  ' + it.tipo + ': ' + lbl); });
+    if ((d.destinos || []).length) {
+      doc.setFont('helvetica', 'bold'); line('DESTINOS DEL VIAJE');
+      doc.setFont('helvetica', 'normal');
+      d.destinos.forEach(x => line('  • ' + x)); }
     doc.setFont('helvetica', 'bold'); line('ITINERARIO');
     doc.setFont('helvetica', 'normal');
     const por = {};
@@ -116,20 +141,27 @@ const Exportar = {
     Object.keys(por).sort((a, b) =>
       parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, ''))
     ).forEach(dia => {
+      doc.setFont('helvetica', 'bold');
       line(dia + (f.on && f.desde ? this._fDia(f.desde, dia) : ''));
-      por[dia].forEach(it => line('  ' +
-        (it.hdesde || '') + (it.hhasta ? '–' + it.hhasta + ' ' : ' ') +
-        it.tipo + (it.destino ? ' · ' + it.destino : '') +
-        (it.guia ? ' · Guía: ' + it.guia : '')));
-    });
-    const pax = (await DB.list('pasajeros'))
-      .filter(p => p.destinoId === id);
-    if (pax.length) {
-      doc.setFont('helvetica', 'bold'); line('PASAJEROS');
       doc.setFont('helvetica', 'normal');
-      pax.forEach(p => line('  • ' + p.nombre +
-        (p.asiento ? ' (' + p.asiento + ')' : '')));
-    }
+      por[dia].forEach(it => {
+        line('  ' + (it.hdesde || '') +
+          (it.hhasta ? '–' + it.hhasta + ' ' : ' ') + it.tipo +
+          (it.destino ? ' · ' + it.destino : ''));
+        if (it.nombre) line('    ' + it.nombre);
+        if (it.verinfo && it.tel) line('    Tel: ' + it.tel);
+        if (it.verinfo && it.telGuia) line('    Tel. guía: ' + it.telGuia);
+        if (it.verinfo && it.precio)
+          line('    ' + Itinerario.fmtT(d, it.precio) +
+            (it.modo === 'grupo' ? ' P/G' : ' P/P'));
+        if (it.guia) line('    Guía: ' + it.guia);
+        if (it.desc) line('    ' + txt(it.desc));
+        if (it.adesc) line('    ' + txt(it.adesc)); }); });
+    if (d.noincluye) {
+      doc.setFont('helvetica', 'bold'); line('NO INCLUYE');
+      doc.setFont('helvetica', 'normal');
+      d.noincluye.split(/[\n;]+/).map(s => s.trim()).filter(Boolean)
+        .forEach(x => line('  • ' + x)); }
     await this._savePdf(doc,
       'viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
     showToast('PDF del viaje generado');

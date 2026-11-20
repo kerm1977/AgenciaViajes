@@ -26,13 +26,15 @@ const Itinerario = {
     if (!open) { card.classList.add('open');
       const b = this._body(card); if (b) b.style.display = ''; }
   },
-  pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; },
-  paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
+  pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; }, paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
+  async vi(chk) {
+    if (chk.checked && (!(await confirmar('¿Mostrar teléfono y monto en el itinerario público?')) || !(await confirmar('¿Seguro? Lo verán todas las personas.')))) chk.checked = false; },
+  _wys(d) { const bt = b => '<button type="button" class="wys-b" title="' + b[1] + '" onmousedown="event.preventDefault()" onclick="WYS.cmd(\'' + b[0] + (b[2] || '') + '\')"><i class="fa-solid ' + b[3] + '"></i></button>';
+    return '<div class="wys-bar">' + [['bold','Negrita','','fa-bold'], ['underline','Subrayado','','fa-underline'], ['insertUnorderedList','Viñetas','','fa-list-ul'], ['insertOrderedList','Lista ordenada','','fa-list-ol'], ['formatBlock','Cita',",'blockquote'",'fa-quote-left']].map(bt).join('') +
+      '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
-    return s + n.toLocaleString('en-US', { minimumFractionDigits: 2,
-      maximumFractionDigits: 2 }); },
-  _dias() { let o = ''; for (let i = 1; i <= 30; i++)
-    o += '<option>Día ' + i + '</option>'; return o; },
+    return s + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+  _dias() { let o = ''; for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
     const pi = card.querySelector('.it-precio');
     const mo = card.querySelector('.it-modo');
@@ -106,7 +108,7 @@ const Itinerario = {
     const card = document.createElement('div');
     card.className = 'it-acc it-card open'; card.id = rid;
     card.dataset.tipo = tipo || 'Parada';
-    ['dia','hdesde','hhasta','guia'].forEach(k => {
+    ['dia','hdesde','hhasta','guia','adesc'].forEach(k => {
       const v = x[k] || (k === 'dia' ? dia : '');
       if (v) card.dataset[k] = v; });
     const head =
@@ -153,25 +155,27 @@ const Itinerario = {
           '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') +
             '>' + (transp ? 'P/G — por grupo' : 'Por grupo') +
             '</option></select></div>' +
-      '<p class="it-total hint"></p></div>';
+      '<p class="it-total hint"></p>' +
+      '<label class="it-vi"><input type="checkbox" class="it-verinfo"' +
+        (x.verinfo ? ' checked' : '') +
+        ' onchange="Itinerario.vi(this)"> Ver información</label></div>';
     card.innerHTML = head + '<div class="it-acc-body">' +
       (transp
         ? '<input type="text" placeholder="Nombre del transporte" ' +
             'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
           tel('it-tela', 'Tel. del contacto', x.tel) +
-          '<textarea class="input it-desc" rows="2" ' +
-            'placeholder="Descripción">' + esc(x.desc || '') + '</textarea>'
+          '<input type="url" placeholder="Enlace Google Maps / Waze" ' +
+            'value="' + esc(x.maps || '') + '" class="input it-maps">' +
+          this._wys(x.desc)
         : '<input type="text" placeholder="Detalle (Ej. llegada hotel)" ' +
             'value="' + esc(ruta || '') + '" class="input it-ruta">' +
           '<input type="text" placeholder="Guía / Agencia / Tour operador" ' +
             'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
           '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
             tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
-          '<input type="url" placeholder="Google Maps / GPX (link)" ' +
+          '<input type="url" placeholder="Enlace Google Maps / Waze" ' +
             'value="' + esc(x.maps || '') + '" class="input it-maps">' +
-          '<textarea class="input it-desc" rows="2" ' +
-            'placeholder="Descripción / detalle">' + esc(x.desc || '') +
-            '</textarea>') + costos;
+          this._wys(x.desc)) + costos;
     c.appendChild(card);
     card.addEventListener('input', () => this._calc(card));
     card.addEventListener('change', () => this._calc(card));
@@ -186,14 +190,18 @@ const Itinerario = {
     const leer = (card, dest) => {
       const q = s => { const e = card.querySelector(s);
         return e ? e.value.trim() : ''; };
-      const ta = q('.it-tela'), tg = q('.it-telg');
+      const ta = q('.it-tela'), tg = q('.it-telg'),
+            ed = card.querySelector('.it-desc'),
+            de = ed ? (ed.value !== undefined ? ed.value : ed.innerHTML)
+              .trim() : '';
       return {
         destino: dest, dia: card.dataset.dia || '', tipo: card.dataset.tipo,
         ruta: q('.it-ruta') || card.dataset.tipo,
         nombre: V.titleCase(q('.it-nombre')), tel: ta ? pre + ta : '',
         telGuia: tg ? pre + tg : '', maps: q('.it-maps'),
-        desc: q('.it-desc'), precio: parseFloat(q('.it-precio')) || 0,
-        modo: q('.it-modo') }; };
+        desc: de, precio: parseFloat(q('.it-precio')) || 0,
+        modo: q('.it-modo'),
+        verinfo: !!(card.querySelector('.it-verinfo') || {}).checked }; };
     $$('#it-general .it-acc').forEach(card => {
       const fn = card.dataset.aero ? this.aeroCollect : card.dataset.trans
         ? this.transCollect : null;
@@ -202,7 +210,7 @@ const Itinerario = {
           ? { campo: card.dataset.tipo,
               valor: card.querySelector('.it-campo').value.trim() }
           : leer(card, '');
-      ['dia','hdesde','hhasta','guia'].forEach(k => {
+      ['dia','hdesde','hhasta','guia','adesc'].forEach(k => {
         o[k] = card.dataset[k] || ''; });
       it.push(o); });
     return it;

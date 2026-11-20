@@ -66,22 +66,37 @@ Object.assign(Itinerario, {
             'onclick="Itinerario.unassign(\'' + card.id + '\')">' +
             '<i class="fa-solid fa-xmark"></i></button></div>' +
         '<div class="flex gap1" style="margin-top:.4rem">' +
-          '<input type="time" class="input it-hd" style="flex:0 0 5rem" title="Hora de salida">' +
-          '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hora de llegada">' +
-          '<select class="select it-guia" style="flex:1"></select></div>';
+          '<label class="it-vi"><input type="checkbox" class="it-rh"' +
+            (card.dataset.hdesde ? ' checked' : '') + '> Requiere hora</label>' +
+          '<input type="time" class="input it-hd" style="flex:0 0 5rem" title="Hora de salida"' +
+            (card.dataset.hdesde ? '' : ' hidden') + '>' +
+          '<label class="it-vi"><input type="checkbox" class="it-rf"' +
+            (card.dataset.hhasta ? ' checked' : '') + '> Requiere fin</label>' +
+          '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hora de llegada"' +
+            (card.dataset.hhasta ? '' : ' hidden') + '>' +
+          '<select class="select it-guia" style="flex:1"></select></div>' +
+        this._wys(card.dataset.adesc);
       const d = row.querySelector('.it-dia'), p = row.querySelector('.it-pick'),
             g = row.querySelector('.it-guia'), gs = card.dataset.guia || '';
+      const ad = row.querySelector('.it-desc');
+      if (ad) ad.addEventListener('input', () => {
+        card.dataset.adesc = ad.innerHTML; });
       d.value = card.dataset.dia;
       d.onchange = () => { card.dataset.dia = d.value; };
       p.addEventListener('change', () => {
         const nc = cards[+p.value];
         if (!nc || nc === card) return;
-        ['dia','hdesde','hhasta','guia'].forEach(k => delete card.dataset[k]);
+        ['dia','hdesde','hhasta','guia','adesc'].forEach(k => delete card.dataset[k]);
         nc.dataset.dia = d.value; this.syncItin(); });
-      [['hd','hdesde'],['hh','hhasta']].forEach(([cl, k]) => {
-        const i = row.querySelector('.it-' + cl);
+      [['hd','hdesde','rh'],['hh','hhasta','rf']].forEach(([cl, k, ck]) => {
+        const i = row.querySelector('.it-' + cl),
+              ckb = row.querySelector('.it-' + ck);
         i.value = card.dataset[k] || '';
-        i.addEventListener('input', () => { card.dataset[k] = i.value; }); });
+        i.addEventListener('input', () => { card.dataset[k] = i.value; });
+        ckb.addEventListener('change', () => {
+          i.hidden = !ckb.checked;
+          if (!ckb.checked) { i.value = ''; delete card.dataset[k]; }
+          else i.focus(); }); });
       g.innerHTML = '<option value="">— Guía —</option>' +
         guias.concat(gs && !guias.includes(gs) ? [gs] : [])
           .map(n => '<option>' + esc(n) + '</option>').join('');

@@ -11,15 +11,7 @@
   <button class="btn btn-primary" onclick="Usuarios.nuevo()">
     <i class="fa-solid fa-user-plus"></i> Nuevo Usuario</button>
 </div>
-<div class="tablewrap"><div style="overflow-x:auto">
-  <table>
-    <thead><tr>
-      <th>Usuario</th><th>Rol</th><th>Privilegios</th><th>Estado</th>
-      <th style="text-align:right">Acciones</th>
-    </tr></thead>
-    <tbody id="usuarios-table-body"></tbody>
-  </table>
-</div></div>
+<div id="usuarios-list" class="grid" style="gap:.35rem"></div>
 <p class="hint mt2"><i class="fa-solid fa-shield-halved" style="color:var(--amber-600)"></i>
   Los superusuarios son fijos: no pueden eliminarse ni perder su rol. Un
   administrador solo hace lo que el superusuario le permita aquí.</p>

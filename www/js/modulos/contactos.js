@@ -4,48 +4,63 @@ const Contactos = {
   BADGE: { 'Guía': 'badge-brand', Transportista: 'badge-amber',
            'Aerolínea': 'badge-purple', 'Hotel': 'badge-purple',
            'Servicios / Otros': 'badge-slate' },
+  _page: 0, _q: '', _POR: 10,
   async render() {
-    const q = (($('#search-contactos') || {}).value || '').toLowerCase();
-    const tf = ($('#filter-contacto-tipo') || {}).value || '';
-    const grid = $('#contactos-grid');
+    const q = (($('#search-contactos') || {}).value || '').toLowerCase(),
+          tf = ($('#filter-contacto-tipo') || {}).value || '',
+          grid = $('#contactos-grid');
     if (!grid) return;
-    const lista = (await DB.list('contactos')).filter(c => {
-      const tel = (c.telefono || '');
-      return (c.nombre.toLowerCase().includes(q) || tel.includes(q) ||
-              (c.email || '').toLowerCase().includes(q)) &&
-             (!tf || c.tipo === tf);
-    });
-    grid.innerHTML = '';
-    if (!lista.length) {
-      grid.innerHTML = '<div class="card empty-state" style="grid-column:1/-1">' +
-        '<i class="fa-solid fa-address-book"></i><p>No hay contactos.</p></div>';
-      return;
-    }
-    const eP = Session.can('contactos.editar'), dP = Session.can('contactos.eliminar');
-    lista.forEach(c => {
-      const card = document.createElement('div');
-      card.className = 'card card-pad';
-      card.innerHTML =
-        '<div class="flex" style="justify-content:space-between;align-items:flex-start">' +
-          '<span class="badge ' + (this.BADGE[c.tipo] || 'badge-slate') + '">' +
-            esc(c.tipo) + '</span><span>' +
-          (eP ? '<button class="iconbtn" onclick="Contactos.editar(\'' + c.id +
-                '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') +
-          (dP ? '<button class="iconbtn danger" onclick="Contactos.borrar(\'' + c.id +
-                '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
-          '</span></div>' +
-        '<h4 class="bold mt1">' + esc(c.nombre) + '</h4>' +
-        '<div class="grid gap1 mt1">' +
-          '<p class="kv"><i class="fa-solid fa-phone" style="color:var(--slate-400)"></i> ' +
-            esc(c.codigo ? c.codigo + ' ' : '') + esc(c.telefono || 'Sin teléfono') +
-            (c.telefono ? ' <a href="https://wa.me/' + esc((c.codigo || '').replace('+', '') + c.telefono) +
-              '" target="_blank" class="muted" title="WhatsApp"><i class="fa-brands fa-whatsapp" style="color:#25d366"></i></a>' : '') + '</p>' +
-          '<p class="kv"><i class="fa-solid fa-envelope" style="color:var(--slate-400)"></i> ' +
-            '<span class="truncate">' + esc(c.email || 'Sin correo') + '</span></p>' +
-          (c.notas ? '<p class="hint" style="background:var(--slate-50);padding:.5rem;border-radius:var(--r-md);font-style:italic">' +
-            esc(c.notas) + '</p>' : '') + '</div>';
-      grid.appendChild(card);
-    });
+    if (q !== this._q) { this._q = q; this._page = 0; }
+    const lista = (await DB.list('contactos')).filter(c =>
+      (!tf || c.tipo === tf) &&
+      (!q || ['nombre', 'tipo', 'telefono', 'codigo', 'email', 'notas'].some(k =>
+        String(c[k] || '').toLowerCase().includes(q))))
+      .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    if (this._page * this._POR >= lista.length) this._page = 0;
+    const pags = Math.ceil(lista.length / this._POR),
+          page = lista.slice(this._page * this._POR, (this._page + 1) * this._POR),
+          eP = Session.can('contactos.editar'),
+          dP = Session.can('contactos.eliminar');
+    grid.innerHTML = (lista.length
+      ? page.map(c => this._card(c, eP, dP)).join('')
+      : '<div class="empty-state"><i class="fa-solid fa-address-book"></i>' +
+        '<p>No hay contactos.</p></div>') +
+      (pags > 1 ? '<div class="flex gap1" style="justify-content:center;' +
+        'align-items:center;padding:.4rem 0"><button class="iconbtn" ' +
+        (this._page < 1 ? 'disabled ' : '') +
+        'onclick="Contactos.pg(-1)"><i class="fa-solid fa-chevron-left">' +
+        '</i></button><span class="hint">' + (this._page + 1) + ' / ' +
+        pags + '</span><button class="iconbtn" ' +
+        (this._page >= pags - 1 ? 'disabled ' : '') +
+        'onclick="Contactos.pg(1)"><i class="fa-solid fa-chevron-right">' +
+        '</i></button></div>' : '');
+  },
+  pg(d) { this._page = Math.max(0, this._page + d); this.render(); },
+  _card(c, eP, dP) {
+    return '<div class="it-acc"><div class="it-acc-head">' +
+      '<button type="button" class="it-acc-btn" ' +
+      'onclick="this.closest(\'.it-acc\').classList.toggle(\'open\')">' +
+      '<span class="it-acc-t"><b>' + esc(c.nombre) + '</b> <span class="badge ' +
+      (this.BADGE[c.tipo] || 'badge-slate') + '">' + esc(c.tipo) + '</span></span>' +
+      '<span class="hint">' + esc((c.codigo || '') + (c.telefono || '')) +
+      '</span><i class="fa-solid fa-chevron-down"></i></button></div>' +
+      '<div class="it-acc-body">' +
+      (c.telefono ? '<p><i class="fa-solid fa-phone"></i> <b>Tel:</b> ' +
+        esc((c.codigo || '') + c.telefono) + '</p>' : '') +
+      (c.email ? '<p><i class="fa-solid fa-envelope"></i> <b>Correo:</b> ' +
+        esc(c.email) + '</p>' : '') +
+      (c.notas ? '<p class="hint" style="background:var(--slate-50);padding:.5rem;' +
+        'border-radius:var(--r-md);font-style:italic">' + esc(c.notas) + '</p>' : '') +
+      '<div class="flex gap1" style="justify-content:flex-end">' +
+      (c.telefono ? '<a class="btn btn-soft" target="_blank" style="color:#25D366" ' +
+        'href="https://wa.me/' + String((c.codigo || '') + c.telefono).replace(/\D/g, '') +
+        '"><i class="fa-brands fa-whatsapp"></i></a>' : '') +
+      (eP ? '<button class="btn btn-soft" onclick="Contactos.editar(\'' + c.id +
+        '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
+      (dP ? '<button class="btn btn-soft" style="color:var(--rose-600)" ' +
+        'onclick="Contactos.borrar(\'' + c.id +
+        '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
+      '</div></div></div>';
   },
   nuevo() {
     if (!Session.can('contactos.crear')) {

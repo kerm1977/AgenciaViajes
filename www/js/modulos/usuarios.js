@@ -3,46 +3,65 @@
    asignados por un superusuario; admin nunca borra/degrada a un super. */
 'use strict';
 const Usuarios = {
-  _permsSel: [],
+  _permsSel: [], _page: 0, _q: '', _POR: 10,
   async render() {
-    const q = (($('#search-usuarios') || {}).value || '').toLowerCase();
-    const tb = $('#usuarios-table-body');
-    if (!tb) return;
+    const q = (($('#search-usuarios') || {}).value || '').toLowerCase(),
+          box = $('#usuarios-list');
+    if (!box) return;
+    if (q !== this._q) { this._q = q; this._page = 0; }
     const lista = (await DB.list('usuarios')).filter(u =>
-      u.nombre.toLowerCase().includes(q) || (u.email || '').includes(q));
-    tb.innerHTML = '';
-    if (!lista.length) {
-      tb.innerHTML = '<tr><td colspan="5" class="empty-state">' +
-        '<i class="fa-solid fa-user-shield"></i><p>Sin usuarios.</p></td></tr>';
-      return;
-    }
-    lista.forEach(u => {
-      const esSuper = u.rol === 'superusuario';
-      const tr = document.createElement('tr');
-      const chip = esSuper ? 'rol-super' : u.rol === 'admin' ? 'rol-admin' : 'rol-user';
-      const nP = (u.permisos || []).length;
-      tr.innerHTML =
-        '<td><div class="flex gap2" style="align-items:center">' +
-          '<span class="avatar">' + iniciales(u.nombre) + '</span><div>' +
-          '<p class="bold">' + esc(u.nombre) + '</p>' +
-          '<p class="hint">' + esc(u.email) + '</p></div></div></td>' +
-        '<td data-label="Rol"><span class="rol-chip ' + chip + '">' + esc(u.rol) + '</span></td>' +
-        '<td data-label="Privilegios" class="text-xs muted">' +
-          (esSuper ? 'Todos (fijo)' : u.rol === 'admin'
-            ? nP + ' privilegio(s)' : '—') + '</td>' +
-        '<td data-label="Estado">' + (u.activo === 0
-            ? '<span class="badge badge-rose">Inactivo</span>'
-            : '<span class="badge badge-brand">Activo</span>') + '</td>' +
-        '<td data-label="Acciones" style="text-align:right;white-space:nowrap">' +
-          (esSuper ? '<span class="hint">fijo</span>' :
-            '<button class="iconbtn" title="Editar/permisos" onclick="Usuarios.editar(\'' +
-              u.id + '\')"><i class="fa-solid fa-pen-to-square"></i></button>' +
-            '<button class="iconbtn" title="Activar/desactivar" onclick="Usuarios.toggleActivo(\'' +
-              u.id + '\')"><i class="fa-solid fa-power-off"></i></button>' +
-            '<button class="iconbtn danger" title="Eliminar" onclick="Usuarios.borrar(\'' +
-              u.id + '\')"><i class="fa-solid fa-trash"></i></button>') + '</td>';
-      tb.appendChild(tr);
-    });
+      !q || u.nombre.toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q) || (u.rol || '').includes(q))
+      .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    if (this._page * this._POR >= lista.length) this._page = 0;
+    const pags = Math.ceil(lista.length / this._POR),
+          page = lista.slice(this._page * this._POR, (this._page + 1) * this._POR);
+    box.innerHTML = (lista.length
+      ? page.map(u => this._card(u)).join('')
+      : '<div class="empty-state"><i class="fa-solid fa-user-shield"></i>' +
+        '<p>Sin usuarios.</p></div>') +
+      (pags > 1 ? '<div class="flex gap1" style="justify-content:center;' +
+        'align-items:center;padding:.4rem 0"><button class="iconbtn" ' +
+        (this._page < 1 ? 'disabled ' : '') +
+        'onclick="Usuarios.pg(-1)"><i class="fa-solid fa-chevron-left">' +
+        '</i></button><span class="hint">' + (this._page + 1) + ' / ' +
+        pags + '</span><button class="iconbtn" ' +
+        (this._page >= pags - 1 ? 'disabled ' : '') +
+        'onclick="Usuarios.pg(1)"><i class="fa-solid fa-chevron-right">' +
+        '</i></button></div>' : '');
+  },
+  pg(d) { this._page = Math.max(0, this._page + d); this.render(); },
+  _card(u) {
+    const esSuper = u.rol === 'superusuario',
+          chip = esSuper ? 'rol-super' : u.rol === 'admin' ? 'rol-admin' : 'rol-user',
+          nP = (u.permisos || []).length;
+    return '<div class="it-acc"><div class="it-acc-head">' +
+      '<button type="button" class="it-acc-btn" ' +
+      'onclick="this.closest(\'.it-acc\').classList.toggle(\'open\')">' +
+      '<span class="it-acc-t"><b>' + esc(u.nombre) + '</b> ' +
+      '<span class="rol-chip ' + chip + '">' + esc(u.rol) + '</span></span>' +
+      '<span class="hint">' + esc(u.email || '') + '</span>' +
+      '<i class="fa-solid fa-chevron-down"></i></button></div>' +
+      '<div class="it-acc-body">' +
+      '<p><i class="fa-solid fa-key"></i> <b>Privilegios:</b> ' +
+      (esSuper ? 'Todos (fijo)' : u.rol === 'admin'
+        ? nP + ' privilegio(s)' : 'Ninguno') + '</p>' +
+      '<p><i class="fa-solid fa-circle-half-stroke"></i> <b>Estado:</b> ' +
+      (u.activo === 0
+        ? '<span class="badge badge-rose">Inactivo</span>'
+        : '<span class="badge badge-brand">Activo</span>') + '</p>' +
+      '<div class="flex gap1" style="justify-content:flex-end">' +
+      (esSuper ? '<span class="hint">fijo</span>' :
+        '<button class="btn btn-soft" title="Editar/permisos" ' +
+        'onclick="Usuarios.editar(\'' + u.id +
+        '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' +
+        '<button class="btn btn-soft" title="Activar/desactivar" ' +
+        'onclick="Usuarios.toggleActivo(\'' + u.id +
+        '\')"><i class="fa-solid fa-power-off"></i></button>' +
+        '<button class="btn btn-soft" style="color:var(--rose-600)" ' +
+        'title="Eliminar" onclick="Usuarios.borrar(\'' + u.id +
+        '\')"><i class="fa-solid fa-trash"></i></button>') +
+      '</div></div></div>';
   },
   toggleMulti() { $('#multi-perms').classList.toggle('open'); },
   rolCambio() {

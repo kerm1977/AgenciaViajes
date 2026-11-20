@@ -49,7 +49,11 @@ const Auth = {
     const i = $(sel);
     if (i) { V.marcar(i, true); setTimeout(() => V.marcar(i, false), 2500); }
   },
-  salir() { Session.logout(); },
+  async salir() {
+    if (!(await confirmar('¿Cerrar sesión? Tendrás que ingresar de nuevo.')))
+      return;
+    Session.logout();
+  },
 
   /* entra al shell: carga app.html y arma navegación según rol */
   async entrar(u) {

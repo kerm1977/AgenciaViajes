@@ -46,6 +46,24 @@
 - Los datos viven en `card.dataset.dia/hdesde/hhasta/guia`; se persisten en
   `input`/`change` inmediato y sobreviven cualquier re-render.
 
+## 6c. Imágenes, tarjetas, formulario y perfil (BLINDADO)
+- Imagen de tarjeta: 5 toques rápidos (<900ms) abren el selector (`Uploader.tap5`);
+  pulsación larga (550ms, tolerancia 10px) abre el editor `fxModal`
+  (Izq/Der, Arr/Abj, Zoom, Rotar, Desenfoque, Opacidad).
+- UNA sola capa: el fondo del div `.dest-img` (background-image); el `<img>`
+  va oculto. `put()` siempre re-aplica `d.imgfx` tras pintar (uf: resuelve async).
+- Un archivo por tarjeta: `viaje-<id>.jpg`, siempre sobrescrito (cero duplicados);
+  respaldo comprimido en `d.imgfx.b64` dentro del registro.
+- Ajustes · Uploader (Mi Perfil): lista archivos reales con miniatura y borrado
+  con doble `confirmar()` — prohibido `window.confirm`.
+- "Nuevo Destino y Viaje" SIEMPRE abre el formulario limpio: `Borrador.clear()`
+  antes de `addDestino()`; nunca restaurar borrador en un alta nueva.
+- Mi Perfil (tab final del nav): avatar/nombre/email/rol/estado/privilegios,
+  Ajustes·Uploader, Estadísticas (con tarjeta "Imágenes en Uploader") y
+  "Cerrar sesión" — siempre con `confirmar()` antes de `Session.logout()`.
+- Acordeones: uno abierto a la vez; abrir uno colapsa los demás; el abierto se
+  ve oscuro y un punto más grande, los cerrados gris claro y más pequeños.
+
 ## 7. APK
 - `npx cap sync android` → `cd android && gradlew assembleDebug` →
   `android/app/build/outputs/apk/debug/app-debug.apk` → copiar a

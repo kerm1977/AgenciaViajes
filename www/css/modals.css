@@ -156,7 +156,8 @@
 .wstep-mid.wide { max-width:44rem; justify-content:flex-start; padding-top:.4rem; }
 #pag-destino .wstep-t { font-size:1.35rem; }
 #pag-destino .wstep-n { font-size:.85rem; }
-#pag-destino .lbl { font-size:.95rem; }
+#pag-destino .lbl { font-size:.95rem; margin-bottom:1rem; }
+#pag-destino .field .err { margin-top:.5rem; }
 #pag-destino .input, #pag-destino .select, #pag-destino .selbtn,
 #pag-destino textarea, #pag-destino .wysiwyg { font-size:1.05rem; }
 #pag-destino .input, #pag-destino .selbtn { padding:.62rem .8rem; }

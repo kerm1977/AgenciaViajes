@@ -13,10 +13,11 @@ Destinos.pagina = async function (id) {
   let h = '<div class="pit-hero" style="background-image:url(' +
     (imgUrl || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
     esc(d.nombre) + '</h2><p>' + (d.pais ? esc(d.pais) : '') +
-    (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
-      (d.paxSinGuia || 0) + ' pagan' : '') +
-    '</p></div></div>' +
-    '<div class="flex gap1" style="margin:.45rem 0">' +
+    '</p></div></div>';
+  const TG = Itinerario.totalViaje(d);
+  if (TG.i) h += '<p class="pit-precio">Precio por persona<br><b>' +
+    Itinerario.fmtT(d, TG.i) + '</b></p>';
+  h += '<div class="flex gap1" style="margin:.45rem 0">' +
     '<button class="btn" onclick="Exportar.pdfViaje(\'' + d.id +
     '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
@@ -46,10 +47,6 @@ Destinos.pagina = async function (id) {
           : '') + '</div>'
       : '');
   if (filas) h += '<div class="grid-2 card card-pad">' + filas + '</div>';
-  const TG = Itinerario.totalViaje(d);
-  if (TG.t) h += '<hr class="it-hr"><p class="pit-total">Total individual: <b>' +
-    Itinerario.fmtT(d, TG.i) + '</b><br>Total general: <b>' +
-    Itinerario.fmtT(d, TG.t) + '</b></p>';
   if ((d.destinos || []).length)
     h += '<h3 class="pit-dia"><i class="fa-solid fa-location-dot"></i> ' +
       'Destinos del viaje</h3><ul class="pit-ol">' +
@@ -80,18 +77,19 @@ Destinos.pagina = async function (id) {
         : 'https://waze.com/ul?q=' + q;
       const gmaps = it.maps ||
         ('https://www.google.com/maps/search/?api=1&query=' + q);
-      h += '<div class="pit-ev card card-pad">' +
-        '<p class="pit-ev-t"><i class="fa-solid fa-location-dot"></i> ' +
+      h += '<div class="pit-ev">' +
+        '<p class="pit-ev-t"><i class="fa-solid fa-ticket"></i> ' +
           esc(it.tipo) +
           (it.destino ? ' <span class="hint">· ' + esc(it.destino) + '</span>' : '') +
           '</p>' +
+        ((it.hdesde || it.hhasta) ? '<p class="pit-tk-time">' +
+          esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
+          '</p>' : '') +
+        '<div class="pit-tk-dash"></div>' +
         (it.ruta && it.ruta !== it.tipo ? '<p>' + esc(it.ruta) + '</p>' : '') +
         (it.nombre ? '<p><i class="fa-solid fa-user"></i> ' + esc(it.nombre) + '</p>' : '') +
         (it.tel ? '<p><i class="fa-solid fa-phone"></i> ' + esc(it.tel) + '</p>' : '') +
         (it.telGuia ? '<p><i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + '</p>' : '') +
-        ((it.hdesde || it.hhasta) ? '<p><i class="fa-regular fa-clock"></i> ' +
-          esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
-          '</p>' : '') +
         (it.guia ? '<p><i class="fa-solid fa-user-check"></i> Guía: ' +
           esc(it.guia) + '</p>' : '') +
         (it.desc ? '<p class="hint">' + esc(it.desc) + '</p>' : '') +
@@ -111,14 +109,22 @@ Destinos.pagina = async function (id) {
     '<div class="pit-pax">' +
     '<button class="btn btn-sm btn-soft" onclick="Pasajeros.elegir(\'' + d.id +
     '\')"><i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>' +
-    (pax.length ? '<ol class="pit-ol">' + pax.map(p =>
-      '<li><b>' + esc(p.nombre) + '</b>' +
-      (p.telefono ? ' <span class="hint">' +
-        esc((p.codigo ? p.codigo + ' ' : '') + p.telefono) + '</span>' : '') +
-      ' <button type="button" class="iconbtn danger pit-x" ' +
-        'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
-        '<i class="fa-solid fa-xmark"></i></button></li>').join('') +
-      '</ol>' : '') + '</div>';
+    (pax.length ? '<div class="pit-pxl">' + pax.map(p =>
+      '<div class="pit-px">' +
+        '<span class="pit-px-i"><i class="fa-solid fa-user"></i></span>' +
+        '<div class="pit-px-b"><b>' + esc(p.nombre) + '</b>' +
+          '<p class="hint">' +
+            (p.telefono ? '<i class="fa-solid fa-phone"></i> ' +
+              esc((p.codigo ? p.codigo + ' ' : '') + p.telefono) : '') +
+            (p.asiento ? ' <i class="fa-solid fa-chair"></i> ' + esc(p.asiento) : '') +
+            ' <span class="pit-ck' + (p.checkin === 'Realizado' ? ' ok' : '') +
+              '">' + esc(p.checkin || 'Pendiente') + '</span></p></div>' +
+        (p.checkinUrl ? '<a class="pit-lnk" target="_blank" href="' +
+          esc(p.checkinUrl) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Enlace</a>' : '') +
+        ' <button type="button" class="iconbtn danger pit-x" ' +
+          'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
+          '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
+      '</div>' : '') + '</div>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta

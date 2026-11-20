@@ -100,11 +100,13 @@ Destinos.pagina = async function (id) {
       (fd ? '<p class="pit-dd">' + esc(fd) + '</p>' : '') +
       '<div class="pit-tk-dash"></div>' +
       porDia[dia].map(it => {
-        const esUrl = /^https?:/.test(it.maps || '');
-        return (it.adesc ? '<div class="pit-desc">' + it.adesc + '</div>' : '') +
-          (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
-          (it.lugar ? '<p><i class="fa-solid fa-location-dot"></i> ' +
-            esc(it.lugar) + '</p>' : '') +
+        const esUrl = /^https?:/.test(it.maps || ''),
+              sec = [];
+        if (it.adesc) sec.push('<div class="pit-desc">' + it.adesc + '</div>');
+        if (it.desc) sec.push('<div class="pit-desc">' + it.desc + '</div>');
+        if (it.lugar) sec.push('<p><i class="fa-solid fa-location-dot"></i> ' +
+          esc(it.lugar) + '</p>');
+        return (sec.length ? sec.join('') + '<hr class="pit-sep">' : '') +
           '<p class="pit-ev-t"><i class="fa-solid fa-ticket"></i> ' +
           esc(it.tipo) +
           (it.destino ? ' <span class="hint">· ' + esc(it.destino) + '</span>' : '') +

@@ -15,13 +15,12 @@ Destinos.pagina = async function (id) {
     esc(d.nombre) + '</h2><p>' + (d.pais ? esc(d.pais) : '') +
     (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
       (d.paxSinGuia || 0) + ' pagan' : '') +
-    ((d.destinos || []).length ? '<br>' + esc(d.destinos.join(' · ')) : '') +
     '</p></div></div>' +
     '<div class="flex gap1" style="margin:.45rem 0">' +
     '<button class="btn" onclick="Exportar.pdfViaje(\'' + d.id +
     '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
-    esc(d.notas) + '</div>';
+    '<div class="pit-nota-t">' + d.notas + '</div></div>';
   const fila = (ic, l, v) =>
     '<div><p class="lbl">' + l + '</p><p class="kv bold">' +
     '<i class="fa-solid ' + ic + '"></i> ' + v + '</p></div>';
@@ -47,6 +46,10 @@ Destinos.pagina = async function (id) {
           : '') + '</div>'
       : '');
   if (filas) h += '<div class="grid-2 card card-pad">' + filas + '</div>';
+  if ((d.destinos || []).length)
+    h += '<h3 class="pit-dia"><i class="fa-solid fa-location-dot"></i> ' +
+      'Destinos del viaje</h3><ul class="pit-ol">' +
+      d.destinos.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
   const porDia = {};
   (d.itinerario || []).forEach(it =>
     (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
@@ -96,15 +99,30 @@ Destinos.pagina = async function (id) {
         '</div></div>';
     });
   });
-  const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id);
-  if (pax.length)
-    h += '<h3 class="pit-dia"><i class="fa-solid fa-users"></i> Pasajeros</h3>' +
-      '<div class="flex gap1" style="flex-wrap:wrap">' +
-        pax.map(p => '<span class="pax-badge"><i class="fa-solid fa-user"></i> ' +
-          esc(p.nombre) + (p.asiento ? ' <span class="muted">(' +
-          esc(p.asiento) + ')</span>' : '') + '</span>').join('') + '</div>';
+  const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+  h += '<h3 class="pit-dia pit-tog" onclick="Destinos.togPax(this)">' +
+    '<i class="fa-solid fa-users"></i> Pasajeros <span class="hint">(' +
+    pax.length + ')</span><i class="fa-solid fa-chevron-down pit-ch"></i></h3>' +
+    '<div class="pit-pax">' +
+    '<button class="btn btn-sm btn-soft" onclick="Pasajeros.elegir(\'' + d.id +
+    '\')"><i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>' +
+    (pax.length ? '<ol class="pit-ol">' + pax.map(p =>
+      '<li><b>' + esc(p.nombre) + '</b>' +
+      (p.telefono ? ' <span class="hint">' +
+        esc((p.codigo ? p.codigo + ' ' : '') + p.telefono) + '</span>' : '') +
+      ' <button type="button" class="iconbtn danger pit-x" ' +
+        'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
+        '<i class="fa-solid fa-xmark"></i></button></li>').join('') +
+      '</ol>' : '') + '</div>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta
   $('#pag-itin').classList.add('open');
+};
+Destinos.togPax = function (h3) {
+  const b = h3.nextElementSibling; if (!b) return;
+  b.classList.toggle('pit-off');
+  const ch = h3.querySelector('.pit-ch');
+  if (ch) ch.classList.toggle('pit-ch-off');
 };

@@ -96,8 +96,8 @@ const Destinos = {
     $('#form-destino').reset(); $('#destino-id').value = '';
     $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
     $('#dest-moneda').value = 'USD';
-    $('#dest-tiene-fechas').checked = false; this.togFechas();
-    this._fillPais('');
+    $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais('');
+    const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
@@ -145,8 +145,7 @@ const Destinos = {
     const obj = {
       id: id || undefined,
       paxConGuia: parseInt($('#dest-conguia').value) || 0, paxSinGuia: parseInt($('#dest-singuia').value) || 0,
-      moneda: $('#dest-moneda').value || 'USD',
-      pais: $('#dest-pais').value,
+      moneda: $('#dest-moneda').value || 'USD', pais: $('#dest-pais').value,
       nombre: $('#dest-nombre').value.trim(), destinos: dests,
       fechas: { on: $('#dest-tiene-fechas').checked, desde: $('#dest-fdesde').value,
         hasta: $('#dest-fhasta').value },
@@ -174,13 +173,11 @@ const Destinos = {
             hhasta: i.hhasta, guia: i.guia };
       } else obj.itinerario.push(i);
     });
-    /* guía/notas/transporte: lo nuevo gana; si no hay evento, se hereda */
-    const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre),
-          evn = obj.itinerario.find(e =>
-            e.tipo === 'Descripción / notas' && (e.desc || e.ruta));
+    const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre);
     if (evg) obj.guia = evg.nombre;
-    if (evn) obj.notas = evn.desc || evn.ruta;
     if (prev && prev.trans && !obj.trans) obj.trans = prev.trans;
+    const ed = $('#desc-editor');
+    if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
     await DB.save('destinos', obj);
     Borrador.clear();
     closeModal('modal-destino');
@@ -198,6 +195,7 @@ const Destinos = {
     setTimeout(() => Destinos._capRes(), 0);
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
+    const edc = $('#desc-editor'); if (edc) edc.innerHTML = d.notas || '';
     const f = d.fechas || {}; $('#dest-tiene-fechas').checked = !!f.on;
     $('#dest-fdesde').value = f.desde || '';
     $('#dest-fhasta').value = f.hasta || '';

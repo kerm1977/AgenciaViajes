@@ -107,6 +107,45 @@ const Pasajeros = {
       showToast('Pasajero eliminado', 'error');
       this.render();
     }
+  },
+  /* elegir un pasajero de la agenda y vincularlo a este viaje */
+  async elegir(destinoId) {
+    const todos = (await DB.list('pasajeros'))
+      .filter(p => p.destinoId !== destinoId)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+    if (!todos.length) {
+      showToast('No hay más pasajeros en la agenda', 'error'); return;
+    }
+    const bd = document.createElement('div');
+    bd.className = 'modal open'; bd.id = 'pax-pick';
+    bd.innerHTML = '<div class="modal-box" style="max-width:24rem">' +
+      '<div class="modal-head"><h3>Agregar pasajero al viaje</h3></div>' +
+      '<div class="modal-body"><select id="pax-pick-sel" class="select">' +
+      '<option value="">— Pasajero —</option>' + todos.map(p =>
+        '<option value="' + p.id + '">' + esc(p.nombre) +
+        (p.telefono ? ' · ' + esc(p.telefono) : '') + '</option>').join('') +
+      '</select></div><div class="modal-foot">' +
+      '<button class="btn btn-soft" id="pax-pick-x">Cancelar</button>' +
+      '<button class="btn btn-primary" id="pax-pick-ok">Agregar</button></div></div>';
+    document.body.appendChild(bd);
+    const fin = () => bd.remove();
+    bd.querySelector('#pax-pick-x').onclick = fin;
+    bd.querySelector('#pax-pick-ok').onclick = async () => {
+      const p = await DB.get('pasajeros',
+        bd.querySelector('#pax-pick-sel').value);
+      if (!p) { showToast('Elige un pasajero', 'error'); return; }
+      p.destinoId = destinoId; await DB.save('pasajeros', p);
+      fin(); showToast('Pasajero agregado');
+      if (Destinos._detId === destinoId) Destinos.pagina(destinoId);
+      this.render(); };
+  },
+  /* quitar un pasajero de este viaje (queda en la agenda, sin viaje) */
+  async quitar(pid, destinoId) {
+    if (!(await confirmar('¿Quitar este pasajero del viaje?'))) return;
+    const p = await DB.get('pasajeros', pid); if (!p) return;
+    p.destinoId = ''; await DB.save('pasajeros', p);
+    if (destinoId) Destinos.pagina(destinoId);
+    this.render();
   }
 };
 Router.ON_TAB.pasajeros = () => Pasajeros.render();

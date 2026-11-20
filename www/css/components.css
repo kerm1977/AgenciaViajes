@@ -193,3 +193,20 @@ label.lbl {
   font-weight:700; color:var(--brand-700); }
 .pax-badge { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .75rem; border-radius:var(--r-md); background:var(--slate-100); font-size:12px; font-weight:600; color:var(--slate-800); border:1px solid var(--slate-200); }
 .pax-badge i { color:var(--brand-600); }
+.wys-bar { display:flex; gap:.25rem; margin-bottom:.3rem; }
+.wys-b { border:1px solid var(--slate-200); background:#fff; border-radius:6px;
+  padding:.25rem .5rem; color:var(--slate-600); cursor:pointer; font-size:12px; }
+.wys-b:hover { background:var(--slate-100); color:var(--brand-700); }
+.wys-edit { min-height:4.5rem; max-height:12rem; overflow-y:auto;
+  border:1px solid var(--slate-200); border-radius:8px; padding:.5rem .6rem;
+  font-size:13px; background:#fff; }
+.wys-edit blockquote { border-left:3px solid var(--brand-300); margin:.3rem 0;
+  padding-left:.6rem; color:var(--slate-500); }
+.pit-tog { cursor:pointer; display:flex; align-items:center; gap:.4rem; }
+.pit-ch { margin-left:auto; font-size:.7rem; transition:transform .15s; }
+.pit-ch-off { transform:rotate(-90deg); }
+.pit-off { display:none; }
+.pit-ol { margin:.2rem 0 .6rem 1.3rem; }
+.pit-ol li { margin:.15rem 0; }
+.pit-x { padding:0 .3rem; font-size:11px; }
+.pit-nota-t { display:inline; }

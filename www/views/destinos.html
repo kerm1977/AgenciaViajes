@@ -89,6 +89,17 @@
             <p class="err">Requerido</p>
           </div>
           <div class="field">
+            <label class="lbl">Descripción del viaje</label>
+            <div class="wys-bar">
+              <button type="button" class="wys-b" title="Negrita" onmousedown="event.preventDefault()" onclick="WYS.cmd('bold')"><i class="fa-solid fa-bold"></i></button>
+              <button type="button" class="wys-b" title="Subrayado" onmousedown="event.preventDefault()" onclick="WYS.cmd('underline')"><i class="fa-solid fa-underline"></i></button>
+              <button type="button" class="wys-b" title="Viñetas" onmousedown="event.preventDefault()" onclick="WYS.cmd('insertUnorderedList')"><i class="fa-solid fa-list-ul"></i></button>
+              <button type="button" class="wys-b" title="Lista ordenada" onmousedown="event.preventDefault()" onclick="WYS.cmd('insertOrderedList')"><i class="fa-solid fa-list-ol"></i></button>
+              <button type="button" class="wys-b" title="Cita" onmousedown="event.preventDefault()" onclick="WYS.cmd('formatBlock','blockquote')"><i class="fa-solid fa-quote-left"></i></button>
+            </div>
+            <div id="desc-editor" class="wys-edit" contenteditable="true"></div>
+          </div>
+          <div class="field">
             <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:.4rem">
               <label class="lbl" style="margin:0">Destinos del viaje *</label>
               <button type="button" class="btn btn-sm btn-soft" onclick="Destinos.addDestino()">

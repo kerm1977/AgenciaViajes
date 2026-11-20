@@ -214,7 +214,8 @@
 .it-day.open .it-day-h .it-day-c { transform:rotate(180deg); }
 .it-day-b { display:none; margin-top:.45rem; }
 .it-day.open .it-day-b { display:block; font-size:1.05rem; }
-.it-day-f { font-size:.72rem; font-weight:700; }
+.it-day-f { font-size:.72rem; font-weight:700; color:#d97706; }
+.it-asr .it-hd, .it-asr .it-hh { color:#d97706; font-weight:700; }
 .it-day.open .it-day-f { font-size:.82rem; }
 .it-day.open { margin-bottom:10px; }
 .it-day .multi { margin-top:.4rem; }

@@ -71,6 +71,9 @@ Object.assign(Itinerario, {
             '<span>' + lab + '</span>' +
             '<i class="fa-solid fa-chevron-down muted"></i></button>' +
             '<div class="multi-panel">' + items + '</div></div>';
+    const pastel = ['#fef3e2','#e8f4fd','#eef9f0','#fdeef2','#f3effd',
+        '#fffde8','#e9fbf8','#fdf0e7'];
+    let prevPastel = -1;
     for (let i = 1; i <= di.n; i++) {
       const dia = 'Día ' + i, ds = this._dayState(dia, 1);
       let fecha = '';
@@ -83,6 +86,10 @@ Object.assign(Itinerario, {
       day.className = 'it-card it-day' +
         (dia === (this._openDay || 'Día 1') ? ' open' : '');
       day.dataset.dia = dia;
+      let pi = (i * 2654435761 >>> 0) % pastel.length;   /* pastel pseudo-
+        aleatorio por día; nunca repite el del día anterior */
+      if (pi === prevPastel) pi = (pi + 1) % pastel.length;
+      prevPastel = pi; day.style.background = pastel[pi];
       day.innerHTML =
         '<div class="it-day-h"><b>' + dia + '</b>' +
           (fecha ? '<span class="it-day-f">' + fecha + '</span>' : '') +

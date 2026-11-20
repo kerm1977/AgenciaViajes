@@ -22,5 +22,14 @@ window.addEventListener('load', async () => {
     }
     Session.set(null);
   }
+  /* "Recordarme": si no hay sesión pero el dispositivo recuerda el correo,
+     entra directo revalidando que la cuenta siga activa */
+  const r = Session.remembered();
+  if (r && r.email) {
+    const vivo = await DB.usuarioPorEmail(r.email);
+    if (vivo && vivo.activo !== 0) {
+      Session.set(vivo); Auth.entrar(vivo, true); return; }
+    Session.remember(null);
+  }
   Auth.init();
 });

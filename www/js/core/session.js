@@ -19,6 +19,19 @@ const Session = {
     return this.user;
   },
   get() { return this.user; },
+  /* "Recordarme": solo el email en localStorage — jamás la contraseña */
+  RKEY: 'tm_remember',
+  remember(u) {
+    try {
+      if (u) localStorage.setItem(this.RKEY,
+        JSON.stringify({ email: u.email, ts: Date.now() }));
+      else localStorage.removeItem(this.RKEY);
+    } catch (e) {}
+  },
+  remembered() {
+    try { return JSON.parse(localStorage.getItem(this.RKEY) || 'null'); }
+    catch (e) { return null; }
+  },
   esSuper() { return this.user && this.user.rol === 'superusuario'; },
   esAdmin() { return this.user && this.user.rol === 'admin'; },
   /* ¿puede hacer la acción? super = todo; admin = según privilegios */
@@ -29,7 +42,7 @@ const Session = {
     if (u.rol === 'admin') return (u.permisos || []).indexOf(perm) >= 0;
     return false;
   },
-  logout() { this.set(null); location.reload(); }
+  logout() { this.set(null); this.remember(null); location.reload(); }
 };
 
 /* catálogo de privilegios asignables a un administrador */

@@ -21,6 +21,8 @@ const Auth = {
     const u = await DB.validarLogin(email, $('#lg-pass').value);
     if (!u) { showToast('Correo o contraseña incorrectos', 'error'); return; }
     Session.set(u);
+    const rc = $('#lg-recordar');
+    Session.remember(rc && rc.checked ? u : null);
     this.entrar(u);
   },
   async registro(e) {

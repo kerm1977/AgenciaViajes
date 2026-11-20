@@ -34,6 +34,7 @@ const Itinerario = {
       '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
     return s + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
+  _l(lab, h) { return '<div class="fl"><span class="fl-l">' + lab + '</span>' + h + '</div>'; },
   _dias() { let o = ''; for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
     const pi = card.querySelector('.it-precio');
@@ -123,14 +124,14 @@ const Itinerario = {
           '<i class="fa-solid fa-xmark"></i></button></div>';
     if (campo) {
       card.dataset.campo = '1';
-      card.innerHTML = head + '<div class="it-acc-body">' +
-        (campo.ta
+      card.innerHTML = head + '<div class="it-acc-body">' + this._l(esc(tipo),
+        campo.ta
           ? '<textarea class="input it-campo" rows="2" placeholder="' +
             esc(campo.ph) + '">' + esc(ruta || '') + '</textarea>'
           : '<input type="' + (campo.t || 'text') + '" placeholder="' +
             esc(campo.ph) + '" value="' + esc(ruta || '') +
             '" class="input it-campo">') + '</div>';
-      c.appendChild(card);
+      c.appendChild(card); if (window.wireNormalizadores) wireNormalizadores(card);
       if (campo.k === 'aerolinea' && this.aeroCard)
         this.aeroCard(card, ruta, x);
       if (campo.k === 'transporte' && this.transCard)
@@ -144,41 +145,39 @@ const Itinerario = {
         codigoDePais(($('#dest-pais') || {}).value) || '';
       return c && v.startsWith(c) ? v.slice(c.length).trim() : v; };
     const tel = (cls, ph, v) =>
+      '<div class="fl"><span class="fl-l">' + ph + '</span>' +
       '<div class="it-tel"><span class="it-cod">' + cod + '</span>' +
-      '<input type="tel" placeholder="' + ph + '" data-norm="tel" value="' +
-      esc(stripCod(v)) + '" class="input ' + cls + '"></div>';
+      '<input type="tel" data-norm="tel" value="' +
+      esc(stripCod(v)) + '" class="input ' + cls + '"></div></div>';
+    const inp = (lab, t, cls, v) => this._l(lab, '<input type="' + t +
+      '" value="' + esc(v || '') + '" class="input ' + cls + '">');
     const transp = /^Transporte\s/.test(tipo || '');
     const costos = '<div class="grid-2">' +
-        '<input type="number" min="0" step="1" placeholder="' +
-          (transp ? 'Monto' : 'Precio del servicio') + '" value="' +
-          esc(x.precio || '') + '" class="input it-precio">' +
-        '<select class="select it-modo">' +
+        this._l(transp ? 'Monto' : 'Precio del servicio',
+          '<input type="number" min="0" step="1" value="' +
+          esc(x.precio || '') + '" class="input it-precio">') +
+        this._l('Cobro', '<select class="select it-modo">' +
           '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') +
             '>' + (transp ? 'P/P — por persona' : 'Por persona') + '</option>' +
           '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') +
             '>' + (transp ? 'P/G — por grupo' : 'Por grupo') +
-            '</option></select></div>' +
+            '</option></select>') + '</div>' +
       '<p class="it-total hint"></p>' +
       '<label class="it-vi"><input type="checkbox" class="it-verinfo"' +
         (x.verinfo ? ' checked' : '') +
         ' onchange="Itinerario.vi(this)"> Ver información</label></div>';
     card.innerHTML = head + '<div class="it-acc-body">' +
       (transp
-        ? '<input type="text" placeholder="Nombre del transporte" ' +
-            'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
+        ? inp('Nombre del transporte', 'text', 'it-nombre', x.nombre) +
           tel('it-tela', 'Tel. del contacto', x.tel) +
-          '<input type="url" placeholder="Enlace Google Maps / Waze" ' +
-            'value="' + esc(x.maps || '') + '" class="input it-maps">' +
-          this._wys(x.desc)
-        : '<input type="text" placeholder="Detalle (Ej. llegada hotel)" ' +
-            'value="' + esc(ruta || '') + '" class="input it-ruta">' +
-          '<input type="text" placeholder="Guía / Agencia / Tour operador" ' +
-            'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
+          inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
+          this._l('Descripción', this._wys(x.desc))
+        : inp('Detalle (Ej. llegada hotel)', 'text', 'it-ruta', ruta) +
+          inp('Guía / Agencia / Tour operador', 'text', 'it-nombre', x.nombre) +
           '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
             tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
-          '<input type="url" placeholder="Enlace Google Maps / Waze" ' +
-            'value="' + esc(x.maps || '') + '" class="input it-maps">' +
-          this._wys(x.desc)) + costos;
+          inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
+          this._l('Descripción', this._wys(x.desc))) + costos;
     c.appendChild(card);
     if (window.wireNormalizadores) wireNormalizadores(card);
     ['input','change'].forEach(t => card.addEventListener(t, () => this._calc(card)));
@@ -229,7 +228,8 @@ const Itinerario = {
         ti += this._ind(m, v('.it-precio')); }
       if (v('.it-pb')) { const con = v('.it-pb') +
           (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? 0 : v('.it-ps'));
-        tg += con * (n || 1); ti += ns ? con * n / ns : con; } });
+        const cu = ns && n ? Math.round(con * n / ns) : con;
+        tg += cu * (n || 1); ti += cu; } });
     el.innerHTML = tg ? 'Total individual: <b>' + this._fmt(ti) +
       '</b><br>Total general: <b>' + this._fmt(tg) + '</b>' : ''; },
   fmtT(d, n) { return (d.moneda === 'CRC' ? '₡' : '$') + n.toFixed(2); },

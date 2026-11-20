@@ -3,22 +3,26 @@
 'use strict';
 Itinerario.transCard = function (card, valor, x) {
   card.dataset.trans = '1';
-  const cod = esc(codigoDePais(($('#dest-pais') || {}).value) || '—');
+  const c0 = codigoDePais(($('#dest-pais') || {}).value) || '';
+  const cod = esc(c0 || '—');
+  let tt0 = String(x.ttel || '');   /* limpia el código si quedó guardado */
+  if (c0 && tt0.startsWith(c0)) tt0 = tt0.slice(c0.length).trim();
   const esOtro = x.tsel === 'Otros';
+  const fl = (l, h) => '<div class="fl"><span class="fl-l">' + l +
+    '</span>' + h + '</div>';
   card.querySelector('.it-acc-body').innerHTML =
-    '<select class="select it-tsel">' +
+    fl('Transporte', '<select class="select it-tsel">' +
       '<option' + (!esOtro ? ' selected' : '') + '>TRANSAVI</option>' +
-      '<option' + (esOtro ? ' selected' : '') + '>Otros</option></select>' +
+      '<option' + (esOtro ? ' selected' : '') + '>Otros</option></select>') +
     '<div class="it-tbody"' + (esOtro ? '' : ' hidden') + '>' +
-      '<input type="text" class="input it-tnombre" ' +
-        'placeholder="Nombre del transporte / empresa" ' +
-        'value="' + esc(x.tnombre || '') + '">' +
-      '<div class="it-tel"><span class="it-cod">' + cod + '</span>' +
-        '<input type="tel" class="input it-ttel" data-norm="digitos" ' +
-          'placeholder="Número de teléfono" ' +
-          'value="' + esc(x.ttel || '') + '"></div>' +
-      '<textarea class="input it-tdesc" rows="2" ' +
-        'placeholder="Descripción">' + esc(x.tdesc || '') + '</textarea></div>';
+      fl('Nombre del transporte / empresa', '<input type="text" ' +
+        'class="input it-tnombre" value="' + esc(x.tnombre || '') + '">') +
+      fl('Número de teléfono', '<div class="it-tel">' +
+        '<span class="it-cod">' + cod + '</span>' +
+        '<input type="tel" class="input it-ttel" data-norm="tel" ' +
+          'value="' + esc(tt0) + '"></div>') +
+      fl('Descripción', '<textarea class="input it-tdesc" rows="2">' +
+        esc(x.tdesc || '') + '</textarea>') + '</div>';
   const sel = card.querySelector('.it-tsel'),
         tb = card.querySelector('.it-tbody');
   sel.addEventListener('change', () => {
@@ -32,15 +36,12 @@ Itinerario.transCard = function (card, valor, x) {
 };
 Itinerario.transCollect = function (card) {
   const sel = card.querySelector('.it-tsel').value;
-  const cod = codigoDePais(($('#dest-pais') || {}).value) || '';
   const tn = card.querySelector('.it-tnombre').value.trim();
   const tt = card.querySelector('.it-ttel').value.trim();
   const td = card.querySelector('.it-tdesc').value.trim();
   return {
-    campo: 'Transporte', tsel: sel, tnombre: tn, tdesc: td,
-    ttel: tt ? (cod ? cod + ' ' : '') + tt : '',
+    campo: 'Transporte', tsel: sel, tnombre: tn, tdesc: td, ttel: tt,
     valor: sel === 'TRANSAVI' ? 'TRANSAVI'
-      : [tn, tt ? (cod ? cod + ' ' : '') + tt : '', td]
-        .filter(Boolean).join(' · ')
+      : [tn, tt, td].filter(Boolean).join(' · ')
   };
 };

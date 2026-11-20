@@ -159,7 +159,8 @@
 #pag-destino .lbl { font-size:.95rem; margin-bottom:1rem; }
 #pag-destino .field .err { margin-top:.5rem; }
 #pag-destino .input, #pag-destino .select, #pag-destino .selbtn,
-#pag-destino textarea, #pag-destino .wysiwyg { font-size:1.05rem; }
+#pag-destino textarea, #pag-destino .wysiwyg,
+#pag-destino .wys-edit { font-size:1.05rem; }
 #pag-destino .input, #pag-destino .selbtn { padding:.62rem .8rem; }
 #pag-destino .btn { font-size:1rem; }
 #pag-destino .card, #pag-destino .it-acc { font-size:1rem; }
@@ -191,6 +192,14 @@
 @keyframes glassPulse {
   from { box-shadow:0 4px 18px rgba(217,119,6,.30), inset 0 1px 0 rgba(255,255,255,.5); }
   to   { box-shadow:0 4px 26px rgba(217,119,6,.55), inset 0 1px 0 rgba(255,255,255,.65); } }
+
+/* campo con etiqueta: label→input y campo→campo simétricos (.45rem) */
+.fl { display:flex; flex-direction:column; gap:.45rem; min-width:0; max-width:100%; }
+.fl-l { font-size:.68rem; font-weight:700; color:var(--slate-500);
+  text-transform:uppercase; letter-spacing:.04em; }
+#pag-destino .it-acc.open .it-acc-body { gap:.45rem; }
+.it-escw, .it-tbody { display:grid; gap:.45rem; }
+.fl[hidden], .it-escw[hidden], .it-tbody[hidden] { display:none !important; }
 
 /* selector de pais */
 .pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.7rem .9rem;

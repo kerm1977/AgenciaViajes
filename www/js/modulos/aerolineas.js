@@ -64,50 +64,50 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const nombres = Object.keys(AEROLINEAS);
   const asientoInc = x.ai === '1' || x.ai === true;
   card.dataset.aero = '1';
+  const fl = (l, h, hd) => '<div class="fl"' + (hd ? ' hidden' : '') +
+    '><span class="fl-l">' + l + '</span>' + h + '</div>';
+  const osOn = x.os === '1' || x.os === true;
   card.querySelector('.it-acc-body').innerHTML =
-    '<select class="select it-aero">' +
+    fl('Aerolínea', '<select class="select it-aero">' +
       '<option value="">— Aerolínea —</option>' +
       nombres.map(n => '<option' + (n === nombre ? ' selected' : '') + '>' +
-        esc(n) + '</option>').join('') + '</select>' +
-    '<input class="input it-ci" placeholder="Enlace check-in"' +
-      ' value="' + esc(x.ci || '') + '">' +
-    '<input class="input it-co" placeholder="Enlace check-out"' +
-      ' value="' + esc(x.co || '') + '">' +
+        esc(n) + '</option>').join('') + '</select>') +
+    fl('Enlace check-in', '<input class="input it-ci" value="' +
+      esc(x.ci || '') + '">') +
+    fl('Enlace check-out', '<input class="input it-co" value="' +
+      esc(x.co || '') + '">') +
     '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
-    '<select class="select it-clase"><option value="">— Clase —</option>' +
-      '</select>' +
-    '<input type="number" min="0" step="0.01" placeholder="Precio boleto" ' +
-      'value="' + esc(x.pb || '') + '" class="input it-pb">' +
+    fl('Clase', '<select class="select it-clase"><option value="">' +
+      '— Clase —</option></select>') +
+    fl('Precio boleto', '<input type="number" min="0" step="1" value="' +
+      esc(x.pb || '') + '" class="input it-pb">') +
     '<label class="it-aic"><input type="checkbox" class="it-ai"' +
       (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
-    '<input type="number" min="0" step="0.01" class="input it-ps" ' +
-      'placeholder="Costo del asiento"' +
-      ' value="' + esc(x.ps || '') + '"' +
-      (asientoInc ? ' hidden' : '') + '>' +
+    fl('Costo del asiento', '<input type="number" min="0" step="1" ' +
+      'class="input it-ps" value="' + esc(x.ps || '') + '">', asientoInc) +
     '<label class="it-aic"><input type="checkbox" class="it-os"' +
-      (x.os === '1' || x.os === true ? ' checked' : '') + '> Otros servicios</label>' +
-    '<input type="number" min="0" step="0.01" class="input it-osv" ' +
-      'placeholder="Precio del servicio"' +
-      ' value="' + esc(x.osv || '') + '"' +
-      (x.os === '1' || x.os === true ? '' : ' hidden') + '>' +
-    '<input class="input it-osd" placeholder="¿Qué incluye?"' +
-      ' value="' + esc(x.osd || '') + '"' +
-      (x.os === '1' || x.os === true ? '' : ' hidden') + '>' +
+      (osOn ? ' checked' : '') + '> Otros servicios</label>' +
+    fl('Precio del servicio', '<input type="number" min="0" step="1" ' +
+      'class="input it-osv" value="' + esc(x.osv || '') + '">', !osOn) +
+    fl('¿Qué incluye?', '<input class="input it-osd" value="' +
+      esc(x.osd || '') + '">', !osOn) +
     '<label class="it-aic"><input type="checkbox" class="it-esc"' +
-      (x.esc === '1' || x.esc === true ? ' checked' : '') + '> Tiene escala</label>' +
+      (x.esc === '1' || x.esc === true ? ' checked' : '') +
+      '> Tiene escala</label>' +
     '<div class="it-escw"' +
       (x.esc === '1' || x.esc === true ? '' : ' hidden') + '>' +
-      '<select class="select it-escp"><option value="">— País de escala —</option>' +
+      fl('País de escala', '<select class="select it-escp">' +
+        '<option value="">— País de escala —</option>' +
         PAISES.map(p => '<option' + (p === x.escp ? ' selected' : '') +
-          '>' + esc(p) + '</option>').join('') + '</select>' +
-      '<input class="input it-escv" placeholder="Número de vuelo"' +
-        ' value="' + esc(x.escv || '') + '">' +
-      '<input type="time" class="input it-esch" title="Hora de la escala"' +
-        ' value="' + esc(x.esch || '') + '">' +
-      '<select class="select it-esca">' +
+          '>' + esc(p) + '</option>').join('') + '</select>') +
+      fl('Número de vuelo', '<input class="input it-escv" value="' +
+        esc(x.escv || '') + '">') +
+      fl('Hora de la escala', '<input type="time" class="input it-esch" ' +
+        'value="' + esc(x.esch || '') + '">') +
+      fl('Aerolínea de la escala', '<select class="select it-esca">' +
         '<option value="">— Aerolínea de la escala —</option>' +
         nombres.map(n => '<option' + (n === x.esca ? ' selected' : '') +
-          '>' + esc(n) + '</option>').join('') + '</select></div>' +
+          '>' + esc(n) + '</option>').join('') + '</select>') + '</div>' +
     '<p class="it-total it-tota hint"></p>';
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
@@ -130,16 +130,15 @@ Itinerario.aeroCard = function (card, nombre, x) {
     const cg = Itinerario.pax(), sg = Itinerario.paxS();
     if (!con) { tot.innerHTML = ''; hint.textContent = ''; return; }
     let h;
-    if (cg) {   /* boleto P/P: precio × C/G, repartido entre S/G */
-      const T = con * cg;
-      h = 'P/P ' + sim() + con.toFixed(2) + ' × ' + cg + ' C/G = ' +
-        sim() + T.toFixed(2) +
-        (sg ? '<br>÷ ' + sg + ' S/G = ' + sim() + (T / sg).toFixed(2) +
-          ' c/u' : '') +
-        '<br><b>Total: ' + sim() + T.toFixed(2) + '</b>';
-    } else h = '<b>Total: ' + sim() + con.toFixed(2) + '</b>';
+    if (cg) {   /* boleto P/P: c/u repartido entre S/G, cobrado a todos */
+      const T = con * cg, cu = sg ? Math.round(T / sg) : con;
+      h = 'P/P ' + sim() + con.toFixed(0) + ' × ' + cg + ' C/G = ' +
+        sim() + T.toFixed(0) +
+        (sg ? '<br>÷ ' + sg + ' S/G = ' + sim() + cu + ' c/u' : '') +
+        '<br><b>Total: ' + sim() + (cu * cg).toFixed(0) + '</b>';
+    } else h = '<b>Total: ' + sim() + con.toFixed(0) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
-    hint.textContent = sim() + (sg ? con * cg / sg : con).toFixed(2);
+    hint.textContent = sim() + (sg ? Math.round(con * cg / sg) : con);
     if (Itinerario._gtotal) Itinerario._gtotal();
   };
   card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G
@@ -171,9 +170,11 @@ Itinerario.aeroCard = function (card, nombre, x) {
   es.addEventListener('change', () => {
     card.querySelector('.it-escw').hidden = !es.checked; });
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
-  ai.addEventListener('change', () => { ps.hidden = ai.checked; total(); });
+  ai.addEventListener('change', () => {
+    ps.closest('.fl').hidden = ai.checked; total(); });
   os.addEventListener('change', () => {
-    osv.hidden = osd.hidden = !os.checked; total(); });
+    osv.closest('.fl').hidden = osd.closest('.fl').hidden =
+      !os.checked; total(); });
   ['.it-pb', '.it-ps', '.it-osv'].forEach(c =>
     inp(c).addEventListener('input', total));
   pintar(); total();

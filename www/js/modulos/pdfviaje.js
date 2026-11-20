@@ -20,11 +20,13 @@ const PdfViaje = {
       doc.text('Página ' + pag, W - M, B - 7, { align: 'right' }); },
     need = h => { if (y + h > B - 17) {
       pie(); doc.addPage(); pag++; y = 14; } },
-    cab = (t, c) => { need(12); y += 2;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
-      doc.setTextColor(c[0], c[1], c[2]); doc.text(t.toUpperCase(), M, y);
-      y += 1.4; doc.setDrawColor(c[0], c[1], c[2]); doc.setLineWidth(.7);
-      doc.line(M, y, M + 14, y); doc.setLineWidth(.3); y += 4; },
+    cab = (t, c) => { need(16); y += 4;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5);
+      doc.setTextColor(c[0], c[1], c[2]);
+      doc.text(t.toUpperCase(), M + CW / 2, y, { align: 'center' });
+      y += 2.4; doc.setDrawColor(c[0], c[1], c[2]); doc.setLineWidth(.7);
+      doc.line(M + CW / 2 - 9, y, M + CW / 2 + 9, y);
+      doc.setLineWidth(.3); y += 5; },
     tarjeta = (titulo, c, fill, borde, items) => {
       if (!items.length) return;
       cab(titulo, c);

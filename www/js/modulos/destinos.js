@@ -112,6 +112,8 @@ const Destinos = {
     n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
     ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));
     this.togFechas();
+    if (n === 5 && window.Itinerario && Itinerario.initPickers)
+      Itinerario.initPickers();
     const b = $('.pag-itin-body'); if (b) b.scrollTop = 0;
   },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {

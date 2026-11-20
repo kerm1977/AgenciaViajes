@@ -46,7 +46,9 @@ Destinos.pagina = async function (id) {
             '</p>'
           : '') + '</div>'
       : '');
-  if (filas) h += '<div class="grid-2 card card-pad">' + filas + '</div>';
+  if (filas) h += '<h3 class="pit-dia" style="text-align:center">' +
+    '<i class="fa-solid fa-circle-check"></i> Incluye</h3>' +
+    '<div class="grid-2 card card-pad">' + filas + '</div>';
   if ((d.destinos || []).length)
     h += '<h3 class="pit-dia"><i class="fa-solid fa-location-dot"></i> ' +
       'Destinos del viaje</h3><ul class="pit-ol">' +
@@ -107,8 +109,6 @@ Destinos.pagina = async function (id) {
     '<i class="fa-solid fa-users"></i> Pasajeros <span class="hint">(' +
     pax.length + ')</span><i class="fa-solid fa-chevron-down pit-ch"></i></h3>' +
     '<div class="pit-pax">' +
-    '<button class="btn btn-sm btn-soft" onclick="Pasajeros.elegir(\'' + d.id +
-    '\')"><i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>' +
     (pax.length ? '<div class="pit-pxl">' + pax.map(p =>
       '<div class="pit-px">' +
         '<span class="pit-px-i"><i class="fa-solid fa-user"></i></span>' +
@@ -125,6 +125,10 @@ Destinos.pagina = async function (id) {
           'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
           '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
       '</div>' : '') + '</div>';
+  if (d.noincluye)
+    h += '<h3 class="pit-dia"><i class="fa-solid fa-ban"></i> No incluye</h3>' +
+      '<ul class="pit-ol">' + (d.noincluye.split(/[\n;]+/).map(s => s.trim())
+        .filter(Boolean).map(s => '<li>' + esc(s) + '</li>').join('')) + '</ul>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta

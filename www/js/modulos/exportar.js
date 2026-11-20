@@ -80,7 +80,7 @@ const Exportar = {
       if (y > 285) { doc.addPage(); y = 15; }
       doc.text(l, 14, y); y += 4.4;
     });
-    doc.save(this._nombre('pdf'));
+    await this._savePdf(doc, this._nombre('pdf'));
     showToast('PDF generado');
   },
   /* PDF de UN viaje: imagen con los ajustes X/Y/zoom horneados vía canvas
@@ -130,7 +130,8 @@ const Exportar = {
       pax.forEach(p => line('  • ' + p.nombre +
         (p.asiento ? ' (' + p.asiento + ')' : '')));
     }
-    doc.save('viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
+    await this._savePdf(doc,
+      'viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
     showToast('PDF del viaje generado');
   },
   _fDia(desde, dia) {
@@ -157,6 +158,19 @@ const Exportar = {
         };
         im.onerror = () => res(null); im.src = u;
       }) : null);
+  },
+  /* guardar PDF: nativo = Filesystem(CACHE) + Share; web = descarga */
+  async _savePdf(doc, nombre) {
+    const FS = plugin('Filesystem'), Sh = plugin('Share');
+    if (FS && Sh && window.Capacitor &&
+        Capacitor.isNativePlatform && Capacitor.isNativePlatform()) {
+      const data = doc.output('datauristring').split(',')[1],
+            w = await FS.writeFile({ path: nombre, data,
+              directory: 'CACHE' }).catch(() => null);
+      if (w && w.uri) {
+        await Sh.share({ title: nombre, url: w.uri }).catch(() => {});
+        return; }}
+    doc.save(nombre);
   },
   async whatsapp() {
     if (!Session.can('exportar')) { showToast('Sin permiso', 'error'); return; }

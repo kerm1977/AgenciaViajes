@@ -7,6 +7,8 @@
   </div>
   <button class="btn btn-primary" onclick="Pasajeros.nuevo()">
     <i class="fa-solid fa-user-check"></i> Asignar Pasajero a Viaje</button>
+  <button class="btn btn-soft" onclick="Pasajeros.grupo()">
+    <i class="fa-solid fa-user-group"></i> Asignar Grupo a Viaje</button>
 </div>
 <div class="tablewrap"><div style="overflow-x:auto">
   <table>
@@ -111,5 +113,37 @@
         <button type="submit" class="btn btn-primary">Guardar Pasajero</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div id="modal-grupo" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Asignar Grupo a Viaje</h3>
+      <button class="modal-x" onclick="closeModal('modal-grupo')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="lbl">Destino / viaje *</label>
+        <select id="grp-viaje" class="select"
+                onchange="Pasajeros.grpRender()"></select>
+      </div>
+      <div class="field">
+        <div class="searchbox">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="grp-buscar" class="input"
+                 oninput="Pasajeros.grpRender()"
+                 placeholder="Buscar pasajero...">
+        </div>
+      </div>
+      <div id="grp-lista" class="grp-lista"></div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft"
+                onclick="closeModal('modal-grupo')">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+                onclick="Pasajeros.guardarGrupo()">Asignar
+          <span id="grp-count"></span></button>
+      </div>
+    </div>
   </div>
 </div>

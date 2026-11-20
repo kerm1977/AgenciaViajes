@@ -173,12 +173,11 @@ const Destinos = {
     });
     const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre);
     if (evg) obj.guia = evg.nombre;
-    if (prev && prev.trans && !obj.trans) obj.trans = prev.trans;
-    if (prev && prev.boleto && !obj.boleto) obj.boleto = prev.boleto;
+    if (prev && prev.trans && !obj.trans) obj.trans = prev.trans; if (prev && prev.boleto && !obj.boleto) obj.boleto = prev.boleto;
     const ed = $('#desc-editor');
     if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
-    await DB.save('destinos', obj);
-    if (window.Pasajeros && Pasajeros.syncViaje)
+    const ni = $('#dest-noincluye'); obj.noincluye = ni ? ni.value.trim() : '';
+    await DB.save('destinos', obj); if (window.Pasajeros && Pasajeros.syncViaje)
       await Pasajeros.syncViaje(obj.id, this._paxSel || []);
     Borrador.clear();
     closeModal('modal-destino');
@@ -197,6 +196,7 @@ const Destinos = {
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const edc = $('#desc-editor'); if (edc) edc.innerHTML = d.notas || '';
+    $('#dest-noincluye').value = d.noincluye || '';
     const f = d.fechas || {}; $('#dest-tiene-fechas').checked = !!f.on;
     $('#dest-fdesde').value = f.desde || '';
     $('#dest-fhasta').value = f.hasta || '';

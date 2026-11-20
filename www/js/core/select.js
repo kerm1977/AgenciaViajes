@@ -17,7 +17,7 @@
       if (viejo) viejo.remove();
       const ov = document.createElement('div');
       ov.className = 'modal open'; ov.id = 'selmodal';
-      ov.style.zIndex = '80';
+      ov.style.zIndex = '130';   /* sobre .pag-itin(95) y .modal(120) */
       const larga = sel.options.length > 9;
       ov.innerHTML =
         '<div class="modal-box" style="max-width:24rem">' +

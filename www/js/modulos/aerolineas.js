@@ -153,8 +153,6 @@ Itinerario.aeroCard = function (card, nombre, x) {
        cualquier edición manual siempre gana */
     if (a && (!ci.value || Object.values(AEROLINEAS)
         .some(k => k.ci === ci.value))) ci.value = a.ci;
-    cic.checked = !!ci.value;
-    ci.closest('.fl').hidden = !cic.checked;
     const lk = () => (cic.checked && ci.value ?
       '<a href="' + esc(ci.value) + '" target="_blank">Check-in</a>' : '');
     chk.innerHTML = lk();
@@ -190,7 +188,8 @@ Itinerario.aeroCollect = function (card) {
     checkin: (card.querySelector('.it-cic').checked ?
       card.querySelector('.it-ci').value.trim() : '') || a.ci || '',
     checkout: a.co || '',
-    ci: card.querySelector('.it-ci').value.trim(),
+    ci: card.querySelector('.it-cic').checked ?
+      card.querySelector('.it-ci').value.trim() : '',
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',

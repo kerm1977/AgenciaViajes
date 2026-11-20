@@ -202,7 +202,7 @@
 .fl[hidden], .it-escw[hidden], .it-tbody[hidden] { display:none !important; }
 .fl-p { background:rgba(217,119,6,.07); padding:.45rem .55rem;
   border-radius:.55rem; }
-.it-chks { display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center; }
+.it-chks { display:flex; flex-wrap:wrap; gap:.8rem 1.6rem; align-items:center; }
 .it-chks .it-aic { margin-top:0; }
 
 /* selector de pais */

@@ -11,31 +11,26 @@ const Itinerario = {
     'Imagen URL':       { k: 'imagen',    ph: 'https://…', t: 'url' },
     'Transporte Aéreo': { k: 'aerolinea', ph: 'Ej. Avianca, Copa, Iberia…' }
   },
-  async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?')) {
-    document.getElementById(rid).remove(); this.syncItin(); } },
+  async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?')) { document.getElementById(rid).remove(); this.syncItin(); } },
   /* colapso exclusivo entre hermanos + display inline a prueba de estilos */
-  _body(card) { return [...card.children].find(k =>
-    k.classList && k.classList.contains('it-acc-body')); },
+  _body(card) { return [...card.children].find(k => k.classList && k.classList.contains('it-acc-body')); },
   tog(btn) {
     const card = btn.closest('.it-acc'),
           open = card.classList.contains('open');
-    [...card.parentElement.children].forEach(s => {
-      if (!s.classList || !s.classList.contains('it-acc')) return;
-      s.classList.remove('open');
-      const b = this._body(s); if (b) b.style.display = 'none'; });
+    [...card.parentElement.children].forEach(s => { if (!s.classList || !s.classList.contains('it-acc')) return;
+      s.classList.remove('open'); const b = this._body(s); if (b) b.style.display = 'none'; });
     if (!open) { card.classList.add('open');
       const b = this._body(card); if (b) b.style.display = ''; }
   },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; }, paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
-  async vi(chk) {
-    if (chk.checked && (!(await confirmar('¿Mostrar teléfono y monto en el itinerario público?')) || !(await confirmar('¿Seguro? Lo verán todas las personas.')))) chk.checked = false; },
+  async vi(chk) { if (chk.checked && (!(await confirmar('¿Mostrar teléfono y monto en el itinerario público?')) || !(await confirmar('¿Seguro? Lo verán todas las personas.')))) chk.checked = false; },
   _wys(d) { const bt = b => '<button type="button" class="wys-b" title="' + b[1] + '" onmousedown="event.preventDefault()" onclick="WYS.cmdAt(this,\'' + b[0] + (b[2] || '') + '\')"><i class="fa-solid ' + b[3] + '"></i></button>';
     return '<div class="wys-bar">' + [['bold','Negrita','','fa-bold'], ['underline','Subrayado','','fa-underline'], ['insertUnorderedList','Viñetas','','fa-list-ul'], ['insertOrderedList','Lista ordenada','','fa-list-ol'], ['formatBlock','Cita',",'blockquote'",'fa-quote-left']].map(bt).join('') +
       '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
     return s + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
-  _l(lab, h, cls) { return '<div class="fl' + (cls ? ' ' + cls : '') +
-    '"><span class="fl-l">' + lab + '</span>' + h + '</div>'; },
+  _l(lab, h, cls, hd) { return '<div class="fl' + (cls ? ' ' + cls : '') +
+    '"' + (hd ? ' hidden' : '') + '><span class="fl-l">' + lab + '</span>' + h + '</div>'; },
   _dias() { let o = ''; for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
     const pi = card.querySelector('.it-precio'), mo = card.querySelector('.it-modo'),
@@ -43,13 +38,11 @@ const Itinerario = {
     if (!pi || !mo || !out) return;
     const precio = parseFloat(pi.value) || 0;
     const modo = mo.value, n = this.pax(), ns = this.paxS();
-    if (!precio || !(n || ns)) {
-      out.innerHTML = ''; if (hnt) hnt.textContent = '';
-      this._gtotal(); return; }
+    if (!precio || !(n || ns)) { out.innerHTML = '';
+      if (hnt) hnt.textContent = ''; this._gtotal(); return; }
     if (modo === 'grupo') {          /* P/G: precio ÷ capacidad S/G */
       let h = '<hr class="it-hr">P/G ' + this._fmt(precio);
-      if (ns) h += ' ÷ ' + ns + ' S/G = ' +
-        this._fmt(precio / ns) + ' c/u';
+      if (ns) h += ' ÷ ' + ns + ' S/G = ' + this._fmt(precio / ns) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(precio) + '</b>';
     } else {                         /* P/P: precio × C/G, repartido entre S/G,
                                         ese c/u cobrado a TODOS (× C/G) */
@@ -171,15 +164,21 @@ const Itinerario = {
           tel('it-tela', 'Tel. del contacto', x.tel) +
           inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
           this._l('Descripción', this._wys(x.desc))
-        : inp('Detalle (Ej. llegada hotel)', 'text', 'it-ruta', ruta) +
+        : (tipo === 'Entradas' && this.entradasCard ? this.entradasCard(ruta, x)
+          : inp('Detalle (Ej. llegada hotel)', 'text', 'it-ruta', ruta) +
           inp('Guía / Agencia / Tour operador', 'text', 'it-nombre', x.nombre) +
           '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
             tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
           inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
-          this._l('Descripción', this._wys(x.desc))) + costos;
+          this._l('Descripción', this._wys(x.desc)))) + costos;
     c.appendChild(card);
     if (window.wireNormalizadores) wireNormalizadores(card);
     ['input','change'].forEach(t => card.addEventListener(t, () => this._calc(card)));
+    if (tipo === 'Entradas') ['.it-cmap', '.it-cwaz'].forEach(s => {
+      const i = card.querySelector(s); if (!i) return;
+      i.addEventListener('change', () =>
+        card.querySelector(s === '.it-cmap' ? '.it-maps' : '.it-waze')
+          .closest('.fl').hidden = !i.checked); });
     card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     this._calc(card);
     this.syncItin();
@@ -197,7 +196,7 @@ const Itinerario = {
         destino: dest, dia: card.dataset.dia || '', tipo: card.dataset.tipo,
         ruta: q('.it-ruta') || card.dataset.tipo,
         nombre: V.titleCase(q('.it-nombre')), tel: ta,
-        telGuia: tg, maps: q('.it-maps'),
+        telGuia: tg, maps: q('.it-maps'), waze: q('.it-waze'),
         desc: de, precio: parseFloat(q('.it-precio')) || 0,
         modo: q('.it-modo'),
         verinfo: !!(card.querySelector('.it-verinfo') || {}).checked }; };

@@ -12,25 +12,12 @@ Object.assign(Destinos, {
     this._paxLibres = pxs.filter(p => !p.contactoId).map(p => p.id);
     this.paxRender();
   },
-  async paxBuscar(q) {
-    const dd = $('#pax-drop'); if (!dd) return;
-    q = (q || '').toLowerCase().trim();
-    if (!q) { dd.innerHTML = ''; return; }
-    const cs = (await DB.list('contactos'))
-      .filter(c => !this._paxSel.includes(c.id) &&
-        ((c.nombre || '').toLowerCase().includes(q) ||
-         (c.telefono || '').includes(q)))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre)).slice(0, 8);
-    dd.innerHTML = cs.map(c =>
-      '<button type="button" class="pax-hit" onclick="Destinos.paxAdd(\'' +
-      c.id + '\')"><i class="fa-solid fa-user-plus"></i> <b>' +
-      esc(c.nombre) + '</b>' +
-      (c.telefono ? ' · ' + esc(c.telefono) : '') + '</button>').join('');
-  },
-  paxAdd(cid) {
-    if (!this._paxSel.includes(cid)) this._paxSel.push(cid);
-    $('#pax-buscar').value = ''; $('#pax-drop').innerHTML = '';
-    this.paxRender();
+  async paxIr(id) {
+    const p = (await DB.list('pasajeros'))
+      .find(x => x.id === id || x.contactoId === id);
+    if (!p) return showToast('Guarda el viaje para crear su ficha', 'error');
+    closeModal('modal-destino');
+    await Router.switchTab('pasajeros'); Pasajeros.editar(p.id);
   },
   paxDel(cid) {
     this._paxSel = this._paxSel.filter(x => x !== cid); this.paxRender();
@@ -46,12 +33,17 @@ Object.assign(Destinos, {
     const cs = await DB.list('contactos'),
           ps = await DB.list('pasajeros');
     const lista = this._paxSel.map(id => cs.find(c => c.id === id))
-      .filter(Boolean).map(c => ({ n: c.nombre, t: c.telefono, f: 'paxDel', i: c.id }))
+      .filter(Boolean).map(c => ({ n: c.nombre, t: c.telefono,
+        pp: c.pasaporte || c.codigo || '', f: 'paxDel', i: c.id }))
       .concat(this._paxLibres.map(id => ps.find(p => p.id === id))
-        .filter(Boolean).map(p => ({ n: p.nombre, t: p.telefono, f: 'paxDelP', i: p.id })))
+        .filter(Boolean).map(p => ({ n: p.nombre, t: p.telefono,
+          pp: p.pasaporte || p.codigo || '', f: 'paxDelP', i: p.id })))
       .sort((a, b) => a.n.localeCompare(b.n));
-    ol.innerHTML = lista.map(c => '<li><b>' + esc(c.n) + '</b>' +
+    ol.innerHTML = lista.map(c => '<li><b class="pax-nm" ' +
+      'onclick="Destinos.paxIr(\'' + c.i + '\')">' + esc(c.n) + '</b>' +
       (c.t ? ' <span class="hint">' + esc(c.t) + '</span>' : '') +
+      (c.pp ? '<br><span class="hint"><i class="fa-solid fa-id-card"></i> ' +
+        esc(c.pp) + '</span>' : '') +
       ' <button type="button" class="iconbtn danger pit-x" ' +
       'onclick="Destinos.' + c.f + '(\'' + c.i + '\')">' +
       '<i class="fa-solid fa-xmark"></i></button></li>').join('');

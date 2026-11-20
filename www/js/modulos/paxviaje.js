@@ -3,12 +3,13 @@
    del viaje (Pasajeros.syncViaje los graba al guardar). */
 'use strict';
 Object.assign(Destinos, {
-  _paxSel: [],
-  paxReset() { this._paxSel = []; this.paxRender(); },
+  _paxSel: [], _paxLibres: [],
+  paxReset() { this._paxSel = []; this._paxLibres = []; this.paxRender(); },
   async paxCargar(did) {
-    this._paxSel = ((await DB.list('pasajeros')) || [])
-      .filter(p => p.destinoId === did && p.contactoId)
-      .map(p => p.contactoId);
+    const pxs = ((await DB.list('pasajeros')) || [])
+      .filter(p => p.destinoId === did);
+    this._paxSel = pxs.filter(p => p.contactoId).map(p => p.contactoId);
+    this._paxLibres = pxs.filter(p => !p.contactoId).map(p => p.id);
     this.paxRender();
   },
   async paxBuscar(q) {
@@ -34,15 +35,25 @@ Object.assign(Destinos, {
   paxDel(cid) {
     this._paxSel = this._paxSel.filter(x => x !== cid); this.paxRender();
   },
+  async paxDelP(pid) {
+    const p = await DB.get('pasajeros', pid);
+    if (p) { p.destinoId = ''; await DB.save('pasajeros', p); }
+    this._paxLibres = this._paxLibres.filter(x => x !== pid);
+    this.paxRender();
+  },
   async paxRender() {
     const ol = $('#pax-lista'); if (!ol) return;
-    const cs = await DB.list('contactos');
+    const cs = await DB.list('contactos'),
+          ps = await DB.list('pasajeros');
     const lista = this._paxSel.map(id => cs.find(c => c.id === id))
-      .filter(Boolean).sort((a, b) => a.nombre.localeCompare(b.nombre));
-    ol.innerHTML = lista.map(c => '<li><b>' + esc(c.nombre) + '</b>' +
-      (c.telefono ? ' <span class="hint">' + esc(c.telefono) + '</span>' : '') +
+      .filter(Boolean).map(c => ({ n: c.nombre, t: c.telefono, f: 'paxDel', i: c.id }))
+      .concat(this._paxLibres.map(id => ps.find(p => p.id === id))
+        .filter(Boolean).map(p => ({ n: p.nombre, t: p.telefono, f: 'paxDelP', i: p.id })))
+      .sort((a, b) => a.n.localeCompare(b.n));
+    ol.innerHTML = lista.map(c => '<li><b>' + esc(c.n) + '</b>' +
+      (c.t ? ' <span class="hint">' + esc(c.t) + '</span>' : '') +
       ' <button type="button" class="iconbtn danger pit-x" ' +
-      'onclick="Destinos.paxDel(\'' + c.id + '\')">' +
+      'onclick="Destinos.' + c.f + '(\'' + c.i + '\')">' +
       '<i class="fa-solid fa-xmark"></i></button></li>').join('');
   }
 });

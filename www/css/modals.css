@@ -171,6 +171,22 @@
   box-shadow:0 0 0 3px rgba(217,119,6,.15); outline:none; }
 .wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 3rem; margin-top:auto; }
 
+/* boton glass animado */
+.btn-glass { position:relative; overflow:hidden;
+  background:linear-gradient(135deg, rgba(217,119,6,.85), rgba(245,158,11,.75));
+  border:1px solid rgba(255,255,255,.45); border-radius:.8rem;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  box-shadow:0 4px 18px rgba(217,119,6,.35), inset 0 1px 0 rgba(255,255,255,.5);
+  animation:glassPulse 2.4s ease-in-out infinite alternate; }
+.btn-glass::after { content:''; position:absolute; top:0; left:-60%;
+  width:45%; height:100%;
+  background:linear-gradient(105deg, transparent, rgba(255,255,255,.55), transparent);
+  transform:skewX(-20deg); animation:glassSheen 2.6s ease-in-out infinite; }
+@keyframes glassSheen { 0%{left:-60%} 55%{left:120%} 100%{left:120%} }
+@keyframes glassPulse {
+  from { box-shadow:0 4px 18px rgba(217,119,6,.30), inset 0 1px 0 rgba(255,255,255,.5); }
+  to   { box-shadow:0 4px 26px rgba(217,119,6,.55), inset 0 1px 0 rgba(255,255,255,.65); } }
+
 /* selector de pais */
 .pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.6rem .8rem;
   border:1px solid var(--slate-200); border-radius:.6rem; background:#fff; font-size:14px; color:var(--slate-700); }

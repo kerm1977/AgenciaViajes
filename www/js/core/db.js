@@ -18,17 +18,21 @@ const DB = {
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
       ' checkout TEXT, boleto TEXT, trans TEXT, fechas TEXT,' +
-      ' imgfx TEXT, notas TEXT, itinerario TEXT)',
+      ' imgfx TEXT, notas TEXT, itinerario TEXT, noincluye TEXT)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +
-      ' destinoId TEXT, asiento TEXT, checkin TEXT)'
+      ' destinoId TEXT, asiento TEXT, checkin TEXT,' +
+      ' ap1 TEXT, ap2 TEXT, pasaporte TEXT, fijo TEXT,' +
+      ' checkinUrl TEXT, contactoId TEXT)'
   },
   /* columnas añadidas después del esquema inicial — migración ALTER */
   MIGRACIONES: {
     destinos: ['pais TEXT', 'destinos TEXT',
                'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT',
                'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',
-               'imgfx TEXT']
+               'imgfx TEXT', 'noincluye TEXT'],
+    pasajeros: ['ap1 TEXT', 'ap2 TEXT', 'pasaporte TEXT', 'fijo TEXT',
+                'checkinUrl TEXT', 'contactoId TEXT']
   },
   mot: null,
   async init() {

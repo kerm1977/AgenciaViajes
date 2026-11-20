@@ -129,6 +129,11 @@ const Exportar = {
     (d.itinerario || []).forEach(it => {
       const lbl = it.nombre || it.ruta || it.tipo;
       if (lbl && lbl !== it.tipo) line('  ' + it.tipo + ': ' + lbl); });
+    if (d.noincluye) {
+      doc.setFont('helvetica', 'bold'); line('NO INCLUYE');
+      doc.setFont('helvetica', 'normal');
+      d.noincluye.split(/[\n;]+/).map(s => s.trim()).filter(Boolean)
+        .forEach(x => line('  • ' + x)); }
     if ((d.destinos || []).length) {
       doc.setFont('helvetica', 'bold'); line('DESTINOS DEL VIAJE');
       doc.setFont('helvetica', 'normal');
@@ -157,11 +162,6 @@ const Exportar = {
         if (it.guia) line('    Guía: ' + it.guia);
         if (it.desc) line('    ' + txt(it.desc));
         if (it.adesc) line('    ' + txt(it.adesc)); }); });
-    if (d.noincluye) {
-      doc.setFont('helvetica', 'bold'); line('NO INCLUYE');
-      doc.setFont('helvetica', 'normal');
-      d.noincluye.split(/[\n;]+/).map(s => s.trim()).filter(Boolean)
-        .forEach(x => line('  • ' + x)); }
     await this._savePdf(doc,
       'viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
     showToast('PDF del viaje generado');

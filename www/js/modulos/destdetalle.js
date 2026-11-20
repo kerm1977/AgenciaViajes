@@ -64,6 +64,14 @@ Destinos.pagina = async function (id) {
   if (filas) h += '<h3 class="pit-dia" style="text-align:center">' +
     '<i class="fa-solid fa-circle-check"></i> Incluye</h3>' +
     '<div class="grid-2 card card-pad">' + filas + '</div>';
+  if (d.noincluye)
+    h += '<h3 class="pit-dia" style="text-align:center">' +
+      '<i class="fa-solid fa-ban"></i> No incluye</h3>' +
+      '<div class="grid-2 card" style="background:#fdf2f2;' +
+      'border:1px solid #f0d4d4"><ul class="pit-ol">' +
+      (d.noincluye.split(/[\n;]+/).map(s => s.trim())
+        .filter(Boolean).map(s => '<li>' + esc(s) + '</li>').join('')) +
+      '</ul></div>';
   if ((d.destinos || []).length)
     h += '<h3 class="pit-dia"><i class="fa-solid fa-location-dot"></i> ' +
       'Destinos del viaje</h3><ul class="pit-ol">' +
@@ -145,14 +153,6 @@ Destinos.pagina = async function (id) {
           'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
           '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
       '</div>' : '') + '</div>';
-  if (d.noincluye)
-    h += '<h3 class="pit-dia" style="text-align:center">' +
-      '<i class="fa-solid fa-ban"></i> No incluye</h3>' +
-      '<div class="grid-2 card" style="background:#fdf2f2;' +
-      'border:1px solid #f0d4d4"><ul class="pit-ol">' +
-      (d.noincluye.split(/[\n;]+/).map(s => s.trim())
-        .filter(Boolean).map(s => '<li>' + esc(s) + '</li>').join('')) +
-      '</ul></div>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta

@@ -98,6 +98,29 @@ const Perfil = {
   },
   ctDel(k, i) { const c = this._ct(); (c[k] || []).splice(i, 1);
     localStorage.setItem('latribu_cuentas', JSON.stringify(c)); this.ctRender(); },
+  /* OTA_Server.zip: paquete portátil para levantar el servidor en otra PC */
+  async servidor() {
+    try {
+      const r = await fetch('descargas/OTA_Server.zip'),
+            b = await r.blob(),
+            FS = plugin('Filesystem'), Sh = plugin('Share');
+      if (FS && Sh && window.Capacitor &&
+          Capacitor.isNativePlatform && Capacitor.isNativePlatform()) {
+        const data = await new Promise(res => {
+          const rd = new FileReader();
+          rd.onload = () => res(String(rd.result).split(',')[1]);
+          rd.readAsDataURL(b); });
+        const w = await FS.writeFile({ path: 'OTA_Server.zip', data,
+          directory: 'CACHE' }).catch(() => null);
+        if (w && w.uri) {
+          await Sh.share({ title: 'OTA_Server.zip', url: w.uri });
+          return; } }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = 'OTA_Server.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('OTA_Server.zip descargado');
+    } catch (e) { showToast('No se pudo descargar el servidor', 'error'); }
+  },
   /* Estadísticas embebidas: inyecta el markup del panel Resumen */
   async stats() {
     const box = $('#pf-stats'); if (!box) return;

@@ -17,7 +17,7 @@ window.addEventListener('load', async () => {
     const vivo = await DB.usuarioPorEmail(u.email);
     if (vivo && vivo.activo !== 0) {
       Session.set(vivo);
-      Auth.entrar(vivo);
+      Auth.entrar(vivo, true);
       return;
     }
     Session.set(null);

@@ -31,7 +31,7 @@ Destinos.pagina = async function (id) {
       ? fila('fa-calendar-days', 'Fechas', esc(f.desde || '') +
           (f.hasta ? ' → ' + esc(f.hasta) : ''))
       : '') +
-    (d.guia ? fila('fa-user-tie', 'Guía asignado', esc(d.guia)) : '') +
+    (d.guia ? fila('fa-user-tie', 'Guía', esc(d.guia)) : '') +
     (d.transporte ? fila('fa-bus', 'Transporte', esc(d.transporte)) : '') +
     (d.aerolinea || d.vuelo
       ? '<div><p class="lbl">Aerolínea</p><p class="kv bold">' +

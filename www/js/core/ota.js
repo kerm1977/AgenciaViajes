@@ -4,8 +4,7 @@
   'use strict';
   const KEY = 'tm_ota_url';      /* última url recibida por push */
   const PCKEY = 'lt_ota_pc';     /* base http(s) del servidor OTA del PC */
-  let seen = '';
-  try { seen = localStorage.getItem('tm_ota_seen') || ''; } catch (e) {}
+  let seen = ''; try { seen = localStorage.getItem('tm_ota_seen') || ''; } catch (e) {}
   const L = m => {
     try { console.log('[OTA] ' + m); } catch (e) {}
     try { if (window.DC) DC.ev('OTA', m); } catch (e) {}
@@ -21,8 +20,7 @@
     if (typeof d === 'string') { try { d = JSON.parse(d); } catch (x) {} }
     return d;
   };
-  const up = UP();
-  if (up && up.notifyAppReady)
+  const up = UP(); if (up && up.notifyAppReady)
     up.notifyAppReady().then(() => L('notifyAppReady OK'))
       .catch(e => L('notifyAppReady falló: ' + (e && e.message || e)));
   else L('CapacitorUpdater NO disponible — OTA inactivo (web)');
@@ -33,9 +31,8 @@
   function soltarPull() { pulling = false; clearTimeout(pullWatch); pullWatch = null; }
   function armarWatch() {
     clearTimeout(pullWatch);
-    pullWatch = setTimeout(() => {
-      if (pulling) { pulling = false; L('watchdog: descarga colgada — candado liberado'); }
-    }, 80000);
+    pullWatch = setTimeout(() => { if (pulling) {
+      pulling = false; L('watchdog: descarga colgada — candado liberado'); } }, 80000);
   }
   async function checksumDe(url) {   // SHA-256 obligatorio para CapacitorUpdater
     const H = HTTP();
@@ -66,9 +63,10 @@
     P.download({ url: url, version: String(version || 'ota'), checksum: checksum })
       .then(bundle => {
         L('descargado id=' + bundle.id + ' — aplicando…');
+        if (okcb) okcb();   /* marca ANTES de set(): el reload le gana al then */
         if (!silent && window.showToast) showToast('Aplicando OTA…');
         return P.set({ id: bundle.id }).catch(() => P.next({ id: bundle.id }));
-      }).then(() => { pull._re = 0; if (okcb) okcb();
+      }).then(() => { pull._re = 0;
         L('aplicado — el WebView recarga solo'); sonar('ok'); })
       .catch(e => {
         soltarPull();
@@ -135,8 +133,7 @@
     } catch (e) { L('sello FALLO — la PC no responde: ' + (e && e.message || e)); }
     return null;
   }
-  /* sello LOCAL del plugin: sha del zip ya empujado por /ota-zip
-     (via libre del firewall del PC) */
+  /* sello LOCAL del plugin: sha del zip empujado (via libre del firewall) */
   async function selloLocal() {
     const H = HTTP();
     if (!H) return null;
@@ -149,9 +146,11 @@
   async function probarLocal(silent) {  // aplica el zip empujado si es nuevo
     const l = await selloLocal();
     if (!l) return false;
-    let ya = '';
-    try { ya = localStorage.getItem('lt_ota_applied') || ''; } catch (e) {}
-    if (!l.sha || l.sha === ya) return true;   // nada pendiente (o ya aplicado)
+    let ya = '', tr = '';
+    try { ya = localStorage.getItem('lt_ota_applied') || '';
+          tr = localStorage.getItem('lt_ota_tried') || ''; } catch (e) {}
+    if (!l.sha || l.sha === ya || (silent && l.sha === tr)) return true;
+    try { localStorage.setItem('lt_ota_tried', l.sha); } catch (e) {}
     L('zip local pendiente (sha ' + l.sha.slice(0, 10) + '…) — aplicando');
     pull('http://127.0.0.1:9863/ota-incoming.zip', 'local-' + Date.now(), l.sha, silent,
       () => { try { localStorage.setItem('lt_ota_applied', l.sha); } catch (e) {} });
@@ -231,6 +230,7 @@
   const O = window.TM_OTA;
   if (O && O.ts && O.ts !== seen) {
     try { localStorage.setItem('tm_ota_seen', O.ts); } catch (e) {}
+    seen = O.ts;
     L('nuevo sello aplicado: ' + O.ts);
     setTimeout(() => {
       const ov = document.createElement('div');

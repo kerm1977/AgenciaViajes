@@ -50,7 +50,7 @@ const Borrador = {
     (d.itinerario || []).forEach(it => {
       if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor,
         it.campo === 'Aerolínea' || it.campo === 'Transporte' ? it : null);
-      else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it);
+      else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it, 1);
     });
     Itinerario.refresh();
   },

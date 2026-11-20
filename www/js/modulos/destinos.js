@@ -88,8 +88,8 @@ const Destinos = {
     $('#destinos-lista-container').appendChild(div);
     if (window.Itinerario) Itinerario.syncItin();
   },
-  addItRow(dest, dia, tipo, ruta, x) {
-    Itinerario.addRow(dest, dia, tipo, ruta, x); },
+  addItRow(dest, dia, tipo, ruta, x, ev) {
+    Itinerario.addRow(dest, dia, tipo, ruta, x, ev); },
   cancelar() { return Borrador.cancelar(); },
   nuevo() {
     if (!Session.can('destinos.crear')) {
@@ -215,7 +215,7 @@ const Destinos = {
         t === 'Transporte' ? (d.trans || {}) : null);
     });
     (d.itinerario || []).forEach(it =>
-      this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it));
+      this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1));
     Itinerario.refresh();
     $('#modal-destino-title').textContent = 'Editar Destino y Viaje';
     openModal('modal-destino');

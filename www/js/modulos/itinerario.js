@@ -2,14 +2,14 @@
    con cards por evento: contacto, tels, Maps/GPX, desc, precio y total. */
 'use strict';
 const Itinerario = {
-  TIPOS: ['Llegada y traslado','Guía','Transporte Aéreo','Lancha',
-    'Avioneta','Tour Operador','Agencia de Viajes','Entradas 4x4','Acarreo',
-    'Estadía / Hospedaje','Hotel','Uber / Didi / Taxi / Bus',
+  TIPOS: ['Llegada y traslado','Lancha','Avioneta',
+    'Agencia de Viajes / Tour Operador','Entradas 4x4','Acarreo',
+    'Hotel / Hostal / Hospedaje','Uber / Didi / Taxi / Bus',
     'Centro Turístico','Centro Arqueológico','Entradas','Impuestos','Otros'],
   /* opciones que guardan un solo valor en el objeto destino */
   CAMPOS: {
     'Imagen URL':      { k: 'imagen',      ph: 'https://…', t: 'url' },
-    'Guía asignado':   { k: 'guia',        ph: 'Nombre del guía' },
+    'Guía':            { k: 'guia',        ph: 'Nombre del guía' },
     'Transporte':      { k: 'transporte',  ph: 'Ej. Autobús privado / Van' },
     'Aerolínea':       { k: 'aerolinea',   ph: 'Ej. Avianca, Copa, Iberia…' },
     'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
@@ -82,9 +82,9 @@ const Itinerario = {
       this._calc(p.closest('.it-acc')));
     this.syncItin();
   },
-  addRow(dest, dia, tipo, ruta, x) {
+  addRow(dest, dia, tipo, ruta, x, ev) {
     x = x || {};
-    const campo = this.CAMPOS[tipo];
+    const campo = ev ? null : this.CAMPOS[tipo];  /* ev: evento guardado, nunca campo */
     const acc = $('#itin-acc');
     if (acc && !acc.classList.contains('open') && window.Destinos)
       Destinos.acc(acc.id, 1);

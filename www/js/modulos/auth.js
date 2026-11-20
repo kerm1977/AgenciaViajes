@@ -56,7 +56,7 @@ const Auth = {
   },
 
   /* entra al shell: carga app.html y arma navegación según rol */
-  async entrar(u) {
+  async entrar(u, quiet) {
     $('#view-login').innerHTML = '';
     $('#view-login').classList.add('hidden');
     const app = $('#view-app');
@@ -75,7 +75,7 @@ const Auth = {
     const tag = $('#build-tag');
     if (tag) tag.textContent = '';   // sello oculto: queda solo para gestos OTA
     Router.switchTab('destinos');
-    showToast('Sesión iniciada — ' + u.nombre);
+    if (!quiet) showToast('Sesión iniciada — ' + u.nombre);
   },
   /* nav según permisos: usuarios/estadísticas solo si procede */
   nav() {

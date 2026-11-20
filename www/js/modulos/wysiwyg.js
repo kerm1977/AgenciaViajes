@@ -7,9 +7,17 @@
 const WYS = {
   _last: null,
   cmd(c, v) {
-    const a = document.activeElement;
-    const e = (a && a.classList && a.classList.contains('wys-edit')) ? a
-      : (this._last || document.getElementById('desc-editor'));
+    let e = null;
+    const sel = window.getSelection();
+    if (sel && sel.anchorNode) {
+      const n = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentNode;
+      if (n && n.closest) e = n.closest('.wys-edit');
+    }
+    if (!e) {
+      const a = document.activeElement;
+      e = a && a.closest ? a.closest('.wys-edit') : null;
+    }
+    if (!e) e = this._last || document.getElementById('desc-editor');
     if (e) { e.focus(); document.execCommand(c, false, v || null); }
   }
 };

@@ -13,7 +13,7 @@ const Destinos = {
     grid.innerHTML = '';
     if (!lista.length) { grid.innerHTML = '<div class="card empty-state" style="grid-column:1/-1">' +
       '<i class="fa-solid fa-map-location"></i><p>No hay destinos registrados.</p></div>'; return; }
-    const puedeEditar = Session.can('destinos.editar'), puedeBorrar = Session.can('destinos.eliminar');
+    const puedeEditar = Session.can('destinos.editar'), puedeBorrar = Session.can('destinos.eliminar'), puedePax = Session.can('pasajeros.editar');
     lista.forEach(d => {
       const lugares = (d.destinos || []).join(' · '),
             tv = Itinerario.totalViaje(d);
@@ -49,8 +49,8 @@ const Destinos = {
             '<i class="fa-solid fa-square-check"></i> Check-in</a>' : '') +
           '<button class="btn btn-sm btn-soft" onclick="Destinos.detalle(\'' + d.id + '\')">' +
             '<i class="fa-solid fa-route"></i> Itinerario</button>' +
-          (puedeEditar ? '<button class="iconbtn" onclick="Destinos.editar(\'' + d.id + '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') +
-          (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
+          (puedePax ? '<button class="iconbtn" title="Agregar pasajeros" onclick="Destinos.paxNuevo(\'' + d.id + '\')"><i class="fa-solid fa-user-plus"></i></button>' : '') +
+          (puedeEditar ? '<button class="iconbtn" onclick="Destinos.editar(\'' + d.id + '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') + (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>';
       grid.appendChild(card);
       Uploader.bindImg(card.querySelector('.dest-img'), d);
@@ -185,7 +185,7 @@ const Destinos = {
     const ed = $('#desc-editor'); if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
     const ni = $('#dest-noincluye'); obj.noincluye = ni ? ni.value.trim() : '';
     await DB.save('destinos', obj); if (window.Pasajeros && Pasajeros.syncViaje)
-      await Pasajeros.syncViaje(obj.id, this._paxSel || []);
+      await Pasajeros.syncViaje(obj.id, this._paxSel || []); await this.paxSyncLibres(obj.id);
     Borrador.clear();
     $('#pag-destino').classList.remove('open');
     showToast(id ? 'Destino actualizado' : 'Destino creado');

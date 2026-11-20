@@ -67,3 +67,28 @@
     </div>
   </div>
 </div>
+
+<div id="modal-paxpick" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Agregar pasajeros</h3>
+      <button class="modal-x" onclick="closeModal('modal-paxpick')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <div class="searchbox">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="pxp-buscar" class="input"
+                 oninput="Destinos.paxPickRender()" placeholder="Buscar por nombre o teléfono...">
+        </div>
+      </div>
+      <div id="pxp-lista" class="grp-lista"></div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft"
+                onclick="closeModal('modal-paxpick')">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+                onclick="Destinos.paxPickGo()">Agregar <span id="pxp-count"></span></button>
+      </div>
+    </div>
+  </div>
+</div>

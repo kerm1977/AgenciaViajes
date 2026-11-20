@@ -77,8 +77,8 @@ Destinos.pagina = async function (id) {
       'Destinos del viaje</h3><ul class="pit-ol">' +
       d.destinos.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
   const porDia = {};
-  (d.itinerario || []).forEach(it =>
-    (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
+  (d.itinerario || []).forEach(it => { if (it.dia)
+    (porDia[it.dia] = porDia[it.dia] || []).push(it); });
   const dias = Object.keys(porDia).sort((a, b) =>
     parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
   const COLS = ['#0f9d8f', '#7c3aed', '#0284c7', '#e11d48', '#d97706', '#4f46e5'],

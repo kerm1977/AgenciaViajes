@@ -145,8 +145,8 @@ const Exportar = {
     doc.setFont('helvetica', 'bold'); line('ITINERARIO');
     doc.setFont('helvetica', 'normal');
     const por = {};
-    (d.itinerario || []).forEach(i =>
-      (por[i.dia || 'Día 1'] = por[i.dia || 'Día 1'] || []).push(i));
+    (d.itinerario || []).forEach(i => { if (i.dia)
+      (por[i.dia] = por[i.dia] || []).push(i); });
     Object.keys(por).sort((a, b) =>
       parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, ''))
     ).forEach(dia => {

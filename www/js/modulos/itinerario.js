@@ -33,7 +33,7 @@ const Itinerario = {
     return '<div class="wys-bar">' + [['bold','Negrita','','fa-bold'], ['underline','Subrayado','','fa-underline'], ['insertUnorderedList','Viñetas','','fa-list-ul'], ['insertOrderedList','Lista ordenada','','fa-list-ol'], ['formatBlock','Cita',",'blockquote'",'fa-quote-left']].map(bt).join('') +
       '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
-    return s + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+    return s + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
   _dias() { let o = ''; for (let i = 1; i <= 30; i++) o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
     const pi = card.querySelector('.it-precio');
@@ -148,7 +148,7 @@ const Itinerario = {
       esc(stripCod(v)) + '" class="input ' + cls + '"></div>';
     const transp = /^Transporte\s/.test(tipo || '');
     const costos = '<div class="grid-2">' +
-        '<input type="number" min="0" step="0.01" placeholder="' +
+        '<input type="number" min="0" step="1" placeholder="' +
           (transp ? 'Monto' : 'Precio del servicio') + '" value="' +
           esc(x.precio || '') + '" class="input it-precio">' +
         '<select class="select it-modo">' +

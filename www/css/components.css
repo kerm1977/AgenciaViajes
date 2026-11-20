@@ -220,6 +220,7 @@ label.lbl {
 .it-mirror .it-guia { flex:1 1 6rem !important; min-width:0; }
 .pax-hit { text-align:left; border:1px solid var(--slate-200); background:#fff; border-radius:8px; padding:.4rem .6rem; font-size:13px; cursor:pointer; color:var(--slate-700); }
 .pax-hit:hover { background:var(--slate-100); }
+.wys-edit ul, .wys-edit ol { padding-left:1.4rem; margin:.15rem 0; } .wys-edit blockquote { border-left:3px solid var(--brand-400); padding-left:.6rem; margin:.2rem 0; color:var(--slate-600); }
 .pit-pxl { display:flex; flex-direction:column; gap:.45rem; margin-top:.45rem; }
 .pit-px { display:flex; align-items:center; gap:.55rem; padding:.5rem .6rem;
   background:var(--slate-50); border:1px solid var(--slate-200); border-radius:var(--r-md); }
@@ -241,8 +242,7 @@ label.lbl {
 .pit-ev:after { right:-9px; clip-path:inset(0 50% 0 0); }
 .pit-ev-t { font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--brand-700); margin:0 0 .1rem; }
 .pit-tk-time { font-size:16px; font-weight:800; letter-spacing:.5px; color:var(--slate-800); font-variant-numeric:tabular-nums; margin:.1rem 0; }
-.pit-tk-dash { border-top:1.5px dashed var(--slate-300); margin:.35rem -.2rem .45rem; }
-.pit-ev p { margin:.1rem 0; font-size:13px; color:var(--slate-700); }
+.pit-tk-dash { border-top:1.5px dashed var(--slate-300); margin:.35rem -.2rem .45rem; } .pit-ev p { margin:.1rem 0; font-size:13px; color:var(--slate-700); }
 .pit-precio { text-align:center; margin:.25rem 0 .55rem; font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase; letter-spacing:.5px; } .pit-precio b { display:block; font-size:21px; color:var(--brand-700); letter-spacing:0; }
 .grp-lista { max-height:14rem; overflow-y:auto; display:flex; flex-direction:column; gap:.35rem; margin:.3rem 0; } .grp-hit { display:flex; align-items:center; gap:.5rem; padding:.45rem .55rem; border:1px solid var(--slate-200); border-radius:8px; background:#fff; cursor:pointer; }
 .it-vi { display:inline-flex; align-items:center; gap:.3rem; font-size:11.5px; color:var(--slate-600); white-space:nowrap; margin-top:.25rem; }

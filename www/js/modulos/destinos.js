@@ -148,14 +148,16 @@ const Destinos = {
       fechas: { on: $('#dest-tiene-fechas').checked, desde: $('#dest-fdesde').value,
         hasta: $('#dest-fhasta').value },
       imagen: (prev && prev.imagen) || '', imgfx: prev ? prev.imgfx : null,
-      guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '',
-      aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: []
+      guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: []
     };
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {
       const c = Itinerario.CAMPOS[i.campo];
       if (c) {
         obj[c.k] = i.valor;
+        if (i.dia || i.lugar || i.adesc)
+          obj.itinerario.push({ ...i, tipo: i.campo,
+            ruta: i.valor || i.campo, nombre: i.nombre || '' });
         if (c.k === 'aerolinea') {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
@@ -163,19 +165,17 @@ const Destinos = {
             ci: i.ci, co: i.co, os: i.os, osv: i.osv, osd: i.osd,
             dia: i.dia, hdesde: i.hdesde, hhasta: i.hhasta, guia: i.guia,
             esc: i.esc, escp: i.escp, escv: i.escv, esch: i.esch,
-            esca: i.esca };
+            esca: i.esca, lugar: i.lugar, adesc: i.adesc };
         }
         if (c.k === 'transporte')
           obj.trans = { tsel: i.tsel, tnombre: i.tnombre, ttel: i.ttel,
             tdesc: i.tdesc, dia: i.dia, hdesde: i.hdesde,
-            hhasta: i.hhasta, guia: i.guia };
+            hhasta: i.hhasta, guia: i.guia, lugar: i.lugar, adesc: i.adesc };
       } else obj.itinerario.push(i);
     });
-    const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre);
-    if (evg) obj.guia = evg.nombre;
+    const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre); if (evg) obj.guia = evg.nombre;
     if (prev && prev.trans && !obj.trans) obj.trans = prev.trans; if (prev && prev.boleto && !obj.boleto) obj.boleto = prev.boleto;
-    const ed = $('#desc-editor');
-    if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
+    const ed = $('#desc-editor'); if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
     const ni = $('#dest-noincluye'); obj.noincluye = ni ? ni.value.trim() : '';
     await DB.save('destinos', obj); if (window.Pasajeros && Pasajeros.syncViaje)
       await Pasajeros.syncViaje(obj.id, this._paxSel || []);

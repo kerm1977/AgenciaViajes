@@ -226,7 +226,7 @@ const Itinerario = {
         tg += (m === 'grupo' || !n) ? v('.it-precio') : this._ind(m, v('.it-precio')) * n;
         ti += this._ind(m, v('.it-precio')); }
       if (v('.it-pb')) { const con = v('.it-pb') +
-          (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? 0 : v('.it-ps'));
+          (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? v('.it-ps') : 0);
         const cu = ns && n ? Math.round(con * n / ns) : con;
         tg += cu * (n || 1); ti += cu; } });
     el.innerHTML = tg ? 'Total individual: <b>' + this._fmt(ti) +
@@ -242,7 +242,7 @@ const Itinerario = {
         : (sg ? it.precio * cg / sg : it.precio); } });
     const b = d.boleto; if (b) { const con = (parseFloat(b.pb) || 0) +
         (b.os === '1' ? parseFloat(b.osv) || 0 : 0) +
-        (b.ai === '1' ? 0 : parseFloat(b.ps) || 0);
+        (b.ai === '1' ? parseFloat(b.ps) || 0 : 0);
       T += con * (cg || 1); I += sg ? con * cg / sg : con; }
     return { t: T, i: I }; }
 };

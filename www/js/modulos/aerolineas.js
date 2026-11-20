@@ -73,31 +73,32 @@ Itinerario.aeroCard = function (card, nombre, x) {
       '<option value="">— Aerolínea —</option>' +
       nombres.map(n => '<option' + (n === nombre ? ' selected' : '') + '>' +
         esc(n) + '</option>').join('') + '</select>') +
-    fl('Enlace check-in', '<input class="input it-ci" value="' +
-      esc(x.ci || '') + '">') +
-    fl('Enlace check-out', '<input class="input it-co" value="' +
-      esc(x.co || '') + '">') +
-    '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
     fl('Clase', '<select class="select it-clase"><option value="">' +
       '— Clase —</option></select>') +
     '<hr class="it-hr">' +
     fl('Precio boleto', '<input type="number" min="0" step="1" value="' +
       esc(x.pb || '') + '" class="input it-pb">', 0, 'fl-p') +
-    '<label class="it-aic"><input type="checkbox" class="it-ai"' +
-      (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
+    '<div class="it-chks">' +
+      '<label class="it-aic"><input type="checkbox" class="it-cic"' +
+        (x.ci ? ' checked' : '') + '> Enlace check-in</label>' +
+      '<label class="it-aic"><input type="checkbox" class="it-ai"' +
+        (asientoInc ? ' checked' : '') + '> Asiento incluido</label>' +
+      '<label class="it-aic"><input type="checkbox" class="it-os"' +
+        (osOn ? ' checked' : '') + '> Otros servicios</label>' +
+      '<label class="it-aic"><input type="checkbox" class="it-esc"' +
+        (x.esc === '1' || x.esc === true ? ' checked' : '') +
+        '> Tiene escala</label></div>' +
+    fl('Enlace check-in', '<input class="input it-ci" value="' +
+      esc(x.ci || '') + '">', !x.ci) +
+    '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
     fl('Costo del asiento', '<input type="number" min="0" step="1" ' +
       'class="input it-ps" value="' + esc(x.ps || '') + '">',
-      asientoInc, 'fl-p') +
-    '<label class="it-aic"><input type="checkbox" class="it-os"' +
-      (osOn ? ' checked' : '') + '> Otros servicios</label>' +
+      !asientoInc, 'fl-p') +
     fl('Precio del servicio', '<input type="number" min="0" step="1" ' +
       'class="input it-osv" value="' + esc(x.osv || '') + '">',
-      !osOn, 'fl-p') + '<hr class="it-hr">' +
+      !osOn, 'fl-p') +
     fl('¿Qué incluye?', '<input class="input it-osd" value="' +
       esc(x.osd || '') + '">', !osOn) +
-    '<label class="it-aic"><input type="checkbox" class="it-esc"' +
-      (x.esc === '1' || x.esc === true ? ' checked' : '') +
-      '> Tiene escala</label>' +
     '<div class="it-escw"' +
       (x.esc === '1' || x.esc === true ? '' : ' hidden') + '>' +
       fl('País de escala', '<select class="select it-escp">' +
@@ -117,7 +118,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
         cls = card.querySelector('.it-clase'),
         chk = card.querySelector('.it-achk'),
         ci  = card.querySelector('.it-ci'),
-        co  = card.querySelector('.it-co'),
+        cic = card.querySelector('.it-cic'),
         ai  = card.querySelector('.it-ai'),
         ps  = card.querySelector('.it-ps'),
         os  = card.querySelector('.it-os'),
@@ -130,7 +131,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const sim = () => ($('#dest-moneda') || {}).value || '$';
   const total = () => {
     const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
-    const con = base + (ai.checked ? 0 : n(ps));
+    const con = base + (ai.checked ? n(ps) : 0);
     const cg = Itinerario.pax(), sg = Itinerario.paxS();
     if (!con) { tot.innerHTML = ''; hint.textContent = ''; return; }
     let h;
@@ -150,18 +151,14 @@ Itinerario.aeroCard = function (card, nombre, x) {
     const a = AEROLINEAS[sel.value];
     /* enlaces: precarga del catálogo solo si el campo sigue vacío —
        cualquier edición manual siempre gana */
-    if (a) {
-      if (!ci.value || Object.values(AEROLINEAS)
-          .some(k => k.ci === ci.value)) ci.value = a.ci;
-      if (!co.value || Object.values(AEROLINEAS)
-          .some(k => k.co === co.value)) co.value = a.co;
-    }
-    const lk = () => (ci.value ? '<a href="' + esc(ci.value) +
-        '" target="_blank">Check-in</a>' : '') +
-      (co.value ? (ci.value ? ' · ' : '') + '<a href="' + esc(co.value) +
-        '" target="_blank">Check-out</a>' : '');
+    if (a && (!ci.value || Object.values(AEROLINEAS)
+        .some(k => k.ci === ci.value))) ci.value = a.ci;
+    cic.checked = !!ci.value;
+    ci.closest('.fl').hidden = !cic.checked;
+    const lk = () => (cic.checked && ci.value ?
+      '<a href="' + esc(ci.value) + '" target="_blank">Check-in</a>' : '');
     chk.innerHTML = lk();
-    [ci, co].forEach(i => i.oninput = () => { chk.innerHTML = lk(); });
+    ci.oninput = () => { chk.innerHTML = lk(); };
     const tt = card.querySelector('.it-acc-t');
     if (tt) tt.textContent = sel.value
       ? 'Aerolínea · ' + sel.value : 'Aerolínea';
@@ -174,8 +171,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
   es.addEventListener('change', () => {
     card.querySelector('.it-escw').hidden = !es.checked; });
   sel.addEventListener('change', () => { x.clase = ''; pintar(); });
+  cic.addEventListener('change', () => {
+    ci.closest('.fl').hidden = !cic.checked; chk.innerHTML = ''; });
   ai.addEventListener('change', () => {
-    ps.closest('.fl').hidden = ai.checked; total(); });
+    ps.closest('.fl').hidden = !ai.checked; total(); });
   os.addEventListener('change', () => {
     osv.closest('.fl').hidden = osd.closest('.fl').hidden =
       !os.checked; total(); });
@@ -188,10 +187,10 @@ Itinerario.aeroCollect = function (card) {
   const a = AEROLINEAS[nombre] || {};
   return {
     campo: card.dataset.tipo, valor: nombre,
-    checkin: card.querySelector('.it-ci').value.trim() || a.ci || '',
-    checkout: card.querySelector('.it-co').value.trim() || a.co || '',
+    checkin: (card.querySelector('.it-cic').checked ?
+      card.querySelector('.it-ci').value.trim() : '') || a.ci || '',
+    checkout: a.co || '',
     ci: card.querySelector('.it-ci').value.trim(),
-    co: card.querySelector('.it-co').value.trim(),
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',

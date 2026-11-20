@@ -53,9 +53,10 @@ const PdfViaje = {
       (f.hasta ? ' → ' + f.hasta : '') : '']
       .filter(Boolean).join('   ·   '), M, 23.5);
     y = 34;
-    /* portada: cover con proporción intacta (recorte, nunca estirado) */
+    /* portada: imagen con proporción real (cover; marco = relación del canvas) */
     const img = await this._imgFx(d);
-    if (img) { doc.addImage(img, 'JPEG', M, y, CW, 60); y += 66; }
+    if (img) { const hi = CW * this._imgH / this._imgW;
+      doc.addImage(img, 'JPEG', M, y, CW, hi); y += hi + 6; }
     const TG = Itinerario.totalViaje(d);
     if (TG.i) { doc.setFillColor(15, 157, 143);
       doc.roundedRect(M, y, CW, 11, 2, 2, 'F');
@@ -63,85 +64,95 @@ const PdfViaje = {
       doc.setFontSize(10.5);
       doc.text('PRECIO POR PERSONA:  ' + Itinerario.fmtT(d, TG.i),
         M + CW / 2, y + 7.3, { align: 'center' }); y += 15; }
-    const inc = [];
-    if (d.guia) inc.push('Guía: ' + d.guia);
-    if (d.transporte) inc.push('Transporte: ' + d.transporte);
+    /* información del viaje */
+    const info = [];
+    if (d.pais) info.push('País: ' + d.pais);
+    if (f.on && f.desde)
+      info.push('Fechas: ' + f.desde + (f.hasta ? ' → ' + f.hasta : ''));
+    if (d.transporte) info.push('Transporte: ' + d.transporte);
     if (d.aerolinea || d.vuelo)
-      inc.push('Aerolínea: ' + (d.aerolinea || '') +
+      info.push('Aerolínea: ' + (d.aerolinea || '') +
         (d.vuelo ? ' · ' + d.vuelo : '') +
         (d.checkin ? ' · Check-in: ' + d.checkin : ''));
     if (bo.hdesde || bo.hhasta)
-      inc.push('Vuelo: ' + (bo.hdesde || '') +
+      info.push('Vuelo: ' + (bo.hdesde || '') +
         (bo.hhasta ? ' – ' + bo.hhasta : ''));
     if (bo.esc === '1')
-      inc.push('Escala: ' + [bo.escp, bo.escv, bo.esch, bo.esca]
+      info.push('Escala: ' + [bo.escp, bo.escv, bo.esch, bo.esca]
         .filter(Boolean).join(' · '));
-    if (txt(d.notas)) inc.push(txt(d.notas));
+    if (txt(d.notas)) info.push(txt(d.notas));
+    tarjeta('Información del viaje', [15,157,143], [248,250,252],
+      [226,232,240], info);
+    /* hoja dedicada: Incluye + No incluye + Destinos */
+    const inc = [];
+    if (d.guia) inc.push('Guía: ' + d.guia);
     (d.itinerario || []).forEach(it => {
       const lbl = it.nombre || it.ruta || it.tipo;
       if (lbl && lbl !== it.tipo) inc.push(it.tipo + ': ' + lbl); });
-    tarjeta('Incluye', [15,157,143], [248,250,252], [226,232,240], inc);
-    tarjeta('No incluye', [190,18,60], [253,242,242], [254,202,202],
-      (d.noincluye || '').split(/[\n;]+/).map(s => s.trim())
-        .filter(Boolean).map(x => '• ' + x));
-    tarjeta('Destinos del viaje', [2,132,199], [240,249,255], [186,230,253],
-      (d.destinos || []).map(x => '• ' + x));
-    /* días: tarjetas con color rotativo, contenido plano y HR sutiles */
+    const noi = (d.noincluye || '').split(/[\n;]+/).map(s => s.trim())
+      .filter(Boolean).map(x => '• ' + x),
+          des = (d.destinos || []).map(x => '• ' + x);
+    if (inc.length || noi.length || des.length) {
+      pie(); doc.addPage(); pag++; y = 14;
+      tarjeta('Incluye', [15,157,143], [248,250,252], [226,232,240], inc);
+      tarjeta('No incluye', [190,18,60], [253,242,242], [254,202,202], noi);
+      tarjeta('Destinos del viaje', [2,132,199], [240,249,255],
+        [186,230,253], des); }
+    /* una página por cada día del itinerario */
     const por = {};
     (d.itinerario || []).forEach(i => { if (i.dia)
       (por[i.dia] = por[i.dia] || []).push(i); });
     const dias = Object.keys(por).sort((a, b) =>
       parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, '')));
-    if (dias.length) {
-      cab('Itinerario', [15, 157, 143]);
-      dias.forEach((dia, ix) => {
-        const c = this.COLS[ix % this.COLS.length], segs = [];
-        por[dia].forEach(it => {
-          const sec = [];
-          if (txt(it.adesc)) sec.push({ k: 'p', t: txt(it.adesc) });
-          if (txt(it.desc)) sec.push({ k: 'p', t: txt(it.desc) });
-          if (it.lugar) sec.push({ k: 'p', t: 'Lugar: ' + it.lugar });
-          if (sec.length) segs.push.apply(segs, sec.concat({ k: 'hr' }));
-          segs.push({ k: 't', t: it.tipo +
-            (it.destino ? '  ·  ' + it.destino : '') });
-          if (it.ruta && it.ruta !== it.tipo)
-            segs.push({ k: 'p', t: it.ruta });
-          if (it.verinfo && it.precio)
-            segs.push({ k: 'p', t: Itinerario.fmtT(d, it.precio) +
-              (it.modo === 'grupo' ? ' · por grupo' : ' · por persona') });
-          if (it.hdesde || it.hhasta)
-            segs.push({ k: 'h', t: 'Hora: ' + (it.hdesde || '') +
-              (it.hhasta ? ' – ' + it.hhasta : '') });
-          segs.push({ k: 'gap' }); });
-        doc.setFontSize(9);
-        const h = segs.map(s => s.k === 'hr' ? 2.6 : s.k === 'gap' ? 2 :
-            doc.splitTextToSize(s.t, CW - 10).length * 4.4)
-          .reduce((a, b) => a + b, 0) + 11;
-        need(h);
-        const y0 = y, tc = tint(c, .07), hc = tint(c, .35);
-        doc.setFillColor(tc[0], tc[1], tc[2]);
-        doc.setDrawColor(c[0], c[1], c[2]); doc.setLineWidth(.6);
-        doc.roundedRect(M, y0, CW, h, 2, 2, 'FD');
-        doc.setFillColor(c[0], c[1], c[2]); doc.rect(M, y0, 2.2, h, 'F');
-        y += 5.5;
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-        doc.setTextColor(c[0], c[1], c[2]);
-        doc.text(dia + (f.on && f.desde ?
-          '  ·  ' + this._fDia(f.desde, dia) : ''), M + 5, y);
-        y += 5;
-        segs.forEach(s => {
-          if (s.k === 'gap') { y += 2; return; }
-          if (s.k === 'hr') {
-            doc.setDrawColor(hc[0], hc[1], hc[2]); doc.setLineWidth(.25);
-            doc.line(M + 5, y - 1.2, M + CW - 5, y - 1.2);
-            y += 1.4; return; }
-          doc.setFont('helvetica', s.k === 't' ? 'bold' : 'normal');
-          doc.setFontSize(s.k === 't' ? 9.5 : 9);
-          const col = s.k === 't' ? c : [71, 85, 105];
-          doc.setTextColor(col[0], col[1], col[2]);
-          doc.splitTextToSize(s.t, CW - 10)
-            .forEach(l => { doc.text(l, M + 5, y); y += 4.4; }); });
-        y = y0 + h + 4; }); }
+    dias.forEach((dia, ix) => {
+      const c = this.COLS[ix % this.COLS.length], segs = [];
+      por[dia].forEach(it => {
+        const sec = [];
+        if (txt(it.adesc)) sec.push({ k: 'p', t: txt(it.adesc) });
+        if (txt(it.desc)) sec.push({ k: 'p', t: txt(it.desc) });
+        if (it.lugar) sec.push({ k: 'p', t: 'Lugar: ' + it.lugar });
+        if (sec.length) segs.push.apply(segs, sec.concat({ k: 'hr' }));
+        segs.push({ k: 't', t: it.tipo +
+          (it.destino ? '  ·  ' + it.destino : '') });
+        if (it.ruta && it.ruta !== it.tipo)
+          segs.push({ k: 'p', t: it.ruta });
+        if (it.verinfo && it.precio)
+          segs.push({ k: 'p', t: Itinerario.fmtT(d, it.precio) +
+            (it.modo === 'grupo' ? ' · por grupo' : ' · por persona') });
+        if (it.hdesde || it.hhasta)
+          segs.push({ k: 'h', t: 'Hora: ' + (it.hdesde || '') +
+            (it.hhasta ? ' – ' + it.hhasta : '') });
+        segs.push({ k: 'gap' }); });
+      doc.setFontSize(9);
+      const h = segs.map(s => s.k === 'hr' ? 2.6 : s.k === 'gap' ? 2 :
+          doc.splitTextToSize(s.t, CW - 10).length * 4.4)
+        .reduce((a, b) => a + b, 0) + 11;
+      pie(); doc.addPage(); pag++; y = 14;
+      cab('Itinerario', c);
+      const y0 = y, tc = tint(c, .07), hc = tint(c, .35);
+      doc.setFillColor(tc[0], tc[1], tc[2]);
+      doc.setDrawColor(c[0], c[1], c[2]); doc.setLineWidth(.6);
+      doc.roundedRect(M, y0, CW, h, 2, 2, 'FD');
+      doc.setFillColor(c[0], c[1], c[2]); doc.rect(M, y0, 2.2, h, 'F');
+      y += 5.5;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+      doc.setTextColor(c[0], c[1], c[2]);
+      doc.text(dia + (f.on && f.desde ?
+        '  ·  ' + this._fDia(f.desde, dia) : ''), M + 5, y);
+      y += 5.5;
+      segs.forEach(s => {
+        if (s.k === 'gap') { y += 2; return; }
+        if (s.k === 'hr') {
+          doc.setDrawColor(hc[0], hc[1], hc[2]); doc.setLineWidth(.25);
+          doc.line(M + 5, y - 1.2, M + CW - 5, y - 1.2);
+          y += 1.4; return; }
+        doc.setFont('helvetica', s.k === 't' ? 'bold' : 'normal');
+        doc.setFontSize(s.k === 't' ? 9.5 : 9);
+        const col = s.k === 't' ? c : [71, 85, 105];
+        doc.setTextColor(col[0], col[1], col[2]);
+        doc.splitTextToSize(s.t, CW - 10)
+          .forEach(l => { doc.text(l, M + 5, y); y += 4.4; }); });
+      y = y0 + h + 4; });
     pie();
     await Exportar._savePdf(doc,
       'viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
@@ -175,7 +186,8 @@ const PdfViaje = {
         const f = Object.assign({ x: 0, y: 0, s: 100 }, d.imgfx || {}),
               im = new Image();
         im.onload = () => {
-          const cw = 1000, ch = 560, cv = document.createElement('canvas');
+          const cw = this._imgW = 1000, ch = this._imgH = 560,
+                cv = document.createElement('canvas');
           cv.width = cw; cv.height = ch;
           const sc = Math.max(cw / im.width, ch / im.height) * f.s / 100,
                 w = im.width * sc, h = im.height * sc;

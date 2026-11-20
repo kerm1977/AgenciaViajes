@@ -96,16 +96,14 @@ const Destinos = {
   nuevo() {
     if (!Session.can('destinos.crear')) { showToast('Sin permiso para crear destinos', 'error'); return; }
     $('#form-destino').reset(); $('#destino-id').value = '';
-    $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
-    $('#dest-moneda').value = 'USD';
+    $('#dest-conguia').value = ''; $('#dest-singuia').value = ''; $('#dest-moneda').value = 'USD';
     $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais('');
-    const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers(); Borrador.clear(); // nuevo = desde cero
+    this.paxReset && this.paxReset();  const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     this.addDestino();
-    $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje';
-    this._capRes();
+    $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje'; this._capRes();
     openModal('modal-destino'); this.togFechas();
   },
   _capRes() {
@@ -125,7 +123,7 @@ const Destinos = {
     const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
     if (a) a.textContent = t('#dest-fdesde'); if (b) b.textContent = t('#dest-fhasta'); },
   acc(id, stay) {
-    ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
+    ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc', 'pax-acc'].forEach(a => {
       const el = document.getElementById(a); if (el) el.classList.toggle(
         'open', a === id && (stay || !el.classList.contains('open'))); }); },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
@@ -180,6 +178,8 @@ const Destinos = {
     const ed = $('#desc-editor');
     if (ed && ed.innerHTML.trim()) obj.notas = ed.innerHTML;
     await DB.save('destinos', obj);
+    if (window.Pasajeros && Pasajeros.syncViaje)
+      await Pasajeros.syncViaje(obj.id, this._paxSel || []);
     Borrador.clear();
     closeModal('modal-destino');
     showToast(id ? 'Destino actualizado' : 'Destino creado');
@@ -218,6 +218,7 @@ const Destinos = {
     Itinerario.refresh();
     $('#modal-destino-title').textContent = 'Editar Destino y Viaje';
     openModal('modal-destino');
+    this.paxCargar && this.paxCargar(id);
   },
   async borrar(id) {
     if (!Session.can('destinos.eliminar')) {

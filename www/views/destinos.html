@@ -137,6 +137,21 @@
           <div id="itinerary-container" class="grid gap1"></div>
         </div>
       </div>
+      <div class="it-acc cap-acc" id="pax-acc">
+        <div class="it-acc-head">
+          <button type="button" class="it-acc-btn"
+                  onclick="Destinos.acc('pax-acc')">
+            <span class="it-acc-t">Pasajeros</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="it-acc-body">
+          <input class="input" id="pax-buscar" placeholder="Buscar contacto…"
+                 oninput="Destinos.paxBuscar(this.value)">
+          <div id="pax-drop" class="grid gap1"></div>
+          <ol id="pax-lista" class="pit-ol"></ol>
+        </div>
+      </div>
       <div class="modal-foot" style="padding-left:0;padding-right:0">
         <button type="button" class="btn btn-soft" onclick="Destinos.cancelar()">Cancelar</button>
         <button type="submit" class="btn btn-primary">Guardar Destino</button>

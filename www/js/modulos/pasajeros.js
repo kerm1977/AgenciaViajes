@@ -146,6 +146,27 @@ const Pasajeros = {
     p.destinoId = ''; await DB.save('pasajeros', p);
     if (destinoId) Destinos.pagina(destinoId);
     this.render();
+  },
+  /* sincroniza los pasajeros del viaje con los contactos elegidos
+     en el acordeón Pasajeros del formulario */
+  async syncViaje(destinoId, ids) {
+    ids = ids || [];
+    const todos = await DB.list('pasajeros'),
+          pxs = todos.filter(p => p.destinoId === destinoId),
+          css = await DB.list('contactos');
+    for (const cid of ids) {
+      const c = css.find(x => x.id === cid); if (!c) continue;
+      const hit = pxs.find(p => p.contactoId === cid) ||
+        todos.find(p => p.contactoId === cid && !p.destinoId);
+      if (hit) { hit.destinoId = destinoId; await DB.save('pasajeros', hit); }
+      else await DB.save('pasajeros', {
+        nombre: V.titleCase(c.nombre || ''), telefono: c.telefono || '',
+        email: c.email || '', codigo: c.codigo || '', destinoId,
+        contactoId: cid, checkin: 'Pendiente' });
+    }
+    for (const p of pxs)
+      if (p.contactoId && !ids.includes(p.contactoId)) {
+        p.destinoId = ''; await DB.save('pasajeros', p); }
   }
 };
 Router.ON_TAB.pasajeros = () => Pasajeros.render();

@@ -1,5 +1,4 @@
-/* destinos.js — CRUD de destinos/viajes: país (América+España), multi-destino,
-   capacidad C/G-S/G, moneda e itinerario por día con sub-datos de servicio. */
+/* destinos.js — CRUD destinos/viajes: país, multi-destino, capacidad, itinerario. */
 'use strict';
 const PAISES = ['Argentina','Aruba','Bahamas','Barbados','Belice','Bolivia',
   'Brasil','Canadá','Chile','Colombia','Costa Rica','Cuba','Curazao',
@@ -29,8 +28,7 @@ const Destinos = {
     const puedeEditar = Session.can('destinos.editar');
     const puedeBorrar = Session.can('destinos.eliminar');
     lista.forEach(d => {
-      const lugares = (d.destinos && d.destinos.length)
-        ? d.destinos.join(' · ') : 'Sin destinos';
+      const lugares = (d.destinos || []).join(' · ');
       const card = document.createElement('div');
       card.className = 'card';
       card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between';
@@ -116,24 +114,22 @@ const Destinos = {
       (c ? ' · C/G ' + c : '') + (s ? ' · S/G ' + s : '');
   },
   togFechas() {
-    $$('#dest-fechas-wrap').forEach(w =>
-      w.style.display = $('#dest-tiene-fechas').checked ? 'grid' : 'none');
-    this._fechasTxt();
-  },
+    $$('#dest-fechas-wrap').forEach(w => w.style.display =
+      $('#dest-tiene-fechas').checked ? 'grid' : 'none');
+    this._fechasTxt(); },
   _fechasTxt() {
     const t = id => { const v = ($(id) || {}).value; if (!v) return '';
       const d = new Date(v + 'T00:00:00');
       return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
     const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
-    if (a) a.textContent = t('#dest-fdesde');
-    if (b) b.textContent = t('#dest-fhasta'); },
+    if (a) a.textContent = t('#dest-fdesde'); if (b) b.textContent = t('#dest-fhasta'); },
   acc(id, stay) {
     ['cap-acc', 'info-acc', 'itin-acc', 'dia-acc'].forEach(a => {
       const el = document.getElementById(a); if (el) el.classList.toggle(
         'open', a === id && (stay || !el.classList.contains('open'))); }); },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
-    document.getElementById(rid).remove(); if (window.Itinerario)
-      Itinerario.syncItin(); } },
+    document.getElementById(rid).remove();
+    if (window.Itinerario) Itinerario.syncItin(); } },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-destino'))) return;
@@ -142,45 +138,49 @@ const Destinos = {
     if (!dests.length) {
       showToast('Agrega al menos un destino', 'error');
       $('#destinos-lista-container').style.border = '1px solid var(--rose-600)';
-      setTimeout(() =>
-        $('#destinos-lista-container').style.border = 'none', 1800);
-      return;
-    }
+      setTimeout(() => $('#destinos-lista-container').style.border = 'none', 1800);
+      return; }
     const id = $('#destino-id').value,
-          prev = id ? await DB.get('destinos', id) : null;
+      prev = id ? await DB.get('destinos', id) : null;
     const obj = {
       id: id || undefined,
-      paxConGuia: parseInt($('#dest-conguia').value) || 0,
-      paxSinGuia: parseInt($('#dest-singuia').value) || 0,
+      paxConGuia: parseInt($('#dest-conguia').value) || 0, paxSinGuia: parseInt($('#dest-singuia').value) || 0,
       moneda: $('#dest-moneda').value || 'USD',
       pais: $('#dest-pais').value,
-      nombre: $('#dest-nombre').value.trim(),
-      destinos: dests,
-      fechas: { on: $('#dest-tiene-fechas').checked,
-        desde: $('#dest-fdesde').value, hasta: $('#dest-fhasta').value },
+      nombre: $('#dest-nombre').value.trim(), destinos: dests,
+      fechas: { on: $('#dest-tiene-fechas').checked, desde: $('#dest-fdesde').value,
+        hasta: $('#dest-fhasta').value },
       imagen: (prev && prev.imagen) || '', imgfx: prev ? prev.imgfx : null,
-      guia: '', transporte: '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: '', itinerario: []
+      guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '',
+      aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: []
     };
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {
       const c = Itinerario.CAMPOS[i.campo];
       if (c) {
         obj[c.k] = i.valor;
-        if (i.campo === 'Aerolínea') {
+        if (c.k === 'aerolinea') {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
           obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai, ps: i.ps,
-            ci: i.ci, co: i.co,
-            os: i.os, osv: i.osv, osd: i.osd, dia: i.dia, hdesde: i.hdesde,
-            hhasta: i.hhasta, guia: i.guia, esc: i.esc, escp: i.escp,
-            escv: i.escv, esch: i.esch, esca: i.esca };
+            ci: i.ci, co: i.co, os: i.os, osv: i.osv, osd: i.osd,
+            dia: i.dia, hdesde: i.hdesde, hhasta: i.hhasta, guia: i.guia,
+            esc: i.esc, escp: i.escp, escv: i.escv, esch: i.esch,
+            esca: i.esca };
         }
-        if (i.campo === 'Transporte')
-          obj.trans = { tsel: i.tsel, tnombre: i.tnombre,
-                        ttel: i.ttel, tdesc: i.tdesc, dia: i.dia,
-                        hdesde: i.hdesde, hhasta: i.hhasta, guia: i.guia };
+        if (c.k === 'transporte')
+          obj.trans = { tsel: i.tsel, tnombre: i.tnombre, ttel: i.ttel,
+            tdesc: i.tdesc, dia: i.dia, hdesde: i.hdesde,
+            hhasta: i.hhasta, guia: i.guia };
       } else obj.itinerario.push(i);
     });
+    /* guía/notas/transporte: lo nuevo gana; si no hay evento, se hereda */
+    const evg = obj.itinerario.find(e => e.tipo === 'Guía' && e.nombre),
+          evn = obj.itinerario.find(e =>
+            e.tipo === 'Descripción / notas' && (e.desc || e.ruta));
+    if (evg) obj.guia = evg.nombre;
+    if (evn) obj.notas = evn.desc || evn.ruta;
+    if (prev && prev.trans && !obj.trans) obj.trans = prev.trans;
     await DB.save('destinos', obj);
     Borrador.clear();
     closeModal('modal-destino');
@@ -211,8 +211,8 @@ const Destinos = {
     Object.keys(Itinerario.CAMPOS).forEach(t => {
       const v = d[Itinerario.CAMPOS[t].k];
       if (v && !/^(data:|uf:)/.test(String(v))) this.addItRow(null, '', t, v,
-        t === 'Aerolínea' ? (d.boleto || {}) :
-        t === 'Transporte' ? (d.trans || {}) : null);
+        Itinerario.CAMPOS[t].k === 'aerolinea' ? (d.boleto || {}) :
+        Itinerario.CAMPOS[t].k === 'transporte' ? (d.trans || {}) : null);
     });
     (d.itinerario || []).forEach(it =>
       this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1));

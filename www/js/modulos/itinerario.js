@@ -2,18 +2,14 @@
    con cards por evento: contacto, tels, Maps/GPX, desc, precio y total. */
 'use strict';
 const Itinerario = {
-  TIPOS: ['Llegada y traslado','Lancha','Avioneta',
-    'Transporte Aéreo','Transporte Acuático','Transporte Terrestre',
-    'Agencia de Viajes / Tour Operador','Entradas 4x4','Acarreo',
-    'Hotel / Hostal / Hospedaje','Uber / Didi / Taxi / Bus',
-    'Centro Turístico','Centro Arqueológico','Entradas','Impuestos','Otros'],
+  TIPOS: ['Guía','Descripción / notas','Transporte Acuático',
+    'Transporte Terrestre','Agencia de Viajes / Tour Operador','Entradas',
+    'Acarreo','Hotel / Hostal / Hospedaje','Uber / Didi / Taxi / Bus',
+    'Centro Turístico / Centro Arqueológico','Impuestos','Otros'],
   /* opciones que guardan un solo valor en el objeto destino */
   CAMPOS: {
-    'Imagen URL':      { k: 'imagen',      ph: 'https://…', t: 'url' },
-    'Guía':            { k: 'guia',        ph: 'Nombre del guía' },
-    'Transporte':      { k: 'transporte',  ph: 'Ej. Autobús privado / Van' },
-    'Aerolínea':       { k: 'aerolinea',   ph: 'Ej. Avianca, Copa, Iberia…' },
-    'Descripción / notas': { k: 'notas',   ph: 'Detalles del viaje…', ta: 1 }
+    'Imagen URL':       { k: 'imagen',    ph: 'https://…', t: 'url' },
+    'Transporte Aéreo': { k: 'aerolinea', ph: 'Ej. Avianca, Copa, Iberia…' }
   },
   async delRow(rid) { if (await confirmar('¿Eliminar este día / evento?')) {
     document.getElementById(rid).remove(); this.syncItin(); } },
@@ -122,9 +118,9 @@ const Itinerario = {
             esc(campo.ph) + '" value="' + esc(ruta || '') +
             '" class="input it-campo">') + '</div>';
       c.appendChild(card);
-      if (tipo === 'Aerolínea' && this.aeroCard)
+      if (campo.k === 'aerolinea' && this.aeroCard)
         this.aeroCard(card, ruta, x);
-      if (tipo === 'Transporte' && this.transCard)
+      if (campo.k === 'transporte' && this.transCard)
         this.transCard(card, ruta, x);
       card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       this.syncItin();

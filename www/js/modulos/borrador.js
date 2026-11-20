@@ -48,8 +48,12 @@ const Borrador = {
       .forEach(n => Destinos.addDestino(n));
     if (window.Itinerario) Itinerario.syncItin();
     (d.itinerario || []).forEach(it => {
-      if (it.campo) Destinos.addItRow(null, '', it.campo, it.valor,
-        it.campo === 'Aerolínea' || it.campo === 'Transporte' ? it : null);
+      if (it.campo) {
+        const k = (Itinerario.CAMPOS[it.campo] || {}).k ||
+          ({ 'Aerolínea': 'aerolinea', 'Transporte': 'transporte' })[it.campo];
+        Destinos.addItRow(null, '', k === 'aerolinea' ? 'Transporte Aéreo' :
+          it.campo, it.valor, /^(aerolinea|transporte)$/.test(k) ? it : null);
+      }
       else Destinos.addItRow(it.destino, it.dia, it.tipo, it.ruta, it, 1);
     });
     Itinerario.refresh();

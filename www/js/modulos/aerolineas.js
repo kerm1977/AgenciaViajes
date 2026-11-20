@@ -183,7 +183,7 @@ Itinerario.aeroCollect = function (card) {
   const nombre = card.querySelector('.it-aero').value;
   const a = AEROLINEAS[nombre] || {};
   return {
-    campo: 'Aerolínea', valor: nombre,
+    campo: card.dataset.tipo, valor: nombre,
     checkin: card.querySelector('.it-ci').value.trim() || a.ci || '',
     checkout: card.querySelector('.it-co').value.trim() || a.co || '',
     ci: card.querySelector('.it-ci').value.trim(),

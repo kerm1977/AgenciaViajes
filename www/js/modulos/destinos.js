@@ -114,6 +114,7 @@ const Destinos = {
     this.togFechas();
     if (n === 5 && window.Itinerario && Itinerario.initPickers)
       Itinerario.initPickers();
+    const ts = $('#pag-ota-ts'); if (ts) ts.textContent = window.TM_OTA ? 'OTA ' + TM_OTA.ts : '';
     const b = $('.pag-itin-body'); if (b) b.scrollTop = 0;
   },
   async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {

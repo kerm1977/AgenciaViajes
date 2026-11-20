@@ -73,6 +73,7 @@ const Itinerario = {
       Object.keys(this.CAMPOS).map(x => '<option>' + esc(x) + '</option>').join('') +
       this.TIPOS.map(x => '<option>' + esc(x) + '</option>').join('');
     t.value = '';
+    const cnt = $('#it-tipo-count'); if (cnt) cnt.textContent = t.options.length + ' opciones';
     if (!t._wired) {
       t._wired = 1;
       t.addEventListener('change', () => {

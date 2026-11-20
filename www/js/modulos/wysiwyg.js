@@ -35,6 +35,14 @@ const WYS = {
     }
     e.dispatchEvent(new Event('input', { bubbles: true }));
   },
+  cmdAt(btn, c, v) {
+    const bar = btn && btn.closest ? btn.closest('.wys-bar') : null;
+    const e = bar && bar.nextElementSibling && bar.nextElementSibling.classList.contains('wys-edit')
+      ? bar.nextElementSibling : this._ed();
+    if (!e) return;
+    if (c === 'formatBlock' && v === 'blockquote') this._toggleQuote(e);
+    else document.execCommand(c, false, v || null);
+  },
   cmd(c, v) {
     const e = this._ed();
     if (!e) return;

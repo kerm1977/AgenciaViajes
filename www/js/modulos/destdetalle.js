@@ -12,7 +12,7 @@ Destinos.pagina = async function (id) {
   const imgUrl = await Uploader.url(d.imagen, (d.imgfx || {}).b64);
   let h = '<div class="pit-hero" style="background-image:url(' +
     (imgUrl || Destinos.IMG_DEF) + ')"><div class="pit-hero-t"><h2>' +
-    esc(d.nombre) + '</h2><p>' + esc(d.pais || '—') +
+    esc(d.nombre) + '</h2><p>' + (d.pais ? esc(d.pais) : '') +
     (d.paxConGuia ? ' · ' + d.paxConGuia + ' van / ' +
       (d.paxSinGuia || 0) + ' pagan' : '') +
     ((d.destinos || []).length ? '<br>' + esc(d.destinos.join(' · ')) : '') +
@@ -26,22 +26,27 @@ Destinos.pagina = async function (id) {
     '<div><p class="lbl">' + l + '</p><p class="kv bold">' +
     '<i class="fa-solid ' + ic + '"></i> ' + v + '</p></div>';
   const f = d.fechas || {};
-  h += '<div class="grid-2 card card-pad">' +
+  const filas =
     (f.on && (f.desde || f.hasta)
       ? fila('fa-calendar-days', 'Fechas', esc(f.desde || '') +
           (f.hasta ? ' → ' + esc(f.hasta) : ''))
       : '') +
-    fila('fa-user-tie', 'Guía asignado', esc(d.guia || 'Sin asignar')) +
-    fila('fa-bus', 'Transporte', esc(d.transporte || 'No especificado')) +
-    fila('fa-plane', 'Vuelo',
-      esc(d.vuelo ? ((d.aerolinea ? d.aerolinea + ' ' : '') + d.vuelo) : 'Sin vuelo')) +
-    '<div><p class="lbl">Check-in / Check-out</p><p class="flex gap2">' +
-      (d.checkin ? '<a class="btn btn-sm btn-primary" target="_blank" href="' +
-        esc(d.checkin) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>' : '') +
-      (d.checkout ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +
-        esc(d.checkout) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-out</a>' : '') +
-      ((d.checkin || d.checkout) ? '' : '<span class="hint">Sin enlaces</span>') +
-    '</p></div></div>';
+    (d.guia ? fila('fa-user-tie', 'Guía asignado', esc(d.guia)) : '') +
+    (d.transporte ? fila('fa-bus', 'Transporte', esc(d.transporte)) : '') +
+    (d.aerolinea || d.vuelo
+      ? '<div><p class="lbl">Aerolínea</p><p class="kv bold">' +
+        '<i class="fa-solid fa-plane"></i> ' + esc(d.aerolinea || '') +
+        (d.vuelo ? ' · ' + esc(d.vuelo) : '') + '</p>' +
+        (d.checkin || d.checkout
+          ? '<p class="flex gap2" style="margin-top:.25rem">' +
+            (d.checkin ? '<a class="btn btn-sm btn-primary" target="_blank" href="' +
+              esc(d.checkin) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>' : '') +
+            (d.checkout ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +
+              esc(d.checkout) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-out</a>' : '') +
+            '</p>'
+          : '') + '</div>'
+      : '');
+  if (filas) h += '<div class="grid-2 card card-pad">' + filas + '</div>';
   const porDia = {};
   (d.itinerario || []).forEach(it =>
     (porDia[it.dia || 'Día 1'] = porDia[it.dia || 'Día 1'] || []).push(it));
@@ -54,7 +59,9 @@ Destinos.pagina = async function (id) {
     dd.setDate(dd.getDate() + n - 1);
     return ' · ' + dd.getDate() + '/' + (dd.getMonth() + 1) +
       '/' + dd.getFullYear(); };
-  h += '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>';
+  h += dias.length
+    ? '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>'
+    : '';
   dias.forEach(dia => {
     h += '<h3 class="pit-dia"><i class="fa-solid fa-calendar-day"></i> ' +
       esc(dia) + esc(ftag(dia)) + '</h3>';
@@ -89,15 +96,13 @@ Destinos.pagina = async function (id) {
         '</div></div>';
     });
   });
-  if (!dias.length) h += '<p class="hint">Sin itinerario todavía.</p>';
   const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id);
-  h += '<h3 class="pit-dia"><i class="fa-solid fa-users"></i> Pasajeros</h3>' +
-    (pax.length
-      ? '<div class="flex gap1" style="flex-wrap:wrap">' +
+  if (pax.length)
+    h += '<h3 class="pit-dia"><i class="fa-solid fa-users"></i> Pasajeros</h3>' +
+      '<div class="flex gap1" style="flex-wrap:wrap">' +
         pax.map(p => '<span class="pax-badge"><i class="fa-solid fa-user"></i> ' +
           esc(p.nombre) + (p.asiento ? ' <span class="muted">(' +
-          esc(p.asiento) + ')</span>' : '') + '</span>').join('') + '</div>'
-      : '<p class="hint">No hay pasajeros asignados a este viaje.</p>');
+          esc(p.asiento) + ')</span>' : '') + '</span>').join('') + '</div>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta

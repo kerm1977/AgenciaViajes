@@ -29,7 +29,9 @@ def check_js():
                 continue
             p = os.path.join(base, f)
             r = subprocess.run(['node', '--check', p],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True,
+                               creationflags=getattr(subprocess,
+                                   'CREATE_NO_WINDOW', 0))
             if r.returncode != 0:
                 return '%s: %s' % (os.path.relpath(p, WWW),
                                    r.stderr.strip().splitlines()[0])

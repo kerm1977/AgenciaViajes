@@ -27,6 +27,8 @@
       <i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
     <button class="btn btn-soft" onclick="Perfil.cuentas()">
       <i class="fa-solid fa-credit-card"></i> Cuentas</button>
+    <button class="btn btn-soft" onclick="Vuelos.render()">
+      <i class="fa-solid fa-plane"></i> Vuelos</button>
   </div>
   <div id="pf-ajustes" class="hidden mt2"></div>
 </div>
@@ -51,6 +53,28 @@
         <input id="ct-nc" class="input" placeholder="Nueva cuenta bancaria">
         <button class="btn btn-soft" onclick="Perfil.ctAdd('cuentas')"><i class="fa-solid fa-plus"></i></button>
       </div>
+    </div>
+  </div>
+</div>
+<div id="modal-vuelos" class="modal">
+  <div class="modal-box" style="max-width:26rem">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-plane" style="color:var(--brand-600)"></i> Vuelos baratos</h3>
+      <button class="modal-x" onclick="closeModal('modal-vuelos')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:.5rem">
+        <div><h4 class="lbl">Origen</h4><select id="vu-o" class="select"></select></div>
+        <div><h4 class="lbl">Destino</h4><select id="vu-d" class="select"></select></div>
+        <div><h4 class="lbl">Ida</h4><input id="vu-i" type="date" class="input"></div>
+        <div><h4 class="lbl">Regreso (opcional)</h4><input id="vu-v" type="date" class="input"></div>
+      </div>
+      <h4 class="lbl" style="margin-top:.8rem">Comparadores</h4>
+      <div id="vu-agg" class="grid" style="gap:.35rem"></div>
+      <h4 class="lbl" style="margin-top:.8rem">Aerolíneas</h4>
+      <div id="vu-aer" class="grid" style="gap:.35rem"></div>
+      <h4 class="lbl" style="margin-top:.8rem">Mejores momentos para comprar</h4>
+      <ul class="pit-ol muted text-sm" id="vu-tips"></ul>
     </div>
   </div>
 </div>

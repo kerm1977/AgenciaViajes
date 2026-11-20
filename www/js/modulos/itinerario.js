@@ -43,7 +43,12 @@ const Itinerario = {
     if (modo === 'grupo') {          /* P/G: precio ÷ capacidad S/G */
       let h = '<hr class="it-hr">P/G ' + this._fmt(precio);
       if (ns) h += ' ÷ ' + ns + ' S/G = ' + this._fmt(precio / ns) + ' c/u';
-      out.innerHTML = h + '<br><b>Total: ' + this._fmt(precio) + '</b>';
+      const cug = this._ind(modo, precio);
+      out.innerHTML = h +
+        '<br>C/G: ' + this._fmt(precio) + ' · S/G: ' + this._fmt(cug) + ' c/u' +
+        '<br>Total individual: ' + this._fmt(cug) +
+        '<br>Total sin guía: ' + this._fmt(precio) +
+        '<br><b>Total por grupo: ' + this._fmt(precio) + '</b>';
     } else {                         /* P/P: precio × C/G, repartido entre S/G,
                                         ese c/u cobrado a TODOS (× C/G) */
       const T = precio * n,
@@ -51,7 +56,11 @@ const Itinerario = {
       let h = '<hr class="it-hr">P/P ' + this._fmt(precio) + ' × ' + n +
         ' C/G = ' + this._fmt(T);
       if (ns) h += '<br>÷ ' + ns + ' S/G = ' + this._fmt(cu) + ' c/u';
-      out.innerHTML = h + '<br><b>Total: ' + this._fmt(cu * n) + '</b>';
+      out.innerHTML = h +
+        '<br>C/G: ' + this._fmt(precio) + ' · S/G: ' + this._fmt(cu) + ' c/u' +
+        '<br>Total individual: ' + this._fmt(cu) +
+        '<br>Total sin guía: ' + this._fmt(cu * (ns || n)) +
+        '<br><b>Total por grupo: ' + this._fmt(cu * n) + '</b>';
     }
     if (hnt) hnt.textContent = this._fmt(this._ind(modo, precio));
     this._gtotal();

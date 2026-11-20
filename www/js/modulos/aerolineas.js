@@ -140,7 +140,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
       h = 'P/P ' + sim() + con.toFixed(0) + ' × ' + cg + ' C/G = ' +
         sim() + T.toFixed(0) +
         (sg ? '<br>÷ ' + sg + ' S/G = ' + sim() + cu + ' c/u' : '') +
-        '<br><b>Total: ' + sim() + (cu * cg).toFixed(0) + '</b>';
+        '<br>C/G: ' + sim() + con.toFixed(0) + ' · S/G: ' + sim() + cu.toFixed(0) + ' c/u' +
+        '<br>Total individual: ' + sim() + cu.toFixed(0) +
+        '<br>Total sin guía: ' + sim() + (cu * (sg || cg)).toFixed(0) +
+        '<br><b>Total por grupo: ' + sim() + cu * cg + '</b>';
     } else h = '<b>Total: ' + sim() + con.toFixed(0) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
     hint.textContent = sim() + (sg ? Math.round(con * cg / sg) : con);

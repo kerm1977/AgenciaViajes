@@ -36,9 +36,8 @@ const Destinos = {
       card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between';
       const img = /^uf:/.test(d.imagen || '') ? this.IMG_DEF : (d.imagen || this.IMG_DEF);
       card.innerHTML =
-        '<div><div class="dest-img" title="Toca para cambiar la imagen" ' +
-          'onclick="Uploader.pickSave(\'' + d.id +
-          '\').then(r=>r&&Destinos.render())" style="cursor:pointer">' +
+        '<div><div class="dest-img" title="5 toques: cambiar imagen · mantener: ajustes" ' +
+          'onclick="Uploader.tap5(\'' + d.id + '\')" style="cursor:pointer">' +
           '<img src="' + esc(img) + '" alt="" ' +
           'onerror="this.src=\'' + this.IMG_DEF + '\'">' +
           '<span class="float-badge">' + esc(d.pais || 'Viaje') + '</span></div>' +

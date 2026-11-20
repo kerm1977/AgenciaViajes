@@ -4,7 +4,7 @@
 'use strict';
 const Uploader = {
   DIR: 'Uploader',
-  _cache: {},
+  _cache: {}, _taps: {},
   _fs() {
     const C = window.Capacitor;
     return C && C.Plugins && C.Plugins.Filesystem &&
@@ -34,6 +34,15 @@ const Uploader = {
       };
       inp.click();
     });
+  },
+  /* cinco toques rápidos (<900ms) abren el selector de imagen */
+  tap5(id) {
+    const n = (this._taps[id] = (this._taps[id] || 0) + 1);
+    DC && DC.ev('img:tap', id + ' ' + n + '/5');
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => { this._taps = {}; }, 900);
+    if (n >= 5) { this._taps = {};
+      this.pickSave(id).then(r => r && Destinos.render()); }
   },
   /* elige imagen y la asigna al viaje: archivo en Uploader + respaldo
      comprimido dentro del registro (nunca se pierde al reiniciar) */

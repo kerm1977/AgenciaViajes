@@ -3,6 +3,7 @@
 'use strict';
 const Itinerario = {
   TIPOS: ['Llegada y traslado','Lancha','Avioneta',
+    'Transporte Aéreo','Transporte Acuático','Transporte Terrestre',
     'Agencia de Viajes / Tour Operador','Entradas 4x4','Acarreo',
     'Hotel / Hostal / Hospedaje','Uber / Didi / Taxi / Bus',
     'Centro Turístico','Centro Arqueológico','Entradas','Impuestos','Otros'],
@@ -37,25 +38,25 @@ const Itinerario = {
   _dias() { let o = ''; for (let i = 1; i <= 30; i++)
     o += '<option>Día ' + i + '</option>'; return o; },
   _calc(card) {
-    const precio = parseFloat(card.querySelector('.it-precio').value) || 0;
-    const modo = card.querySelector('.it-modo').value;
-    const n = this.pax(), ns = this.paxS();
+    const pi = card.querySelector('.it-precio');
+    const mo = card.querySelector('.it-modo');
     const out = card.querySelector('.it-total');
-    if (!precio || !n) { out.innerHTML = ''; return; }
-    if (modo === 'grupo') {
-      let h = '<hr class="it-hr">Grupo ' + this._fmt(precio) + ' → ' +
-        this._fmt(precio / n) + ' P/P (' + n + ' C/G)';
-      if (ns && ns !== n)
-        h += '<br>' + this._fmt(precio / ns) + ' P/P (' + ns + ' S/G)';
+    if (!pi || !mo || !out) return;
+    const precio = parseFloat(pi.value) || 0;
+    const modo = mo.value, n = this.pax(), ns = this.paxS();
+    if (!precio || !(n || ns)) { out.innerHTML = ''; return; }
+    if (modo === 'grupo') {          /* P/G: precio ÷ capacidad S/G */
+      let h = '<hr class="it-hr">P/G ' + this._fmt(precio);
+      if (ns) h += ' ÷ ' + ns + ' S/G = ' +
+        this._fmt(precio / ns) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(precio) + '</b>';
-    } else {
+    } else {                         /* P/P: precio × C/G, repartido entre S/G */
+      const T = precio * n;
       let h = '<hr class="it-hr">P/P ' + this._fmt(precio) + ' × ' + n +
-        ' C/G = ' + this._fmt(precio * n);
-      if (ns && ns !== n)
-        h += '<br>' + this._fmt(precio) + ' × ' + ns + ' S/G = ' +
-          this._fmt(precio * ns);
-      const tt = precio * (n + (ns && ns !== n ? ns : 0));
-      out.innerHTML = h + '<br><b>Total: ' + this._fmt(tt) + '</b>';
+        ' C/G = ' + this._fmt(T);
+      if (ns) h += '<br>÷ ' + ns + ' S/G = ' +
+        this._fmt(T / ns) + ' c/u';
+      out.innerHTML = h + '<br><b>Total: ' + this._fmt(T) + '</b>';
     }
   },
   initPickers() {
@@ -132,28 +133,36 @@ const Itinerario = {
       '<div class="it-tel"><span class="it-cod">' + cod + '</span>' +
         '<input type="tel" placeholder="' + ph + '" data-norm="digitos" ' +
           'value="' + esc(v || '') + '" class="input ' + cls + '"></div>';
-    card.innerHTML = head + '<div class="it-acc-body">' +
-      '<input type="text" placeholder="Detalle (Ej. llegada hotel)" ' +
-        'value="' + esc(ruta || '') + '" class="input it-ruta">' +
-      '<input type="text" placeholder="Guía / Agencia / Tour operador" ' +
-        'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
-      '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
-        tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
-      '<input type="url" placeholder="Google Maps / GPX (link)" ' +
-        'value="' + esc(x.maps || '') + '" class="input it-maps">' +
-      '<textarea class="input it-desc" rows="2" ' +
-        'placeholder="Descripción / detalle">' + esc(x.desc || '') +
-        '</textarea>' +
-      '<div class="grid-2">' +
-        '<input type="number" min="0" step="0.01" ' +
-          'placeholder="Precio del servicio" value="' + esc(x.precio || '') +
-          '" class="input it-precio">' +
+    const transp = /^Transporte\s/.test(tipo || '');
+    const costos = '<div class="grid-2">' +
+        '<input type="number" min="0" step="0.01" placeholder="' +
+          (transp ? 'Monto' : 'Precio del servicio') + '" value="' +
+          esc(x.precio || '') + '" class="input it-precio">' +
         '<select class="select it-modo">' +
           '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') +
-            '>Por persona</option>' +
+            '>' + (transp ? 'P/P — por persona' : 'Por persona') + '</option>' +
           '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') +
-            '>Por grupo</option></select></div>' +
+            '>' + (transp ? 'P/G — por grupo' : 'Por grupo') +
+            '</option></select></div>' +
       '<p class="it-total hint"></p></div>';
+    card.innerHTML = head + '<div class="it-acc-body">' +
+      (transp
+        ? '<input type="text" placeholder="Nombre del transporte" ' +
+            'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
+          tel('it-tela', 'Tel. del contacto', x.tel) +
+          '<textarea class="input it-desc" rows="2" ' +
+            'placeholder="Descripción">' + esc(x.desc || '') + '</textarea>'
+        : '<input type="text" placeholder="Detalle (Ej. llegada hotel)" ' +
+            'value="' + esc(ruta || '') + '" class="input it-ruta">' +
+          '<input type="text" placeholder="Guía / Agencia / Tour operador" ' +
+            'value="' + esc(x.nombre || '') + '" class="input it-nombre">' +
+          '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
+            tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
+          '<input type="url" placeholder="Google Maps / GPX (link)" ' +
+            'value="' + esc(x.maps || '') + '" class="input it-maps">' +
+          '<textarea class="input it-desc" rows="2" ' +
+            'placeholder="Descripción / detalle">' + esc(x.desc || '') +
+            '</textarea>') + costos;
     c.appendChild(card);
     card.addEventListener('input', () => this._calc(card));
     card.addEventListener('change', () => this._calc(card));
@@ -166,23 +175,24 @@ const Itinerario = {
           cod = codigoDePais($('#dest-pais').value),
           pre = cod ? cod + ' ' : '';
     const leer = (card, dest) => {
-      const ta = card.querySelector('.it-tela').value.trim(),
-            tg = card.querySelector('.it-telg').value.trim();
+      const q = s => { const e = card.querySelector(s);
+        return e ? e.value.trim() : ''; };
+      const ta = q('.it-tela'), tg = q('.it-telg');
       return {
         destino: dest, dia: card.dataset.dia || '', tipo: card.dataset.tipo,
-        ruta: card.querySelector('.it-ruta').value.trim() || card.dataset.tipo,
-        nombre: V.titleCase(card.querySelector('.it-nombre').value.trim()), tel: ta ? pre + ta : '',
-        telGuia: tg ? pre + tg : '', maps: card.querySelector('.it-maps').value.trim(),
-        desc: card.querySelector('.it-desc').value.trim(),
-        precio: parseFloat(card.querySelector('.it-precio').value) || 0,
-        modo: card.querySelector('.it-modo').value }; };
+        ruta: q('.it-ruta') || card.dataset.tipo,
+        nombre: V.titleCase(q('.it-nombre')), tel: ta ? pre + ta : '',
+        telGuia: tg ? pre + tg : '', maps: q('.it-maps'),
+        desc: q('.it-desc'), precio: parseFloat(q('.it-precio')) || 0,
+        modo: q('.it-modo') }; };
     $$('#it-general .it-acc').forEach(card => {
       const fn = card.dataset.aero ? this.aeroCollect : card.dataset.trans
         ? this.transCollect : null;
       const o = fn ? fn.call(this, card) :
-        card.querySelector('.it-ruta') ? leer(card, '') :
-        { campo: card.dataset.tipo,
-          valor: card.querySelector('.it-campo').value.trim() };
+        card.dataset.campo
+          ? { campo: card.dataset.tipo,
+              valor: card.querySelector('.it-campo').value.trim() }
+          : leer(card, '');
       ['dia','hdesde','hhasta','guia'].forEach(k => {
         o[k] = card.dataset[k] || ''; });
       it.push(o); });

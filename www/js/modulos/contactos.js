@@ -1,8 +1,9 @@
 /* contactos.js — CRUD del directorio (clientes, guías, transportistas, proveedores) */
 'use strict';
 const Contactos = {
-  BADGE: { Cliente: 'badge-sky', 'Guía': 'badge-brand',
-           Transportista: 'badge-amber', 'Aerolínea/Hotel': 'badge-purple' },
+  BADGE: { 'Guía': 'badge-brand', Transportista: 'badge-amber',
+           'Aerolínea': 'badge-purple', 'Hotel': 'badge-purple',
+           'Servicios / Otros': 'badge-slate' },
   async render() {
     const q = (($('#search-contactos') || {}).value || '').toLowerCase();
     const tf = ($('#filter-contacto-tipo') || {}).value || '';

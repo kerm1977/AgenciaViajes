@@ -26,15 +26,35 @@
     </div>
     <form id="form-pasajero" class="modal-body" onsubmit="Pasajeros.guardar(event)" novalidate>
       <input type="hidden" id="pasajero-id">
-      <div class="field">
-        <label class="lbl">Nombre del pasajero *</label>
-        <input type="text" id="pax-nombre" class="input" data-norm="nombre"
-               data-reglas="requerido|nombre" placeholder="Nombre completo">
-        <p class="err">Nombre inválido</p>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Nombre *</label>
+          <input type="text" id="pax-nombre" class="input" data-norm="nombre"
+                 data-reglas="requerido|nombre" placeholder="Nombre">
+          <p class="err">Nombre inválido</p>
+        </div>
+        <div class="field">
+          <label class="lbl">Primer apellido *</label>
+          <input type="text" id="pax-ap1" class="input" data-norm="nombre"
+                 data-reglas="requerido|nombre" placeholder="Primer apellido">
+          <p class="err">Inválido</p>
+        </div>
       </div>
       <div class="grid-2">
         <div class="field">
-          <label class="lbl">Teléfono / celular</label>
+          <label class="lbl">Segundo apellido</label>
+          <input type="text" id="pax-ap2" class="input" data-norm="nombre"
+                 placeholder="Segundo apellido">
+        </div>
+        <div class="field">
+          <label class="lbl">N.º de pasaporte</label>
+          <input type="text" id="pax-pasaporte" class="input"
+                 placeholder="Ej. B1234567">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Teléfono celular</label>
           <div class="tel-row">
             <select id="pax-codigo" class="select"></select>
             <input type="tel" id="pax-telefono" class="input" data-norm="tel"
@@ -43,11 +63,17 @@
           <p class="err">Solo dígitos (4-15)</p>
         </div>
         <div class="field">
-          <label class="lbl">Correo electrónico</label>
-          <input type="email" id="pax-email" class="input" data-norm="email"
-                 data-reglas="email" placeholder="pasajero@email.com">
-          <p class="err">Correo inválido</p>
+          <label class="lbl">Teléfono fijo</label>
+          <input type="tel" id="pax-fijo" class="input" data-norm="tel"
+                 data-reglas="tel" placeholder="22224444" inputmode="numeric">
+          <p class="err">Solo dígitos (4-15)</p>
         </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Correo electrónico</label>
+        <input type="email" id="pax-email" class="input" data-norm="email"
+               data-reglas="email" placeholder="pasajero@email.com">
+        <p class="err">Correo inválido</p>
       </div>
       <div class="field">
         <label class="lbl">Destino / viaje asignado *</label>

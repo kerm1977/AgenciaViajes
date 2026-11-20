@@ -9,8 +9,9 @@
     <select id="filter-contacto-tipo" class="select" style="max-width:14rem"
             onchange="Contactos.render()">
       <option value="">Todos los tipos</option>
-      <option>Cliente</option><option>Guía</option>
-      <option>Transportista</option><option>Aerolínea/Hotel</option>
+      <option>Guía</option>
+      <option>Transportista</option><option>Aerolínea</option>
+      <option>Hotel</option><option>Servicios / Otros</option>
     </select>
   </div>
   <button class="btn btn-primary" onclick="Contactos.nuevo()">
@@ -36,8 +37,9 @@
         <div class="field">
           <label class="lbl">Categoría / rol *</label>
           <select id="cont-tipo" class="select">
-            <option>Cliente</option><option>Guía</option>
-            <option>Transportista</option><option>Aerolínea/Hotel</option>
+            <option>Guía</option>
+            <option>Transportista</option><option>Aerolínea</option>
+            <option>Hotel</option><option>Servicios / Otros</option>
           </select>
         </div>
         <div class="field">

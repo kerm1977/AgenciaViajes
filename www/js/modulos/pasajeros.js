@@ -46,13 +46,13 @@ const Pasajeros = {
   },
   async _fillDestinos() {
     const sel = $('#pax-destino');
-    sel.innerHTML = '';
+    sel.innerHTML = '<option value="">Asignar viaje…</option>';
     const ds = await DB.list('destinos');
-    if (!ds.length) { sel.innerHTML = '<option value="">No hay destinos</option>'; return; }
     ds.forEach(d => {
       const o = document.createElement('option');
       o.value = d.id; o.textContent = d.nombre; sel.appendChild(o);
     });
+    sel.value = '';
   },
   async nuevo() {
     if (!Session.can('pasajeros.crear')) {
@@ -70,9 +70,14 @@ const Pasajeros = {
     const id = $('#pasajero-id').value;
     await DB.save('pasajeros', {
       id: id || undefined,
-      nombre: V.titleCase($('#pax-nombre').value),
+      nombre: V.titleCase(($('#pax-nombre').value + ' ' +
+        $('#pax-ap1').value + ' ' + $('#pax-ap2').value).trim()),
+      ap1: V.titleCase($('#pax-ap1').value),
+      ap2: V.titleCase($('#pax-ap2').value),
+      pasaporte: $('#pax-pasaporte').value.trim().toUpperCase(),
       codigo: $('#pax-codigo').value,
       telefono: V.telNorm($('#pax-telefono').value),
+      fijo: V.telNorm($('#pax-fijo').value),
       email: V.emailNorm($('#pax-email').value),
       destinoId: $('#pax-destino').value,
       asiento: $('#pax-asiento').value.trim().toUpperCase(),
@@ -89,8 +94,12 @@ const Pasajeros = {
     await this._fillDestinos();
     llenarCodigos($('#pax-codigo'), p.codigo);
     $('#pasajero-id').value = p.id;
-    $('#pax-nombre').value = p.nombre;
+    $('#pax-nombre').value = p.ap1 ? p.nombre.split(' ')[0] || '' : p.nombre;
+    $('#pax-ap1').value = p.ap1 || '';
+    $('#pax-ap2').value = p.ap2 || '';
+    $('#pax-pasaporte').value = p.pasaporte || '';
     $('#pax-telefono').value = p.telefono || '';
+    $('#pax-fijo').value = p.fijo || '';
     $('#pax-email').value = p.email || '';
     $('#pax-destino').value = p.destinoId;
     $('#pax-asiento').value = p.asiento || '';

@@ -25,10 +25,35 @@
       <i class="fa-solid fa-folder-open"></i> Ajustes · Uploader</button>
     <button class="btn btn-soft" onclick="Perfil.stats()">
       <i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
+    <button class="btn btn-soft" onclick="Perfil.cuentas()">
+      <i class="fa-solid fa-credit-card"></i> Cuentas</button>
   </div>
   <div id="pf-ajustes" class="hidden mt2"></div>
 </div>
 <div id="pf-stats" class="hidden"></div>
+
+<div id="modal-cuentas" class="modal">
+  <div class="modal-box" style="max-width:24rem">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-credit-card" style="color:var(--brand-600)"></i> Cuentas y números</h3>
+      <button class="modal-x" onclick="closeModal('modal-cuentas')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <h4 class="lbl"><i class="fa-solid fa-mobile-screen" style="color:#25D366"></i> SINPE Móvil</h4>
+      <ul id="ct-sinpe" class="pit-ol" style="margin-bottom:.4rem"></ul>
+      <div class="flex gap1">
+        <input id="ct-ns" class="input" inputmode="numeric" placeholder="Nuevo número SINPE">
+        <button class="btn btn-soft" onclick="Perfil.ctAdd('sinpe')"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <h4 class="lbl" style="margin-top:.8rem"><i class="fa-solid fa-building-columns" style="color:var(--sky-600)"></i> Cuentas bancarias</h4>
+      <ul id="ct-ctas" class="pit-ol" style="margin-bottom:.4rem"></ul>
+      <div class="flex gap1">
+        <input id="ct-nc" class="input" placeholder="Nueva cuenta bancaria">
+        <button class="btn btn-soft" onclick="Perfil.ctAdd('cuentas')"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
 <div style="max-width:640px;margin-top:1rem">
   <button class="btn btn-soft" style="width:100%;color:var(--rose-600)"
           onclick="Auth.salir()">

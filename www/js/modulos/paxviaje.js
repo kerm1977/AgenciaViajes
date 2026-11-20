@@ -19,6 +19,10 @@ Object.assign(Destinos, {
     closeModal('modal-destino');
     await Router.switchTab('pasajeros'); Pasajeros.editar(p.id);
   },
+  async paxNuevo() {
+    closeModal('modal-destino');
+    await Router.switchTab('pasajeros'); Pasajeros.nuevo();
+  },
   paxDel(cid) {
     this._paxSel = this._paxSel.filter(x => x !== cid); this.paxRender();
   },

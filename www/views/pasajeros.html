@@ -6,9 +6,25 @@
            placeholder="Buscar pasajero o viaje asignado...">
   </div>
   <button class="btn btn-primary" onclick="Pasajeros.nuevo()">
-    <i class="fa-solid fa-user-check"></i> Asignar Pasajero a Viaje</button>
+    <i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>
   <button class="btn btn-soft" onclick="Pasajeros.grupo()">
     <i class="fa-solid fa-user-group"></i> Asignar Grupo a Viaje</button>
+</div>
+<div class="actionbar" style="gap:.4rem;flex-wrap:wrap">
+  <button class="iconbtn" title="Respaldo por WhatsApp" onclick="PaxDir.wa()">
+    <i class="fa-brands fa-whatsapp"></i></button>
+  <button class="iconbtn" title="Exportar VCard (.vcf)" onclick="PaxDir.vcard()">
+    <i class="fa-solid fa-address-book"></i></button>
+  <button class="iconbtn" title="Exportar a TXT" onclick="PaxDir.txt()">
+    <i class="fa-solid fa-file-lines"></i></button>
+  <button class="iconbtn" title="Exportar a JSON" onclick="PaxDir.json()">
+    <i class="fa-solid fa-file-export"></i></button>
+  <label class="iconbtn" title="Importar JSON" style="margin:0">
+    <i class="fa-solid fa-file-import"></i>
+    <input type="file" accept=".json" style="display:none"
+           onchange="PaxDir.importar(this)"></label>
+  <button class="iconbtn" title="Fusionar pasajeros" onclick="PaxDir.fusion()">
+    <i class="fa-solid fa-code-merge"></i></button>
 </div>
 <div class="tablewrap"><div style="overflow-x:auto">
   <table>
@@ -77,6 +93,50 @@
                data-reglas="email" placeholder="pasajero@email.com">
         <p class="err">Correo inválido</p>
       </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Cédula</label><input type="text" id="pax-cedula" class="input" placeholder="Ej. 123456789"></div>
+        <div class="field"><label class="lbl">Fecha de nacimiento</label><input type="date" id="pax-nacimiento" class="input"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Tipo de sangre</label>
+          <select id="pax-sangre" class="select">
+            <option value="">—</option><option>O+</option><option>O-</option>
+            <option>A+</option><option>A-</option><option>B+</option>
+            <option>B-</option><option>AB+</option><option>AB-</option>
+            <option>No recibe transfusiones</option>
+            <option>No sabe el tipo de sangre</option></select></div>
+        <div class="field"><label class="lbl">Grupo / Tipo</label>
+          <input type="text" id="pax-grupo" class="input" placeholder="Ej. Familia, Prensa"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">País</label>
+          <select id="pax-pais" class="select">
+            <option value="">—</option><option>Costa Rica</option>
+            <option>Guatemala</option><option>Nicaragua</option>
+            <option>Panamá</option><option>Honduras</option>
+            <option>El Salvador</option><option>México</option>
+            <option>Perú</option><option>España</option></select></div>
+        <div class="field"><label class="lbl">Lugar / provincia</label><input type="text" id="pax-lugar" class="input" placeholder="Ej. Guanacaste"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Teléfono 2</label><input type="tel" id="pax-tel2" class="input" inputmode="numeric"></div>
+        <div class="field"><label class="lbl">Teléfono 3</label><input type="tel" id="pax-tel3" class="input" inputmode="numeric"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Contacto de emergencia</label><input type="text" id="pax-emNombre" class="input" placeholder="Nombre"></div>
+        <div class="field"><label class="lbl">Tel. de emergencia</label><input type="tel" id="pax-emTel" class="input" inputmode="numeric"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Horario de atención</label><input type="text" id="pax-horario" class="input" placeholder="Ej. 8:00 a 17:00"></div>
+        <div class="field"><label class="lbl">Nombre de contacto</label><input type="text" id="pax-cnombre" class="input" placeholder="Ej. Recepción"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="lbl">Tel. de contacto</label><input type="tel" id="pax-ctel" class="input" inputmode="numeric"></div>
+        <div class="field"><label class="lbl">Notas adicionales</label><input type="text" id="pax-notas" class="input" placeholder="Alergias, etc."></div>
+      </div>
+      <div class="field"><label class="lbl">URL de Google Maps</label>
+        <input type="url" id="pax-urlmapa" class="input" placeholder="https://maps.app.goo.gl/..."></div>
+
       <div class="field">
         <label class="lbl">Destino / viaje asignado *</label>
         <select id="pax-destino" class="select" data-reglas="requerido"></select>
@@ -143,6 +203,28 @@
         <button type="button" class="btn btn-primary"
                 onclick="Pasajeros.guardarGrupo()">Asignar
           <span id="grp-count"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-fusion" class="modal">
+  <div class="modal-box" style="max-width:22rem">
+    <div class="modal-head">
+      <h3>Fusionar pasajeros</h3>
+      <button class="modal-x" onclick="closeModal('modal-fusion')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="hint">Los datos vacíos del primero se rellenan con los del segundo; el segundo se elimina.</p>
+      <div class="field"><label class="lbl">Conservar</label>
+        <select id="fus-a" class="select"></select></div>
+      <div class="field"><label class="lbl">Eliminar (aporta datos)</label>
+        <select id="fus-b" class="select"></select></div>
+      <div class="modal-foot" style="padding-left:0;padding-right:0">
+        <button type="button" class="btn btn-soft"
+                onclick="closeModal('modal-fusion')">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+                onclick="PaxDir.fusionOk()">Fusionar</button>
       </div>
     </div>
   </div>

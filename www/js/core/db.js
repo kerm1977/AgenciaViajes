@@ -23,7 +23,11 @@ const DB = {
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +
       ' destinoId TEXT, asiento TEXT, checkin TEXT,' +
       ' ap1 TEXT, ap2 TEXT, pasaporte TEXT, fijo TEXT,' +
-      ' checkinUrl TEXT, contactoId TEXT)'
+      ' checkinUrl TEXT, contactoId TEXT,' +
+      ' grupo TEXT, pais TEXT, lugar TEXT, cedula TEXT, nacimiento TEXT,' +
+      ' sangre TEXT, emNombre TEXT, emTel TEXT, cnombre TEXT,' +
+      ' ctel TEXT, tel2 TEXT, tel3 TEXT, urlmapa TEXT, horario TEXT,' +
+      ' notas TEXT)'
   },
   /* columnas añadidas después del esquema inicial — migración ALTER */
   MIGRACIONES: {
@@ -32,7 +36,11 @@ const DB = {
                'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',
                'imgfx TEXT', 'noincluye TEXT'],
     pasajeros: ['ap1 TEXT', 'ap2 TEXT', 'pasaporte TEXT', 'fijo TEXT',
-                'checkinUrl TEXT', 'contactoId TEXT']
+                'checkinUrl TEXT', 'contactoId TEXT',
+                'grupo TEXT', 'pais TEXT', 'lugar TEXT', 'cedula TEXT',
+                'nacimiento TEXT', 'sangre TEXT', 'emNombre TEXT', 'emTel TEXT',
+                'cnombre TEXT', 'ctel TEXT', 'tel2 TEXT',
+                'tel3 TEXT', 'urlmapa TEXT', 'horario TEXT', 'notas TEXT']
   },
   mot: null,
   async init() {

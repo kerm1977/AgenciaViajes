@@ -74,6 +74,30 @@ const Perfil = {
     if (box) { box.innerHTML = '<p class="muted">Leyendo Uploader…</p>';
       await this._listar(box); }
   },
+  /* Cuentas y números SINPE / bancarios de la agencia */
+  _ct() { try { return JSON.parse(localStorage.getItem('latribu_cuentas') || '{}'); } catch (e) { return {}; } },
+  cuentas() { openModal('modal-cuentas'); this.ctRender(); },
+  ctRender() {
+    const c = this._ct(),
+          li = k => (c[k] || []).map((x, i) => '<li class="flex" ' +
+            'style="align-items:center;justify-content:space-between">' +
+            '<span>' + esc(x) + '</span><button type="button" ' +
+            'class="iconbtn danger" onclick="Perfil.ctDel(\'' + k + '\',' + i +
+            ')"><i class="fa-solid fa-xmark"></i></button></li>').join('') ||
+            '<li class="hint">Sin registros</li>';
+    $('#ct-sinpe').innerHTML = li('sinpe');
+    $('#ct-ctas').innerHTML = li('cuentas');
+  },
+  ctAdd(k) {
+    const inp = $(k === 'sinpe' ? '#ct-ns' : '#ct-nc'),
+          v = (inp.value || '').trim();
+    if (!v) return;
+    const c = this._ct(); (c[k] = c[k] || []).push(v);
+    localStorage.setItem('latribu_cuentas', JSON.stringify(c));
+    inp.value = ''; this.ctRender();
+  },
+  ctDel(k, i) { const c = this._ct(); (c[k] || []).splice(i, 1);
+    localStorage.setItem('latribu_cuentas', JSON.stringify(c)); this.ctRender(); },
   /* Estadísticas embebidas: inyecta el markup del panel Resumen */
   async stats() {
     const box = $('#pf-stats'); if (!box) return;

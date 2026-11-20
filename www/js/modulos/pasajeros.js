@@ -1,5 +1,8 @@
 /* pasajeros.js — asignación de pasajeros a viajes + check-in */
 'use strict';
+const PAXF = ['grupo', 'pais', 'lugar', 'cedula', 'pasaporte', 'nacimiento',
+  'sangre', 'fijo', 'tel2', 'tel3', 'email', 'emNombre', 'emTel',
+  'cnombre', 'ctel', 'urlmapa', 'horario', 'notas'];
 const Pasajeros = {
   async render() {
     const q = (($('#search-pasajeros') || {}).value || '').toLowerCase();
@@ -69,22 +72,24 @@ const Pasajeros = {
     e.preventDefault();
     if (!V.check($('#form-pasajero'))) return;
     const id = $('#pasajero-id').value;
-    await DB.save('pasajeros', {
+    const o = {
       id: id || undefined,
       nombre: V.titleCase(($('#pax-nombre').value + ' ' +
         $('#pax-ap1').value + ' ' + $('#pax-ap2').value).trim()),
       ap1: V.titleCase($('#pax-ap1').value),
       ap2: V.titleCase($('#pax-ap2').value),
-      pasaporte: $('#pax-pasaporte').value.trim().toUpperCase(),
       codigo: $('#pax-codigo').value,
       telefono: V.telNorm($('#pax-telefono').value),
-      fijo: V.telNorm($('#pax-fijo').value),
-      email: V.emailNorm($('#pax-email').value),
       destinoId: $('#pax-destino').value,
-      asiento: $('#pax-asiento').value.trim().toUpperCase(),
       checkin: $('#pax-checkin-estado').value,
       checkinUrl: $('#pax-checkin-url').value.trim()
-    });
+    };
+    PAXF.forEach(k => { const el = $('#pax-' + k);
+      if (el) o[k] = el.value.trim(); });
+    o.pasaporte = (o.pasaporte || '').toUpperCase();
+    o.asiento = ($('#pax-asiento').value || '').trim().toUpperCase();
+    o.email = V.emailNorm(o.email || '');
+    await DB.save('pasajeros', o);
     closeModal('modal-pasajero');
     showToast(id ? 'Pasajero actualizado' : 'Pasajero asignado');
     this.render();
@@ -99,14 +104,13 @@ const Pasajeros = {
     $('#pax-nombre').value = p.ap1 ? p.nombre.split(' ')[0] || '' : p.nombre;
     $('#pax-ap1').value = p.ap1 || '';
     $('#pax-ap2').value = p.ap2 || '';
-    $('#pax-pasaporte').value = p.pasaporte || '';
     $('#pax-telefono').value = p.telefono || '';
-    $('#pax-fijo').value = p.fijo || '';
-    $('#pax-email').value = p.email || '';
     $('#pax-destino').value = p.destinoId;
     $('#pax-asiento').value = p.asiento || '';
     $('#pax-checkin-estado').value = p.checkin || 'Pendiente';
     $('#pax-checkin-url').value = p.checkinUrl || '';
+    PAXF.forEach(k => { const el = $('#pax-' + k);
+      if (el) el.value = p[k] || ''; });
     const w = $('#pax-wa'); if (w) w.style.display = p.checkinUrl ? '' : 'none';
     $('#modal-pasajero-title').textContent = 'Editar Pasajero';
     openModal('modal-pasajero');
@@ -185,37 +189,7 @@ const Pasajeros = {
       this.render();
     }
   },
-  /* elegir un pasajero de la agenda y vincularlo a este viaje */
-  async elegir(destinoId) {
-    const todos = (await DB.list('pasajeros'))
-      .filter(p => p.destinoId !== destinoId)
-      .sort((a, b) => a.nombre.localeCompare(b.nombre));
-    if (!todos.length) {
-      showToast('No hay más pasajeros en la agenda', 'error'); return;
-    }
-    const bd = document.createElement('div');
-    bd.className = 'modal open'; bd.id = 'pax-pick';
-    bd.innerHTML = '<div class="modal-box" style="max-width:24rem">' +
-      '<div class="modal-head"><h3>Agregar pasajero al viaje</h3></div>' +
-      '<div class="modal-body"><select id="pax-pick-sel" class="select">' +
-      '<option value="">— Pasajero —</option>' + todos.map(p =>
-        '<option value="' + p.id + '">' + esc(p.nombre) +
-        (p.telefono ? ' · ' + esc(p.telefono) : '') + '</option>').join('') +
-      '</select></div><div class="modal-foot">' +
-      '<button class="btn btn-soft" id="pax-pick-x">Cancelar</button>' +
-      '<button class="btn btn-primary" id="pax-pick-ok">Agregar</button></div></div>';
-    document.body.appendChild(bd);
-    const fin = () => bd.remove();
-    bd.querySelector('#pax-pick-x').onclick = fin;
-    bd.querySelector('#pax-pick-ok').onclick = async () => {
-      const p = await DB.get('pasajeros',
-        bd.querySelector('#pax-pick-sel').value);
-      if (!p) { showToast('Elige un pasajero', 'error'); return; }
-      p.destinoId = destinoId; await DB.save('pasajeros', p);
-      fin(); showToast('Pasajero agregado');
-      if (Destinos._detId === destinoId) Destinos.pagina(destinoId);
-      this.render(); };
-  },
+
   /* quitar un pasajero de este viaje (queda en la agenda, sin viaje) */
   async quitar(pid, destinoId) {
     if (!(await confirmar('¿Quitar este pasajero del viaje?'))) return;

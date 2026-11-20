@@ -7,17 +7,12 @@ const Destinos = {
     const grid = $('#destinos-grid');
     if (!grid) return;
     const lista = (await DB.list('destinos')).filter(d =>
-      d.nombre.toLowerCase().includes(q) ||
-      (d.pais || '').toLowerCase().includes(q) ||
-      (d.guia || '').toLowerCase().includes(q) ||
-      (d.aerolinea || '').toLowerCase().includes(q) ||
+      d.nombre.toLowerCase().includes(q) || (d.pais || '').toLowerCase().includes(q) ||
+      (d.guia || '').toLowerCase().includes(q) || (d.aerolinea || '').toLowerCase().includes(q) ||
       (d.destinos || []).join(' ').toLowerCase().includes(q));
     grid.innerHTML = '';
-    if (!lista.length) {
-      grid.innerHTML = '<div class="card empty-state" style="grid-column:1/-1">' +
-        '<i class="fa-solid fa-map-location"></i><p>No hay destinos registrados.</p></div>';
-      return;
-    }
+    if (!lista.length) { grid.innerHTML = '<div class="card empty-state" style="grid-column:1/-1">' +
+      '<i class="fa-solid fa-map-location"></i><p>No hay destinos registrados.</p></div>'; return; }
     const puedeEditar = Session.can('destinos.editar'), puedeBorrar = Session.can('destinos.eliminar');
     lista.forEach(d => {
       const lugares = (d.destinos || []).join(' · '),
@@ -62,28 +57,46 @@ const Destinos = {
     });
   },
   addDestino(nombre) {
-    const items = $$('#destinos-lista-container .dst-item');
-    const last = items[items.length - 1];
-    if (last && !last.value.trim() && nombre === undefined) {
-      last.focus(); showToast('Completa el destino anterior primero', 'error'); return; }
-    const rid = uid('dst');
-    const div = document.createElement('div');
-    div.className = 'flex gap1'; div.id = rid;
-    div.innerHTML =
-      '<input type="text" placeholder="Destino (Ej. Cancún, Chichén Itzá…)" ' +
-        'value="' + esc(nombre || '') + '" class="input dst-item" style="flex:1">' +
-      '<button type="button" class="iconbtn danger" onclick="Destinos.delDest(\'' +
-        rid + '\')"><i class="fa-solid fa-xmark"></i></button>';
+    const last = $$('#destinos-lista-container .dst-item').pop();
+    if (nombre === undefined && last) {
+      const v = last.value.trim();
+      if (!v) { last.focus();
+        showToast('Completa el destino anterior primero', 'error'); return; }
+      this._lockDest(last.closest('div'), v);  /* sella: texto + lapicito + X */
+    }
+    const rid = uid('dst'), div = document.createElement('div');
+    div.className = 'flex gap1 dst-row'; div.id = rid;
+    div.innerHTML = nombre === undefined
+      ? this._destInp(rid, '')
+      : this._destTxt(rid, nombre);   /* cargado: ya sellado */
     $('#destinos-lista-container').appendChild(div);
     if (window.Itinerario) Itinerario.syncItin();
   },
+  _destInp(rid, v) {
+    return '<input type="text" placeholder="Destino (Ej. Cancún, Chichén Itzá…)" ' +
+      'value="' + esc(v) + '" class="input dst-item" style="flex:1">' +
+      '<button type="button" class="iconbtn danger" ' +
+      'onclick="Destinos.delDest(\'' + rid + '\')"><i class="fa-solid fa-xmark"></i></button>'; },
+  _destTxt(rid, v) {
+    return '<span class="dst-txt" style="flex:1;align-self:center">' + esc(v) + '</span>' +
+      '<button type="button" class="iconbtn" title="Editar" ' +
+        'onclick="Destinos.editDest(\'' + rid + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button type="button" class="iconbtn danger" ' +
+        'onclick="Destinos.delDest(\'' + rid + '\')"><i class="fa-solid fa-xmark"></i></button>'; },
+  _lockDest(row, v) { row.innerHTML = this._destTxt(row.id, v); row.dataset.saved = '1'; },
+  editDest(rid) {
+    const row = document.getElementById(rid); if (!row) return;
+    const v = (row.querySelector('.dst-txt') || {}).textContent || '';
+    row.innerHTML = this._destInp(rid, v); delete row.dataset.saved;
+    const inp = row.querySelector('input');
+    if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); } },
   addItRow(dest, dia, tipo, ruta, x, ev) {
     Itinerario.addRow(dest, dia, tipo, ruta, x, ev); },
   cancelar() { return Borrador.cancelar(); },
   nuevo() {
     if (!Session.can('destinos.crear')) { showToast('Sin permiso para crear destinos', 'error'); return; }
-    $('#form-destino').reset(); $('#destino-id').value = '';
-    $('#dest-conguia').value = ''; $('#dest-singuia').value = ''; $('#dest-moneda').value = 'USD';
+    $('#form-destino').reset(); $('#destino-id').value = ''; $('#dest-moneda').value = 'USD';
+    $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
     $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais('');
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
@@ -101,8 +114,7 @@ const Destinos = {
     const fn = $('#f-nombre'); if (fn) fn.style.marginTop = on ? '0' : '2.4rem';
     this._fechasTxt(); },
   _fechasTxt() {
-    const t = id => { const v = ($(id) || {}).value; if (!v) return '';
-      const d = new Date(v + 'T00:00:00');
+    const t = id => { const v = ($(id) || {}).value; if (!v) return ''; const d = new Date(v + 'T00:00:00');
       return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
     const a = $('#dest-fdesde-txt'), b = $('#dest-fhasta-txt');
     if (a) a.textContent = t('#dest-fdesde'); if (b) b.textContent = t('#dest-fhasta'); },
@@ -111,8 +123,7 @@ const Destinos = {
     const ss = $$('#form-destino .wstep'); if (!ss.length) return;
     if (this._paso === 2 && n > 2 && $('#dest-tiene-fechas').checked &&
         (!$('#dest-fdesde').value || !$('#dest-fhasta').value)) {
-      aviso('No podés dejar los campos de fechas vacíos, tenés que llenarlos.',
-        'Fechas del viaje');
+      aviso('No podés dejar los campos de fechas vacíos, tenés que llenarlos.', 'Fechas del viaje');
       return; }
     n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
     ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));
@@ -122,14 +133,13 @@ const Destinos = {
     const ts = $('#pag-ota-ts'); if (ts) ts.textContent = window.TM_OTA ? 'OTA ' + TM_OTA.ts : '';
     const b = $('.pag-itin-body'); if (b) b.scrollTop = 0;
   },
-  async delDest(rid) { if (await confirmar('¿Quitar este destino de la lista?')) {
-    document.getElementById(rid).remove();
-    if (window.Itinerario) Itinerario.syncItin(); } },
+  async delDest(rid) { if (!(await confirmar('¿Quitar este destino de la lista?'))) return;
+    document.getElementById(rid).remove(); if (window.Itinerario) Itinerario.syncItin(); },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-destino'))) return;
-    const dests = $$('#destinos-lista-container .dst-item')
-      .map(i => i.value.trim()).filter(Boolean);
+    const dests = $$('#destinos-lista-container .dst-item, #destinos-lista-container .dst-txt')
+      .map(e => (e.value !== undefined ? e.value : e.textContent).trim()).filter(Boolean);
     if (!dests.length) {
       showToast('Agrega al menos un destino', 'error');
       $('#destinos-lista-container').style.border = '1px solid var(--rose-600)';
@@ -185,20 +195,18 @@ const Destinos = {
     const d = await DB.get('destinos', id);
     if (!d) return;
     $('#destino-id').value = d.id;
-    $('#dest-conguia').value = d.paxConGuia || '';
-    $('#dest-singuia').value = d.paxSinGuia || '';
+    $('#dest-conguia').value = d.paxConGuia || ''; $('#dest-singuia').value = d.paxSinGuia || '';
     $('#dest-moneda').value = d.moneda || 'USD';
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const edc = $('#desc-editor'); if (edc) edc.innerHTML = d.notas || '';
     $('#dest-noincluye').value = d.noincluye || '';
     const f = d.fechas || {}; $('#dest-tiene-fechas').checked = !!f.on;
-    $('#dest-fdesde').value = f.desde || '';
-    $('#dest-fhasta').value = f.hasta || '';
+    $('#dest-fdesde').value = f.desde || ''; $('#dest-fhasta').value = f.hasta || '';
     this.togFechas();
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos || []).forEach(n => this.addDestino(n));
-    if (!dc.children.length) this.addDestino();
+    this.addDestino();   /* input vacío para seguir agregando */
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
     Object.keys(Itinerario.CAMPOS).forEach(t => {
@@ -217,14 +225,9 @@ const Destinos = {
     this.paso(1);
   },
   async borrar(id) {
-    if (!Session.can('destinos.eliminar')) {
-      showToast('Sin permiso para eliminar', 'error'); return;
-    }
+    if (!Session.can('destinos.eliminar')) { showToast('Sin permiso para eliminar', 'error'); return; }
     if (await confirmar('¿Eliminar este destino? Los pasajeros quedarán sin viaje asignado.')) {
-      await DB.remove('destinos', id);
-      showToast('Destino eliminado', 'error');
-      this.render();
-    }
+      await DB.remove('destinos', id); showToast('Destino eliminado', 'error'); this.render(); }
   },
 };
 Router.ON_TAB.destinos = () => Destinos.render();

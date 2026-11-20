@@ -139,10 +139,13 @@ const Itinerario = {
       return;
     }
     const cod = esc(codigoDePais(($('#dest-pais') || {}).value) || '—');
+    const stripCod = v => { v = String(v || ''); const c =
+        codigoDePais(($('#dest-pais') || {}).value) || '';
+      return c && v.startsWith(c) ? v.slice(c.length).trim() : v; };
     const tel = (cls, ph, v) =>
       '<div class="it-tel"><span class="it-cod">' + cod + '</span>' +
         '<input type="tel" placeholder="' + ph + '" data-norm="digitos" ' +
-          'value="' + esc(v || '') + '" class="input ' + cls + '"></div>';
+          'value="' + esc(stripCod(v)) + '" class="input ' + cls + '"></div>';
     const transp = /^Transporte\s/.test(tipo || '');
     const costos = '<div class="grid-2">' +
         '<input type="number" min="0" step="0.01" placeholder="' +
@@ -183,9 +186,7 @@ const Itinerario = {
     this.syncItin();
   },
   collect() {
-    const it = [],
-          cod = codigoDePais($('#dest-pais').value),
-          pre = cod ? cod + ' ' : '';
+    const it = [];
     const leer = (card, dest) => {
       const q = s => { const e = card.querySelector(s);
         return e ? e.value.trim() : ''; };
@@ -196,8 +197,8 @@ const Itinerario = {
       return {
         destino: dest, dia: card.dataset.dia || '', tipo: card.dataset.tipo,
         ruta: q('.it-ruta') || card.dataset.tipo,
-        nombre: V.titleCase(q('.it-nombre')), tel: ta ? pre + ta : '',
-        telGuia: tg ? pre + tg : '', maps: q('.it-maps'),
+        nombre: V.titleCase(q('.it-nombre')), tel: ta,
+        telGuia: tg, maps: q('.it-maps'),
         desc: de, precio: parseFloat(q('.it-precio')) || 0,
         modo: q('.it-modo'),
         verinfo: !!(card.querySelector('.it-verinfo') || {}).checked }; };

@@ -83,7 +83,7 @@
       <section class="wstep">
         <h3 class="wstep-t">Nombre y descripción</h3>
         <p class="wstep-n">Paso 3 de 8</p>
-        <div class="wstep-mid">
+        <div class="wstep-mid wide">
           <div class="field" id="f-nombre" style="margin-top:2.4rem">
             <label class="lbl">Nombre del Viaje *</label>
             <input type="text" id="dest-nombre" class="input" data-reglas="requerido"
@@ -107,7 +107,7 @@
       <section class="wstep">
         <h3 class="wstep-t">Destinos del viaje</h3>
         <p class="wstep-n">Paso 4 de 8</p>
-        <div class="field wstep-mid">
+        <div class="field wstep-mid wide">
           <button type="button" class="btn btn-primary" style="width:100%;margin-bottom:.6rem"
                   onclick="Destinos.addDestino()">
             <i class="fa-solid fa-plus"></i> Agregar destino</button>
@@ -118,7 +118,7 @@
       <section class="wstep" id="wstep-costos">
         <h3 class="wstep-t">Costos y pagos</h3>
         <p class="wstep-n">Paso 5 de 8</p>
-        <div class="wstep-mid">
+        <div class="wstep-mid wide">
           <div class="flex gap1" style="margin-bottom:.5rem">
             <select id="it-tipo-new" class="select" style="flex:1">
               <option value="">— Campo del viaje —</option>
@@ -141,13 +141,13 @@
       <section class="wstep">
         <h3 class="wstep-t">Itinerario</h3>
         <p class="wstep-n">Paso 6 de 8</p>
-        <div class="wstep-mid"><div id="itinerary-container" class="grid gap1"></div></div>
+        <div class="wstep-mid wide"><div id="itinerary-container" class="grid gap1"></div></div>
         <div class="wstep-nav"><button type="button" class="btn btn-soft" onclick="Destinos.paso(5)"><i class="fa-solid fa-arrow-left"></i> Anterior</button><button type="button" class="btn btn-primary" onclick="Destinos.paso(7)">Siguiente <i class="fa-solid fa-arrow-right"></i></button></div>
       </section>
       <section class="wstep">
         <h3 class="wstep-t">Pasajeros</h3>
         <p class="wstep-n">Paso 7 de 8</p>
-        <div class="wstep-mid">
+        <div class="wstep-mid wide">
           <ol id="pax-lista" class="pit-ol"></ol>
           <button type="button" class="btn btn-soft" style="margin-top:.35rem"
                   onclick="Destinos.paxNuevo()">
@@ -158,7 +158,7 @@
       <section class="wstep">
         <h3 class="wstep-t">Lo que NO incluye</h3>
         <p class="wstep-n">Paso 8 de 8</p>
-        <div class="field wstep-mid" style="margin-top:.4rem">
+        <div class="field wstep-mid wide" style="margin-top:.4rem">
           <label class="lbl">Lo que NO incluye</label>
           <textarea id="dest-noincluye" class="input" rows="4"
             placeholder="Ej. Propinas, bebidas alcohólicas, impuestos de salida… (una por línea)"></textarea>

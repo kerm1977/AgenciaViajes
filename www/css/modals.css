@@ -152,6 +152,15 @@
 .wstep-t { text-align:center; margin:.6rem 0 0; font-size:1.15rem; color:var(--slate-900); }
 .wstep-n { text-align:center; margin:.15rem 0 .9rem; font-size:.75rem; color:var(--slate-400); }
 .wstep-mid { min-height:52vh; display:flex; flex-direction:column; justify-content:center; max-width:26rem; margin:0 auto; width:100%; }
+.wstep-mid.wide { max-width:44rem; justify-content:flex-start; padding-top:.4rem; }
+#pag-destino .wstep-t { font-size:1.35rem; }
+#pag-destino .wstep-n { font-size:.85rem; }
+#pag-destino .lbl { font-size:.95rem; }
+#pag-destino .input, #pag-destino .select, #pag-destino .selbtn,
+#pag-destino textarea, #pag-destino .wysiwyg { font-size:1.05rem; }
+#pag-destino .input, #pag-destino .selbtn { padding:.62rem .8rem; }
+#pag-destino .btn { font-size:1rem; }
+#pag-destino .card, #pag-destino .it-acc { font-size:1rem; }
 .wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 2.5rem; }
 
 /* selector de pais */

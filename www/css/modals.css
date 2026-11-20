@@ -163,6 +163,7 @@
 #pag-destino .input, #pag-destino .selbtn { padding:.62rem .8rem; }
 #pag-destino .btn { font-size:1rem; }
 #pag-destino .card, #pag-destino .it-acc { font-size:1rem; }
+#desc-editor { min-height:9rem; }
 .wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 3rem; margin-top:auto; }
 
 /* selector de pais */

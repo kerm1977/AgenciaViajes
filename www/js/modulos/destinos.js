@@ -1,12 +1,5 @@
 /* destinos.js — CRUD destinos/viajes: país, multi-destino, capacidad, itinerario. */
 'use strict';
-const PAISES = ['Argentina','Aruba','Bahamas','Barbados','Belice','Bolivia',
-  'Brasil','Canadá','Chile','Colombia','Costa Rica','Cuba','Curazao',
-  'Dominica','Ecuador','El Salvador','España','Estados Unidos','Granada',
-  'Guatemala','Guyana','Haití','Honduras','Jamaica','México','Nicaragua',
-  'Panamá','Paraguay','Perú','Puerto Rico','República Dominicana',
-  'San Cristóbal y Nieves','San Vicente y las Granadinas','Santa Lucía',
-  'Surinam','Trinidad y Tobago','Uruguay','Venezuela'];
 const Destinos = {
   IMG_DEF: 'img/destino-def.svg',
   async render() {
@@ -67,12 +60,6 @@ const Destinos = {
       grid.appendChild(card);
       Uploader.bindImg(card.querySelector('.dest-img'), d);
     });
-  },
-  _fillPais(val) {
-    const s = $('#dest-pais');
-    s.innerHTML = '<option value="">— Selecciona el país —</option>' +
-      PAISES.map(p => '<option' + (p === val ? ' selected' : '') + '>' +
-        esc(p) + '</option>').join('');
   },
   addDestino(nombre) {
     const items = $$('#destinos-lista-container .dst-item');

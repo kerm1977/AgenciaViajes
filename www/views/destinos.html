@@ -13,11 +13,9 @@
 <!-- Página completa: crear/editar destino y viaje -->
 <div id="pag-destino" class="pag-itin">
   <div class="pag-top">
-    <button type="button" class="iconbtn" onclick="Destinos.cancelar()">
-      <i class="fa-solid fa-arrow-left"></i></button>
+    <button type="button" class="iconbtn" onclick="Destinos.cancelar()"><i class="fa-solid fa-arrow-left"></i></button>
     <h2 id="modal-destino-title" style="margin:0;font-size:1.05rem;flex:1">Crear Nuevo Destino y Viaje</h2>
-    <button type="submit" form="form-destino" class="btn btn-primary btn-sm">
-      <i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+    <button type="submit" form="form-destino" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
   </div>
   <div class="pag-itin-body"><div style="max-width:52rem;margin:0 auto">
     <form id="form-destino" onsubmit="Destinos.guardar(event)" novalidate>
@@ -59,7 +57,10 @@
         <div>
           <div class="field">
             <label class="lbl">País *</label>
-            <select id="dest-pais" class="select" data-reglas="requerido"></select>
+            <select id="dest-pais" data-reglas="requerido" style="display:none"></select>
+            <button type="button" id="dest-pais-btn" class="pais-btn" onclick="Destinos.selPais()">
+              <i class="fa-solid fa-earth-americas"></i><span id="dest-pais-lbl">— Selecciona el país —</span>
+              <i class="fa-solid fa-chevron-down"></i></button>
             <p class="err">Selecciona un país</p>
           </div>
           <label class="flex" style="gap:.5rem;align-items:center;margin:.5rem 0;cursor:pointer">
@@ -173,6 +174,19 @@
       </section>
     </form></div>
   </div>
+</div>
+
+<!-- Modal: selector de país -->
+<div id="modal-pais" class="modal"><div class="modal-box">
+  <div class="modal-head">
+    <h3><i class="fa-solid fa-earth-americas" style="color:var(--brand-600)"></i> ¿A qué país viajamos?</h3>
+    <button class="modal-x" onclick="closeModal('modal-pais')"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="modal-body">
+    <div class="searchbox" style="margin-bottom:.6rem"><i class="fa-solid fa-search"></i>
+      <input type="text" id="pais-buscar" class="input" oninput="Destinos.paisLista()"
+             placeholder="Buscar país…"></div>
+    <div id="pais-lista" class="pais-list"></div>
+  </div></div>
 </div>
 
 <!-- Modal: detalle destino -->

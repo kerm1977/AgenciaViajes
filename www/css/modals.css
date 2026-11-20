@@ -153,3 +153,17 @@
 .wstep-n { text-align:center; margin:.15rem 0 .9rem; font-size:.75rem; color:var(--slate-400); }
 .wstep-mid { min-height:52vh; display:flex; flex-direction:column; justify-content:center; max-width:26rem; margin:0 auto; width:100%; }
 .wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 2.5rem; }
+
+/* selector de pais */
+.pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.6rem .8rem;
+  border:1px solid var(--slate-200); border-radius:.6rem; background:#fff; font-size:14px; color:var(--slate-700); }
+.pais-btn:hover { border-color:var(--brand-400); color:var(--brand-700); }
+.pais-btn  { flex:1; text-align:left; }
+.pais-btn i:last-child { color:var(--slate-400); font-size:.75rem; }
+.pais-list { display:flex; flex-direction:column; gap:.15rem; max-height:55vh; overflow-y:auto; }
+.pais-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .7rem; border:0;
+  border-radius:.55rem; background:transparent; font-size:14.5px; color:var(--slate-800); text-align:left; }
+.pais-item:hover { background:var(--brand-50); color:var(--brand-700); }
+.pais-item.sel { background:var(--brand-50); color:var(--brand-700); font-weight:600; }
+.pais-item.sel i { color:var(--brand-600); }
+.pais-fl { font-size:1.35rem; width:1.7rem; text-align:center; }

@@ -157,14 +157,11 @@ const Exportar = {
         line('  ' + (it.hdesde || '') +
           (it.hhasta ? '–' + it.hhasta + ' ' : ' ') + it.tipo +
           (it.destino ? ' · ' + it.destino : ''));
-        if (it.nombre) line('    ' + it.nombre);
-        if (it.verinfo && it.tel) line('    Tel: ' + it.tel);
-        if (it.verinfo && it.telGuia) line('    Tel. guía: ' + it.telGuia);
+        if (it.ruta && it.ruta !== it.tipo) line('    ' + it.ruta);
         if (it.verinfo && it.precio)
           line('    ' + Itinerario.fmtT(d, it.precio) +
             (it.modo === 'grupo' ? ' P/G' : ' P/P'));
         if (it.lugar) line('    Lugar: ' + it.lugar);
-        if (it.guia) line('    Guía: ' + it.guia);
         if (it.desc) line('    ' + txt(it.desc));
         if (it.adesc) line('    ' + txt(it.adesc)); }); });
     await this._savePdf(doc,

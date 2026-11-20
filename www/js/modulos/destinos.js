@@ -204,8 +204,7 @@ const Destinos = {
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos || []).forEach(n => this.addDestino(n));
     if (!dc.children.length) this.addDestino();
-    $('#itinerary-container').innerHTML = '';
-    $('#it-general').innerHTML = '';
+    $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
     Object.keys(Itinerario.CAMPOS).forEach(t => {
       const v = d[Itinerario.CAMPOS[t].k];
@@ -213,8 +212,8 @@ const Destinos = {
         Itinerario.CAMPOS[t].k === 'aerolinea' ? (d.boleto || {}) :
         Itinerario.CAMPOS[t].k === 'transporte' ? (d.trans || {}) : null);
     });
-    (d.itinerario || []).forEach(it =>
-      this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1));
+    (d.itinerario || []).forEach(it => { if (Itinerario.CAMPOS[it.tipo]) return; /* ya se recrean desde el campo */
+      this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1); });
     Itinerario.refresh();
     $('#modal-destino-title').textContent = 'Editar Destino y Viaje';
     openModal('modal-destino');

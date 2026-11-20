@@ -58,7 +58,7 @@ const Destinos = {
   },
   addDestino(nombre) {
     const last = $$('#destinos-lista-container .dst-item').pop();
-    if (nombre === undefined && last) {
+    if (nombre == null && last) {
       const v = last.value.trim();
       if (!v) { last.focus();
         showToast('Completa el destino anterior primero', 'error'); return; }
@@ -66,7 +66,7 @@ const Destinos = {
     }
     const rid = uid('dst'), div = document.createElement('div');
     div.className = 'flex gap1 dst-row'; div.id = rid;
-    div.innerHTML = nombre === undefined
+    div.innerHTML = nombre == null
       ? this._destInp(rid, '')
       : this._destTxt(rid, nombre);   /* cargado: ya sellado */
     $('#destinos-lista-container').appendChild(div);

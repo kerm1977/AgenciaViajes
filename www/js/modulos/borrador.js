@@ -24,8 +24,8 @@ const Borrador = {
           fechas: { on: $('#dest-tiene-fechas').checked,
             desde: $('#dest-fdesde').value,
             hasta: $('#dest-fhasta').value },
-          destinos: $$('#destinos-lista-container .dst-item')
-            .map(i => i.value).filter(s => s.trim()),
+          destinos: $$('#destinos-lista-container .dst-item, #destinos-lista-container .dst-txt')
+            .map(i => (i.value !== undefined ? i.value : i.textContent)).filter(s => s.trim()),
           itinerario: Itinerario.collect()
         };
         localStorage.setItem(this.KEY, JSON.stringify(d));

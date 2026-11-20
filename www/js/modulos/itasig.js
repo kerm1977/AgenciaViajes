@@ -26,9 +26,8 @@ Object.assign(Itinerario, {
   async syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
     const n = (this._sN = (this._sN || 0) + 1);
-    const guias = $$('#destinos-lista-container .dst-item')
-      .map(x => ((x.value !== undefined ? x.value
-        : (x.querySelector('input') || {}).value) || '').trim())
+    const guias = $$('#destinos-lista-container .dst-item, #destinos-lista-container .dst-txt')
+      .map(x => ((x.value !== undefined ? x.value : x.textContent) || '').trim())
       .filter(Boolean);
     if (n !== this._sN) return;
     c.innerHTML = '';

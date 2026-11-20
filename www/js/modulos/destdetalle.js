@@ -105,17 +105,17 @@ Destinos.pagina = async function (id) {
           esc(it.tipo) +
           (it.destino ? ' <span class="hint">· ' + esc(it.destino) + '</span>' : '') +
           '</p>' +
+          (it.adesc ? '<div class="pit-desc">' + it.adesc + '</div>' : '') +
+          (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
           ((it.hdesde || it.hhasta) ? '<p class="pit-tk-time">' +
-            esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
-            '</p>' : '') +
+            '<i class="fa-regular fa-clock"></i> ' + esc(it.hdesde || '') +
+            (it.hhasta ? ' – ' + esc(it.hhasta) : '') + '</p>' : '') +
           (it.ruta && it.ruta !== it.tipo ? '<p>' + esc(it.ruta) + '</p>' : '') +
           (it.lugar ? '<p><i class="fa-solid fa-location-dot"></i> ' +
             esc(it.lugar) + '</p>' : '') +
           (it.verinfo && it.precio ? '<p><i class="fa-solid fa-coins"></i> ' +
             Itinerario.fmtT(d, it.precio) +
             (it.modo === 'grupo' ? ' · P/G' : ' · P/P') + '</p>' : '') +
-          (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
-          (it.adesc ? '<div class="pit-desc">' + it.adesc + '</div>' : '') +
           (esUrl ? '<div class="flex gap1" style="margin-top:.4rem">' +
             (/waze/i.test(it.maps)
               ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +

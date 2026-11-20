@@ -43,14 +43,16 @@ const Destinos = {
           '<span class="float-badge">' + esc(d.pais || 'Viaje') + '</span></div>' +
         '<div class="card-pad"><h3 class="bold" style="font-size:15px;color:var(--slate-900)">' +
           esc(d.nombre) + '</h3><div class="grid gap1 mt1">' +
-          '<p class="kv"><i class="fa-solid fa-flag"></i> País: <strong>' +
-            esc(d.pais || '—') + '</strong></p>' +
-          '<p class="kv"><i class="fa-solid fa-location-dot"></i> ' +
-            esc(lugares) + '</p>' +
-          '<p class="kv"><i class="fa-solid fa-user-tie"></i> Guía: <strong>' +
-            esc(d.guia || 'Sin asignar') + '</strong></p>' +
-          '<p class="kv"><i class="fa-solid fa-plane"></i> Vuelo: <strong>' +
-            esc(d.vuelo || 'N/A') + '</strong></p></div></div></div>' +
+          (d.pais ? '<p class="kv"><i class="fa-solid fa-flag"></i> País: <strong>' +
+            esc(d.pais) + '</strong></p>' : '') +
+          (lugares ? '<p class="kv"><i class="fa-solid fa-location-dot"></i> ' +
+            esc(lugares) + '</p>' : '') +
+          (d.guia ? '<p class="kv"><i class="fa-solid fa-user-tie"></i> Guía: <strong>' +
+            esc(d.guia) + '</strong></p>' : '') +
+          (d.aerolinea ? '<p class="kv"><i class="fa-solid fa-plane"></i> ' +
+            'Aerolínea: <strong>' + esc(d.aerolinea) + '</strong>' +
+            (d.vuelo ? ' <span class="hint">· ' + esc(d.vuelo) + '</span>' : '') +
+            '</p>' : '') + '</div></div></div>' +
         '<div class="card-pad flex gap1" style="padding-top:0;border-top:1px solid var(--slate-100);align-items:center">' +
           (d.checkin ? '<a href="' + esc(d.checkin) + '" target="_blank" ' +
             'class="btn btn-sm btn-soft" style="flex:1;background:var(--brand-50);color:var(--brand-700)">' +
@@ -168,6 +170,7 @@ const Destinos = {
           if (i.checkin) obj.checkin = i.checkin;
           if (i.checkout) obj.checkout = i.checkout;
           obj.boleto = { clase: i.clase, pb: i.pb, ai: i.ai, ps: i.ps,
+            ci: i.ci, co: i.co,
             os: i.os, osv: i.osv, osd: i.osd, dia: i.dia, hdesde: i.hdesde,
             hhasta: i.hhasta, guia: i.guia, esc: i.esc, escp: i.escp,
             escv: i.escv, esch: i.esch, esca: i.esca };

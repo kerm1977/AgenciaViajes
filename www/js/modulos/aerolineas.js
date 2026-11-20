@@ -69,6 +69,10 @@ Itinerario.aeroCard = function (card, nombre, x) {
       '<option value="">— Aerolínea —</option>' +
       nombres.map(n => '<option' + (n === nombre ? ' selected' : '') + '>' +
         esc(n) + '</option>').join('') + '</select>' +
+    '<input class="input it-ci" placeholder="Enlace check-in"' +
+      ' value="' + esc(x.ci || '') + '">' +
+    '<input class="input it-co" placeholder="Enlace check-out"' +
+      ' value="' + esc(x.co || '') + '">' +
     '<p class="it-achk hint" style="margin:.1rem 0 .2rem"></p>' +
     '<select class="select it-clase"><option value="">— Clase —</option>' +
       '</select>' +
@@ -108,6 +112,8 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
         chk = card.querySelector('.it-achk'),
+        ci  = card.querySelector('.it-ci'),
+        co  = card.querySelector('.it-co'),
         ai  = card.querySelector('.it-ai'),
         ps  = card.querySelector('.it-ps'),
         os  = card.querySelector('.it-os'),
@@ -132,10 +138,20 @@ Itinerario.aeroCard = function (card, nombre, x) {
   };
   const pintar = () => {
     const a = AEROLINEAS[sel.value];
-    chk.innerHTML = a
-      ? '<a href="' + a.ci + '" target="_blank">Check-in</a> · ' +
-        '<a href="' + a.co + '" target="_blank">Check-out</a>'
-      : '';
+    /* enlaces: precarga del catálogo solo si el campo sigue vacío —
+       cualquier edición manual siempre gana */
+    if (a) {
+      if (!ci.value || Object.values(AEROLINEAS)
+          .some(k => k.ci === ci.value)) ci.value = a.ci;
+      if (!co.value || Object.values(AEROLINEAS)
+          .some(k => k.co === co.value)) co.value = a.co;
+    }
+    const lk = () => (ci.value ? '<a href="' + esc(ci.value) +
+        '" target="_blank">Check-in</a>' : '') +
+      (co.value ? (ci.value ? ' · ' : '') + '<a href="' + esc(co.value) +
+        '" target="_blank">Check-out</a>' : '');
+    chk.innerHTML = lk();
+    [ci, co].forEach(i => i.oninput = () => { chk.innerHTML = lk(); });
     const tt = card.querySelector('.it-acc-t');
     if (tt) tt.textContent = sel.value
       ? 'Aerolínea · ' + sel.value : 'Aerolínea';
@@ -159,7 +175,10 @@ Itinerario.aeroCollect = function (card) {
   const a = AEROLINEAS[nombre] || {};
   return {
     campo: 'Aerolínea', valor: nombre,
-    checkin: a.ci || '', checkout: a.co || '',
+    checkin: card.querySelector('.it-ci').value.trim() || a.ci || '',
+    checkout: card.querySelector('.it-co').value.trim() || a.co || '',
+    ci: card.querySelector('.it-ci').value.trim(),
+    co: card.querySelector('.it-co').value.trim(),
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',

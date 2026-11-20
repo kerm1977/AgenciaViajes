@@ -67,11 +67,11 @@ const Exportar = {
       const u = await Uploader.url(d.imagen, (d.imgfx || {}).b64, true);
       if (/^data:image/.test(u)) {
         try {
-          if (y > 245) { doc.addPage(); y = 15; }
-          doc.addImage(u, /^data:image\/png/.test(u) ? 'PNG' : 'JPEG',
-            14, y, 60, 34);
-          doc.setFontSize(10); doc.text(d.nombre || 'Viaje', 78, y + 12);
-          doc.setFontSize(9); y += 42;
+          const cv = await PdfViaje.cover(u, 600, 340);
+          if (cv && y > 245) { doc.addPage(); y = 15; }
+          if (cv) { doc.addImage(cv, 'JPEG', 14, y, 60, 34);
+            doc.setFontSize(10); doc.text(d.nombre || 'Viaje', 78, y + 12);
+            doc.setFontSize(9); y += 42; }
         } catch (e) {}
       }
     }
@@ -83,116 +83,14 @@ const Exportar = {
     await this._savePdf(doc, this._nombre('pdf'));
     showToast('PDF generado');
   },
-  /* PDF de UN viaje: imagen con los ajustes X/Y/zoom horneados vía canvas
-     (blur/rotar/opacidad no aplican a PDF) + itinerario por día + pasajeros */
+  /* PDF de UN viaje: delegado a PdfViaje (diseño espejo de la página) */
   async pdfViaje(id) {
     if (!Session.can('exportar')) { showToast('Sin permiso', 'error'); return; }
-    try { await this._pdfViaje(id); }
-    catch (e) { console.error('pdfViaje', e);
+    try {
+      const d = await DB.get('destinos', id);
+      if (d) await PdfViaje.generar(d);
+    } catch (e) { console.error('pdfViaje', e);
       showToast('Error al generar el PDF: ' + (e && e.message), 'error'); } },
-  async _pdfViaje(id) {
-    const J = window.jspdf && window.jspdf.jsPDF;
-    if (!J) { showToast('jsPDF no cargado', 'error'); return; }
-    const d = await DB.get('destinos', id);
-    if (!d) return;
-    const doc = new J(); let y = 14;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
-    doc.text(d.nombre || 'Viaje', 14, y); y += 8;
-    const img = await this._imgFx(d);
-    if (img) { try { doc.addImage(img, 'JPEG', 14, y, 182, 64); y += 70; }
-      catch (e) {} }
-    const line = t => doc.splitTextToSize(t, 180).forEach(l => {
-      if (y > 285) { doc.addPage(); y = 15; }
-      doc.text(l, 14, y); y += 4.6; });
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-    const f = d.fechas || {}, bo = d.boleto || {},
-          txt = s => { const v = document.createElement('div');
-            v.innerHTML = s || ''; return (v.textContent || '').trim(); },
-          TG = Itinerario.totalViaje(d);
-    line('País: ' + (d.pais || '—'));
-    if (f.on && (f.desde || f.hasta))
-      line('Fechas: ' + (f.desde || '') + ' → ' + (f.hasta || ''));
-    if (TG.i) { doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
-      line('PRECIO POR PERSONA: ' + Itinerario.fmtT(d, TG.i));
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); }
-    doc.setFont('helvetica', 'bold'); line('INCLUYE');
-    doc.setFont('helvetica', 'normal');
-    if (d.guia) line('  Guía: ' + d.guia);
-    if (d.transporte) line('  Transporte: ' + d.transporte);
-    if (d.aerolinea || d.vuelo)
-      line('  Aerolínea: ' + (d.aerolinea || '') +
-        (d.vuelo ? ' · ' + d.vuelo : '') +
-        (d.checkin ? ' · Check-in: ' + d.checkin : ''));
-    if (bo.hdesde || bo.hhasta)
-      line('  Vuelo: ' + (bo.hdesde || '') +
-        (bo.hhasta ? ' – ' + bo.hhasta : ''));
-    if (bo.esc === '1')
-      line('  Escala: ' + [bo.escp, bo.escv, bo.esch, bo.esca]
-        .filter(Boolean).join(' · '));
-    if (txt(d.notas)) line('  ' + txt(d.notas));
-    (d.itinerario || []).forEach(it => {
-      const lbl = it.nombre || it.ruta || it.tipo;
-      if (lbl && lbl !== it.tipo) line('  ' + it.tipo + ': ' + lbl); });
-    if (d.noincluye) {
-      doc.setFont('helvetica', 'bold'); line('NO INCLUYE');
-      doc.setFont('helvetica', 'normal');
-      d.noincluye.split(/[\n;]+/).map(s => s.trim()).filter(Boolean)
-        .forEach(x => line('  • ' + x)); }
-    if ((d.destinos || []).length) {
-      doc.setFont('helvetica', 'bold'); line('DESTINOS DEL VIAJE');
-      doc.setFont('helvetica', 'normal');
-      d.destinos.forEach(x => line('  • ' + x)); }
-    doc.setFont('helvetica', 'bold'); line('ITINERARIO');
-    doc.setFont('helvetica', 'normal');
-    const por = {};
-    (d.itinerario || []).forEach(i => { if (i.dia)
-      (por[i.dia] = por[i.dia] || []).push(i); });
-    Object.keys(por).sort((a, b) =>
-      parseInt(a.replace(/\D/g, '')) - parseInt(b.replace(/\D/g, ''))
-    ).forEach(dia => {
-      doc.setFont('helvetica', 'bold');
-      line(dia + (f.on && f.desde ? this._fDia(f.desde, dia) : ''));
-      doc.setFont('helvetica', 'normal');
-      por[dia].forEach(it => {
-        line('  ' + (it.hdesde || '') +
-          (it.hhasta ? '–' + it.hhasta + ' ' : ' ') + it.tipo +
-          (it.destino ? ' · ' + it.destino : ''));
-        if (it.ruta && it.ruta !== it.tipo) line('    ' + it.ruta);
-        if (it.verinfo && it.precio)
-          line('    ' + Itinerario.fmtT(d, it.precio) +
-            (it.modo === 'grupo' ? ' P/G' : ' P/P'));
-        if (it.lugar) line('    Lugar: ' + it.lugar);
-        if (it.desc) line('    ' + txt(it.desc));
-        if (it.adesc) line('    ' + txt(it.adesc)); }); });
-    await this._savePdf(doc,
-      'viaje_' + (d.nombre || 'viaje').replace(/\W+/g, '_') + '.pdf');
-    showToast('PDF del viaje generado');
-  },
-  _fDia(desde, dia) {
-    const n = parseInt((dia || '').replace(/\D/g, '')) || 1,
-          dd = new Date(desde + 'T00:00:00');
-    dd.setDate(dd.getDate() + n - 1);
-    return ' · ' + dd.toLocaleDateString('es-ES', { weekday: 'long',
-      day: 'numeric', month: 'long', year: 'numeric' });
-  },
-  /* imagen del viaje compuesta con sus ajustes (cover + posición + zoom) */
-  _imgFx(d) {
-    return Uploader.url(d.imagen, (d.imgfx || {}).b64, true).then(u =>
-      /^data:image/.test(u || '') ? new Promise(res => {
-        const f = Object.assign({ x: 0, y: 0, s: 100 }, d.imgfx || {}),
-              im = new Image();
-        im.onload = () => {
-          const cw = 1000, ch = 560, cv = document.createElement('canvas');
-          cv.width = cw; cv.height = ch;
-          const sc = Math.max(cw / im.width, ch / im.height) * f.s / 100,
-                w = im.width * sc, h = im.height * sc;
-          cv.getContext('2d').drawImage(im,
-            (cw - w) * (50 - f.x) / 100, (ch - h) * (50 - f.y) / 100, w, h);
-          res(cv.toDataURL('image/jpeg', .85));
-        };
-        im.onerror = () => res(null); im.src = u;
-      }) : null);
-  },
   /* guardar PDF: nativo = Filesystem(CACHE) + Share; web = descarga */
   async _savePdf(doc, nombre) {
     const FS = plugin('Filesystem'), Sh = plugin('Share');

@@ -39,12 +39,12 @@ Destinos.pagina = async function (id) {
       '">' + t + '</a>' : '';
   const sH = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem">' +
     '<i class="fa-solid ' + ic + '"></i> ' + esc(t) + '</p>';
-  const sec = [];                       /* secciones unidas por HR */
-  if (f.on && (f.desde || f.hasta)) sec.push(sH('fa-calendar-days', 'Fechas') +
+  const sec = [], info = [];            /* cards separadas por sección */
+  if (f.on && (f.desde || f.hasta)) info.push(sH('fa-calendar-days', 'Fechas') +
     fila('fa-calendar-days', '', esc(f.desde || '') +
       (f.hasta ? ' → ' + esc(f.hasta) : '')));
   if (d.aerolinea || bo.clase || bo.ai === '1' || bo.os === '1' || bo.esc === '1')
-    sec.push(sH('fa-plane', 'Aerolínea') +
+    info.push(sH('fa-plane', 'Aerolínea') +
       fila('fa-plane', '', esc(d.aerolinea || '')) +
       fila('fa-chair', 'Clase', esc(bo.clase || '')) +
       (bo.ai === '1' ? fila('fa-check', 'Asiento', 'Incluido') : '') +
@@ -58,16 +58,16 @@ Destinos.pagina = async function (id) {
         Itinerario.fmtT(d, parseFloat(bo.pb) || 0)) : '') +
       '<div class="flex gap1" style="margin-top:.3rem">' +
         lnk(d.checkin || bo.ci, 'Check-in') + '</div>');
-  if (d.trans) sec.push(sH('fa-bus', 'Transporte') +
+  if (d.trans) info.push(sH('fa-bus', 'Transporte') +
     fila('fa-bus', '', esc(d.trans.tsel === 'TRANSAVI' ? 'TRANSAVI'
       : (d.trans.tnombre || ''))) +
     fila('fa-phone', 'Teléfono', esc(d.trans.ttel || '')) +
     (d.trans.tdesc ? '<div class="pit-desc">' + d.trans.tdesc + '</div>' : ''));
-  else if (d.transporte) sec.push(sH('fa-bus', 'Transporte') +
+  else if (d.transporte) info.push(sH('fa-bus', 'Transporte') +
     fila('fa-bus', '', esc(d.transporte)));
   (d.itinerario || []).forEach(it => {
     if (it.campo) return;                /* aéreo/transporte ya salen arriba */
-    sec.push(sH(ICON[it.tipo] || 'fa-circle-check', it.tipo || 'Campo') +
+    info.push(sH(ICON[it.tipo] || 'fa-circle-check', it.tipo || 'Campo') +
       fila(ICON[it.tipo] || 'fa-circle-check', '',
         esc(it.nombre || it.ruta || '')) +
       fila('fa-phone', 'Teléfono', esc(it.tel || '')) +
@@ -79,11 +79,13 @@ Destinos.pagina = async function (id) {
         Itinerario.fmtT(d, it.precio) +
         (it.modo === 'grupo' ? ' · P/G' : ' · P/P')) : ''));
   });
-  if (d.noincluye) sec.push(sH('fa-ban', 'No incluye') + '<ul class="pit-ol">' +
+  if (d.noincluye) sec.push(sH('fa-ban', 'No incluye') +
+    '<hr class="it-hr"><ul class="pit-ol">' +
     d.noincluye.split(/[\n;]+/).map(s => s.trim())
       .filter(Boolean).map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>');
   if ((d.destinos || []).length) sec.push(sH('fa-location-dot',
-    'Destinos del viaje') + '<div class="flex" style="gap:.3rem;flex-wrap:wrap">' +
+    'Destinos del viaje') + '<hr class="it-hr">' +
+    '<div class="flex" style="gap:.3rem;flex-wrap:wrap">' +
     d.destinos.map((x, i) => '<span style="font-size:11px;padding:.15rem .55rem;' +
       'border-radius:1rem;background:' + PIL[i % 8] + '">' + esc(x) +
       '</span>').join('') + '</div>');
@@ -101,6 +103,7 @@ Destinos.pagina = async function (id) {
     return dd.toLocaleDateString('es-ES', { weekday: 'long',
       day: 'numeric', month: 'long', year: 'numeric' }); };
   if (dias.length) sec.push(sH('fa-route', 'Día a día') +
+    '<hr class="it-hr">' +
     dias.map((dia, ix) => {
       const fd = ftag(dia);
       return '<div class="pit-ev" style="--dc:' + COLS[ix % COLS.length] +
@@ -140,7 +143,7 @@ Destinos.pagina = async function (id) {
     'onclick="Destinos.togPax(this)"><i class="fa-solid fa-users"></i> Pasajeros ' +
     '<span class="hint">(' + pax.length + ')</span>' +
     '<i class="fa-solid fa-chevron-down pit-ch" style="margin-left:auto"></i></p>' +
-    '<div class="pit-pax">' +
+    '<hr class="it-hr"><div class="pit-pax">' +
     (pax.length ? '<div class="pit-pxl">' + pax.map(p =>
       '<div class="pit-px">' +
         '<span class="pit-px-i"><i class="fa-solid fa-user"></i></span>' +
@@ -157,9 +160,10 @@ Destinos.pagina = async function (id) {
           'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
           '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
       '</div>' : '') + '</div>');
-  h += '<div class="card card-pad"><p class="lbl" style="margin:.1rem 0 .4rem">' +
-    '<i class="fa-solid fa-circle-info"></i> Información del viaje</p>' +
-    sec.join('<hr class="it-hr">') + '</div>';
+  h += (info.length ? '<div class="card card-pad">' +
+    sH('fa-circle-info', 'Información del viaje') + '<hr class="it-hr">' +
+    info.join('<hr class="it-hr">') + '</div>' : '') +
+    sec.map(s => '<div class="card card-pad">' + s + '</div>').join('');
   h += '<div class="flex gap1" style="margin:.6rem 0">' +
     '<button class="btn btn-primary" style="flex:1" onclick="Exportar.pdfViaje(\'' + d.id +
     '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
@@ -169,7 +173,7 @@ Destinos.pagina = async function (id) {
   $('#pag-itin').classList.add('open');
 };
 Destinos.togPax = function (h3) {
-  const b = h3.nextElementSibling; if (!b) return;
+  const b = h3.parentElement.querySelector('.pit-pax'); if (!b) return;
   b.classList.toggle('pit-off');
   const ch = h3.querySelector('.pit-ch');
   if (ch) ch.classList.toggle('pit-ch-off');

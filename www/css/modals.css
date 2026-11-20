@@ -148,7 +148,7 @@
 
 /* wizard del formulario de viaje */
 .wstep { display:none; }
-.wstep.open { display:flex; flex-direction:column; min-height:84vh; }
+.wstep.open { display:flex; flex-direction:column; min-height:80vh; }
 .wstep-t { text-align:center; margin:.6rem 0 0; font-size:1.15rem; color:var(--slate-900); }
 .wstep-n { text-align:center; margin:.15rem 0 .9rem; font-size:.75rem; color:var(--slate-400); }
 .wstep-mid { flex:1; display:flex; flex-direction:column; justify-content:center; gap:1rem; max-width:26rem; margin:0 auto; width:100%; }
@@ -169,7 +169,7 @@
   animation:auraIn 2.6s ease-in-out infinite alternate; }
 #desc-editor:focus { border-color:var(--brand-500); background:#fff;
   box-shadow:0 0 0 3px rgba(217,119,6,.15); outline:none; }
-.wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 1.4rem; margin-top:auto; }
+.wstep-nav { display:flex; justify-content:space-between; align-items:center; gap:.6rem; padding:.9rem 0 2.2rem; margin-top:auto; }
 
 /* boton glass animado */
 .btn-glass { position:relative; overflow:hidden;

@@ -17,9 +17,6 @@ Destinos.pagina = async function (id) {
   const TG = Itinerario.totalViaje(d);
   if (TG.i) h += '<p class="pit-precio">Precio por persona<br><b>' +
     Itinerario.fmtT(d, TG.i) + '</b></p>';
-  h += '<div class="flex gap1" style="margin:.45rem 0">' +
-    '<button class="btn" onclick="Exportar.pdfViaje(\'' + d.id +
-    '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
     '<div class="pit-nota-t">' + d.notas + '</div></div>';
   const fila = (ic, l, v) =>
@@ -149,6 +146,9 @@ Destinos.pagina = async function (id) {
           'onclick="Pasajeros.quitar(\'' + p.id + '\',\'' + d.id + '\')">' +
           '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
       '</div>' : '') + '</div>';
+  h += '<div class="flex gap1" style="margin:.6rem 0">' +
+    '<button class="btn btn-primary" style="flex:1" onclick="Exportar.pdfViaje(\'' + d.id +
+    '\')"><i class="fa-solid fa-file-pdf"></i> Exportar itinerario PDF</button></div>';
   $('#pag-itin-body').innerHTML = h;
   const hero = $('#pag-itin-body .pit-hero');
   if (hero) Uploader.bindImg(hero, d);   // mismos gestos que la tarjeta
@@ -159,4 +159,13 @@ Destinos.togPax = function (h3) {
   b.classList.toggle('pit-off');
   const ch = h3.querySelector('.pit-ch');
   if (ch) ch.classList.toggle('pit-ch-off');
+};
+/* un toque en la imagen de la tarjeta abre el detalle con delay —
+   los 5 toques y la pulsación larga de Uploader ganan si llegan */
+Destinos.imgTap = function (id) {
+  const u = Uploader;
+  if (u._lp && Date.now() - u._lp < 1200) return;
+  this._imgTaps = (this._imgTaps || 0) + 1; clearTimeout(this._imgTt);
+  if (this._imgTaps >= 5) { this._imgTaps = 0; return; }
+  this._imgTt = setTimeout(() => { this._imgTaps = 0; this.detalle(id); }, 950);
 };

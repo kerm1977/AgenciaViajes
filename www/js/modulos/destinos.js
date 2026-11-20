@@ -19,11 +19,12 @@ const Destinos = {
             tv = Itinerario.totalViaje(d);
       const card = document.createElement('div');
       card.className = 'card';
-      card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between';
+      card.style.cssText = 'overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer';
+      card.addEventListener('click', e => { if (!e.target.closest('button,a,.dest-img')) this.detalle(d.id); });
       const img = /^uf:/.test(d.imagen || '') ? this.IMG_DEF : (d.imagen || this.IMG_DEF);
       card.innerHTML =
         '<div><div class="dest-img" title="5 toques: cambiar imagen · mantener: ajustes" ' +
-          'onclick="Uploader.tap5(\'' + d.id + '\')" style="cursor:pointer">' +
+          'onclick="Uploader.tap5(\'' + d.id + '\');Destinos.imgTap(\'' + d.id + '\')" style="cursor:pointer">' +
           '<img src="' + esc(img) + '" alt="" ' +
           'onerror="this.src=\'' + this.IMG_DEF + '\'">' +
           '<span class="float-badge">' + esc(d.pais || 'Viaje') + '</span></div>' +

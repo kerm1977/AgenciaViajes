@@ -114,7 +114,7 @@ const Itinerario = {
       '<div class="it-acc-head">' +
         '<button type="button" class="it-acc-btn" ' +
           'onclick="Itinerario.tog(this)">' +
-          '<span class="it-acc-t">' + esc(tipo) + '</span>' +
+          '<span class="it-acc-t" title="' + esc(tipo || '') + '">' + esc((tipo || '').length > 25 ? tipo.slice(0, 25) + '…' : tipo) + '</span>' +
           '<span class="hint it-hint"></span>' +
           '<i class="fa-solid fa-chevron-down"></i></button>' +
         '<button type="button" class="iconbtn danger" title="Quitar" ' +

@@ -18,7 +18,8 @@ const DB = {
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
       ' transporte TEXT, aerolinea TEXT, vuelo TEXT, checkin TEXT,' +
       ' checkout TEXT, boleto TEXT, trans TEXT, fechas TEXT,' +
-      ' imgfx TEXT, notas TEXT, itinerario TEXT, dias TEXT, noincluye TEXT)',
+      ' imgfx TEXT, notas TEXT, itinerario TEXT, dias TEXT, noincluye TEXT,' +
+      ' mostrarCostos INTEGER)',
     pasajeros: 'CREATE TABLE IF NOT EXISTS pasajeros (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, codigo TEXT, telefono TEXT, email TEXT,' +
       ' destinoId TEXT, asiento TEXT, checkin TEXT,' +
@@ -34,7 +35,7 @@ const DB = {
     destinos: ['pais TEXT', 'destinos TEXT',
                'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT',
                'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',
-               'imgfx TEXT', 'noincluye TEXT', 'dias TEXT'],
+               'imgfx TEXT', 'noincluye TEXT', 'dias TEXT', 'mostrarCostos INTEGER'],
     pasajeros: ['ap1 TEXT', 'ap2 TEXT', 'pasaporte TEXT', 'fijo TEXT',
                 'checkinUrl TEXT', 'contactoId TEXT',
                 'grupo TEXT', 'pais TEXT', 'lugar TEXT', 'cedula TEXT',

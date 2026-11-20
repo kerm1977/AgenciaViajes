@@ -48,7 +48,7 @@ const Destinos = {
             'class="btn btn-sm btn-soft" style="flex:1;background:var(--brand-50);color:var(--brand-700)">' +
             '<i class="fa-solid fa-square-check"></i> Check-in</a>' : '') +
           '<button class="btn btn-sm btn-soft" onclick="Destinos.detalle(\'' + d.id + '\')">' +
-            '<i class="fa-solid fa-route"></i> Itinerario</button>' +
+            '<i class="fa-solid fa-route"></i> Información</button>' +
           (puedePax && d.fechas && d.fechas.on ? '<button class="iconbtn" title="Agregar pasajeros" onclick="Destinos.paxNuevo(\'' + d.id + '\')"><i class="fa-solid fa-user-plus"></i></button>' : '') +
           (puedeEditar ? '<button class="iconbtn" onclick="Destinos.editar(\'' + d.id + '\')"><i class="fa-solid fa-pen-to-square"></i></button>' : '') + (puedeBorrar ? '<button class="iconbtn danger" onclick="Destinos.borrar(\'' + d.id + '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>';
@@ -97,7 +97,7 @@ const Destinos = {
     if (!Session.can('destinos.crear')) { showToast('Sin permiso para crear destinos', 'error'); return; }
     $('#form-destino').reset(); $('#destino-id').value = ''; $('#dest-moneda').value = 'USD';
     $('#dest-conguia').value = ''; $('#dest-singuia').value = '';
-    $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais('');
+    $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais(''); const mc = $('#dest-mostrar-costos'); if (mc) mc.checked = false;
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
     Itinerario.initPickers();
@@ -154,7 +154,7 @@ const Destinos = {
       fechas: { on: $('#dest-tiene-fechas').checked, desde: $('#dest-fdesde').value,
         hasta: $('#dest-fhasta').value },
       imagen: (prev && prev.imagen) || '', imgfx: prev ? prev.imgfx : null,
-      guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: []
+      guia: (prev && prev.guia) || '', transporte: (prev && prev.transporte) || '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: (prev && prev.notas) || '', itinerario: [], mostrarCostos: ($('#dest-mostrar-costos') || {}).checked ? 1 : 0
     };
     if (Itinerario.collectDias) obj.dias = Itinerario.collectDias();
     /* campos acordeón → propiedades del viaje; resto → itinerario */
@@ -197,7 +197,7 @@ const Destinos = {
     if (!d) return;
     $('#destino-id').value = d.id;
     $('#dest-conguia').value = d.paxConGuia || ''; $('#dest-singuia').value = d.paxSinGuia || '';
-    $('#dest-moneda').value = d.moneda || 'USD';
+    $('#dest-moneda').value = d.moneda || 'USD'; const mc = $('#dest-mostrar-costos'); if (mc) mc.checked = !!d.mostrarCostos;
     this._fillPais(d.pais || '');
     $('#dest-nombre').value = d.nombre;
     const edc = $('#desc-editor'); if (edc) edc.innerHTML = d.notas || '';

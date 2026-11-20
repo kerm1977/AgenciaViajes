@@ -19,9 +19,6 @@ Destinos.pagina = async function (id) {
     Itinerario.fmtT(d, TG.i) + '</b></p>';
   if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
     '<div class="pit-nota-t">' + d.notas + '</div></div>';
-  const fila = (ic, l, v) =>
-    '<div><p class="lbl">' + l + '</p><p class="kv bold">' +
-    '<i class="fa-solid ' + ic + '"></i> ' + v + '</p></div>';
   const f = d.fechas || {},
         ICON = { 'Guía':'fa-user-tie','Descripción / notas':'fa-note-sticky',
           'Transporte Acuático':'fa-ship','Transporte Terrestre':'fa-bus',
@@ -31,36 +28,60 @@ Destinos.pagina = async function (id) {
           'Uber / Didi / Taxi / Bus':'fa-taxi',
           'Centro Turístico / Centro Arqueológico':'fa-landmark',
           'Impuestos':'fa-file-invoice','Otros':'fa-circle-info' },
-        bo = d.boleto || {};
-  const filas =
-    (f.on && (f.desde || f.hasta)
-      ? fila('fa-calendar-days', 'Fechas', esc(f.desde || '') +
-          (f.hasta ? ' → ' + esc(f.hasta) : ''))
-      : '') +
-    (d.guia ? fila('fa-user-tie', 'Guía', esc(d.guia)) : '') +
-    (d.transporte ? fila('fa-bus', 'Transporte', esc(d.transporte)) : '') +
-    (d.aerolinea || d.vuelo
-      ? '<div><p class="lbl">Aerolínea</p><p class="kv bold">' +
-        '<i class="fa-solid fa-plane"></i> ' + esc(d.aerolinea || '') +
-        (d.vuelo ? ' · ' + esc(d.vuelo) : '') + '</p>' +
-        (d.checkin || d.checkout
-          ? '<p class="flex gap2" style="margin-top:.25rem">' +
-            (d.checkin ? '<a class="btn btn-sm btn-primary" target="_blank" href="' +
-              esc(d.checkin) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-in</a>' : '') +
-            (d.checkout ? '<a class="btn btn-sm btn-soft" target="_blank" href="' +
-              esc(d.checkout) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Check-out</a>' : '') +
-            '</p>'
-          : '') + '</div>'
-      : '') +
-    ((bo.hdesde || bo.hhasta) ? fila('fa-clock', 'Vuelo',
-      esc((bo.hdesde || '') + (bo.hhasta ? ' – ' + bo.hhasta : ''))) : '') +
-    (bo.esc === '1' ? fila('fa-plane-arrival', 'Escala',
-      esc([bo.escp, bo.escv, bo.esch, bo.esca].filter(Boolean).join(' · '))) : '') +
-    (d.itinerario || []).map(it => fila(ICON[it.tipo] || 'fa-circle-check',
-      it.tipo, esc(it.nombre || it.ruta || it.tipo))).join('');
-  if (filas) h += '<h3 class="pit-dia" style="text-align:center">' +
-    '<i class="fa-solid fa-circle-check"></i> Incluye</h3>' +
-    '<div class="grid-2 card card-pad">' + filas + '</div>';
+        bo = d.boleto || {}, MC = !!d.mostrarCostos;
+  const fila = (ic, l, v) => v ? '<p class="kv"><i class="fa-solid ' + ic +
+    '"></i> ' + (l ? '<span class="muted">' + l + ': </span>' : '') +
+    '<strong>' + v + '</strong></p>' : '';
+  const lnk = (u, t) => /^https?:/.test(u || '')
+    ? '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(u) +
+      '">' + t + '</a>' : '';
+  const fcard = (ic, t, b) => b
+    ? '<div class="card card-pad" style="margin:0 0 .6rem">' +
+      '<p class="lbl" style="margin:0 0 .3rem"><i class="fa-solid ' + ic +
+      '"></i> ' + esc(t) + '</p>' + b + '</div>' : '';
+  let cards =
+    (f.on && (f.desde || f.hasta) ? fcard('fa-calendar-days', 'Fechas',
+      fila('fa-calendar-days', '', esc(f.desde || '') +
+        (f.hasta ? ' → ' + esc(f.hasta) : ''))) : '') +
+    ((d.aerolinea || bo.clase || bo.ai === '1' || bo.os === '1' || bo.esc === '1')
+      ? fcard('fa-plane', 'Aerolínea',
+        fila('fa-plane', '', esc(d.aerolinea || '')) +
+        fila('fa-chair', 'Clase', esc(bo.clase || '')) +
+        (bo.ai === '1' ? fila('fa-check', 'Asiento', 'Incluido') : '') +
+        ((bo.hdesde || bo.hhasta) ? fila('fa-clock', 'Horario',
+          esc((bo.hdesde || '') + (bo.hhasta ? ' – ' + bo.hhasta : ''))) : '') +
+        (bo.esc === '1' ? fila('fa-plane-arrival', 'Escala',
+          esc([bo.escp, bo.escv, bo.esch, bo.esca].filter(Boolean).join(' · '))) : '') +
+        (bo.os === '1' ? fila('fa-bell-concierge', 'Otros servicios',
+          esc([bo.osv, bo.osd].filter(Boolean).join(' · ') || 'Sí')) : '') +
+        (MC && bo.pb ? fila('fa-coins', 'Precio boleto',
+          Itinerario.fmtT(d, parseFloat(bo.pb) || 0)) : '') +
+        '<div class="flex gap1" style="margin-top:.3rem">' +
+          lnk(d.checkin || bo.ci, 'Check-in') +
+          lnk(d.checkout || bo.co, 'Check-out') + '</div>') : '') +
+    (d.trans ? fcard('fa-bus', 'Transporte',
+      fila('fa-bus', '', esc(d.trans.tsel === 'TRANSAVI' ? 'TRANSAVI'
+        : (d.trans.tnombre || ''))) +
+      fila('fa-phone', 'Teléfono', esc(d.trans.ttel || '')) +
+      (d.trans.tdesc ? '<div class="pit-desc">' + d.trans.tdesc + '</div>' : ''))
+      : (d.transporte ? fcard('fa-bus', 'Transporte',
+        fila('fa-bus', '', esc(d.transporte))) : ''));
+  (d.itinerario || []).forEach(it => {
+    if (it.campo) return;                /* aéreo/transporte ya salen arriba */
+    cards += fcard(ICON[it.tipo] || 'fa-circle-check', it.tipo || 'Campo',
+      fila(ICON[it.tipo] || 'fa-circle-check', '',
+        esc(it.nombre || it.ruta || '')) +
+      fila('fa-phone', 'Teléfono', esc(it.tel || '')) +
+      fila('fa-phone', 'Tel. guía', esc(it.telGuia || '')) +
+      (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
+      '<div class="flex gap1" style="margin-top:.3rem">' +
+        lnk(it.maps, 'Maps') + lnk(it.waze, 'Waze') + '</div>' +
+      (MC && it.precio ? fila('fa-coins', 'Precio',
+        Itinerario.fmtT(d, it.precio) +
+        (it.modo === 'grupo' ? ' · P/G' : ' · P/P')) : ''));
+  });
+  if (cards) h += '<h3 class="pit-dia" style="text-align:center">' +
+    '<i class="fa-solid fa-circle-info"></i> Información del viaje</h3>' + cards;
   if (d.noincluye)
     h += '<h3 class="pit-dia" style="text-align:center">' +
       '<i class="fa-solid fa-ban"></i> No incluye</h3>' +

@@ -48,6 +48,23 @@ const DB = {
     await this.mot.open(esNativo() ? this.SCHEMA : this.TABLAS);
     if (esNativo()) await this._migrar();
     await this.semilla();
+    await this._seedPax();
+  },
+  /* siembra única: incrusta la agenda de pasajeros empaquetada en la app */
+  async _seedPax() {
+    if (localStorage.getItem('latribu_seed_pax')) return;
+    try {
+      const arr = await (await fetch('data/pasajeros_latribu.json')).json();
+      const pxs = await this.list('pasajeros'); let n = 0;
+      for (const x of arr) {
+        const hit = pxs.find(p =>
+          (x.pasaporte && p.pasaporte === x.pasaporte) ||
+          (x.cedula && p.cedula === x.cedula) || p.nombre === x.nombre);
+        if (!hit) { await this.save('pasajeros', x); n++; }
+      }
+      if (n) console.log('[seed] ' + n + ' pasajeros');
+    } catch (e) { /* sin archivo de siembra */ }
+    localStorage.setItem('latribu_seed_pax', '1');
   },
   /* ALTER TABLE idempotente: agrega columnas faltantes en DBs ya creadas */
   async _migrar() {

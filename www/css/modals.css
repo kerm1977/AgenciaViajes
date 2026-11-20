@@ -188,15 +188,16 @@
   to   { box-shadow:0 4px 26px rgba(217,119,6,.55), inset 0 1px 0 rgba(255,255,255,.65); } }
 
 /* selector de pais */
-.pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.6rem .8rem;
-  border:1px solid var(--slate-200); border-radius:.6rem; background:#fff; font-size:14px; color:var(--slate-700); }
+.pais-btn { display:flex; align-items:center; gap:.5rem; width:100%; padding:.7rem .9rem;
+  border:1px solid var(--slate-200); border-radius:.6rem; background:#fff; font-size:1.05rem; color:var(--slate-700); }
 .pais-btn:hover { border-color:var(--brand-400); color:var(--brand-700); }
 .pais-btn  { flex:1; text-align:left; }
-.pais-btn i:last-child { color:var(--slate-400); font-size:.75rem; }
+.pais-btn i:last-child { color:var(--slate-400); font-size:.95rem; }
 .pais-list { display:flex; flex-direction:column; gap:.15rem; max-height:55vh; overflow-y:auto; }
-.pais-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .7rem; border:0;
-  border-radius:.55rem; background:transparent; font-size:14.5px; color:var(--slate-800); text-align:left; }
+.pais-item { display:flex; align-items:center; gap:.8rem; padding:.7rem .8rem; border:0;
+  border-radius:.55rem; background:transparent; font-size:1.1rem; color:var(--slate-800); text-align:left; }
 .pais-item:hover { background:var(--brand-50); color:var(--brand-700); }
 .pais-item.sel { background:var(--brand-50); color:var(--brand-700); font-weight:600; }
 .pais-item.sel i { color:var(--brand-600); }
-.pais-fl { font-size:1.35rem; width:1.7rem; text-align:center; }
+.pais-fl { font-size:1.6rem; width:2rem; text-align:center; }
+#pais-buscar { font-size:1.05rem; padding:.65rem .8rem; }

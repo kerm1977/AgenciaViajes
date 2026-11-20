@@ -31,8 +31,7 @@ const Destinos = {
           esc(d.nombre) + '</h3><div class="grid gap1 mt1">' +
           (d.pais ? '<p class="kv"><i class="fa-solid fa-flag"></i> País: <strong>' +
             esc(d.pais) + '</strong></p>' : '') +
-          (lugares ? '<p class="kv"><i class="fa-solid fa-location-dot"></i> ' +
-            esc(lugares) + '</p>' : '') +
+          (lugares ? '<div class="flex" style="gap:.3rem;flex-wrap:wrap">' + (d.destinos || []).map((l, i) => '<span style="font-size:11px;padding:.15rem .55rem;border-radius:1rem;background:' + ['#fde2e4', '#dbe7ff', '#ddf1e4', '#fff1d6', '#e8dff5', '#fce8f3', '#e6f0fb', '#e2ece9'][i % 8] + '">' + esc(l) + '</span>').join('') + '</div>' : '') +
           (d.guia ? '<p class="kv"><i class="fa-solid fa-user-tie"></i> Guía: <strong>' +
             esc(d.guia) + '</strong></p>' : '') +
           (d.aerolinea ? '<p class="kv"><i class="fa-solid fa-plane"></i> ' +

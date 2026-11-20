@@ -20,7 +20,7 @@ Destinos.pagina = async function (id) {
   if (d.notas) h += '<div class="card card-pad">' +
     '<p class="lbl" style="margin:.1rem 0 .3rem;text-align:center">' +
     '<i class="fa-solid fa-note-sticky"></i> Descripción del viaje</p>' +
-    '<hr class="it-hr"><div class="pit-nota-t">' + d.notas + '</div></div>';
+    '<hr class="it-hr" style="margin-bottom:10px"><div class="pit-nota-t">' + d.notas + '</div></div>';
   const f = d.fechas || {},
         ICON = { 'Guía':'fa-user-tie','Descripción / notas':'fa-note-sticky',
           'Transporte Acuático':'fa-ship','Transporte Terrestre':'fa-bus',
@@ -85,11 +85,11 @@ Destinos.pagina = async function (id) {
         (it.modo === 'grupo' ? ' · P/G' : ' · P/P')) : ''));
   });
   if (d.noincluye) sec.push(sH('fa-ban', 'No incluye') +
-    '<hr class="it-hr"><ul class="pit-ol">' +
+    '<hr class="it-hr" style="margin-bottom:10px"><ul class="pit-ol">' +
     d.noincluye.split(/[\n;]+/).map(s => s.trim())
       .filter(Boolean).map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>');
   if ((d.destinos || []).length) sec.push(sH('fa-location-dot',
-    'Destinos del viaje') + '<hr class="it-hr">' +
+    'Destinos del viaje') + '<hr class="it-hr" style="margin-bottom:10px">' +
     '<div class="flex" style="gap:.3rem;flex-wrap:wrap">' +
     d.destinos.map((x, i) => '<span style="font-size:11px;padding:.15rem .55rem;' +
       'border-radius:1rem;background:' + PIL[i % 8] + '">' + esc(x) +
@@ -108,7 +108,7 @@ Destinos.pagina = async function (id) {
     return dd.toLocaleDateString('es-ES', { weekday: 'long',
       day: 'numeric', month: 'long', year: 'numeric' }); };
   if (dias.length) sec.push(sH('fa-route', 'Día a día') +
-    '<hr class="it-hr">' +
+    '<hr class="it-hr" style="margin-bottom:10px">' +
     dias.map((dia, ix) => {
       const fd = ftag(dia);
       return '<div class="pit-ev" style="--dc:' + COLS[ix % COLS.length] +
@@ -148,7 +148,7 @@ Destinos.pagina = async function (id) {
     'onclick="Destinos.togPax(this)"><i class="fa-solid fa-users"></i> Pasajeros ' +
     '<span class="hint">(' + pax.length + ')</span>' +
     '<i class="fa-solid fa-chevron-down pit-ch" style="margin-left:auto"></i></p>' +
-    '<hr class="it-hr"><div class="pit-pax">' +
+    '<hr class="it-hr" style="margin-bottom:10px"><div class="pit-pax">' +
     (pax.length ? '<div class="pit-pxl">' + pax.map(p =>
       '<div class="pit-px">' +
         '<span class="pit-px-i"><i class="fa-solid fa-user"></i></span>' +
@@ -166,8 +166,8 @@ Destinos.pagina = async function (id) {
           '<i class="fa-solid fa-xmark"></i></button></div>').join('') +
       '</div>' : '') + '</div>');
   h += (info.length ? '<div class="card card-pad">' +
-    sH('fa-circle-info', 'Información del viaje') + '<hr class="it-hr">' +
-    info.join('<hr class="it-hr">') + '</div>' : '') +
+    sH('fa-circle-info', 'Información del viaje') + '<hr class="it-hr" style="margin-bottom:10px">' +
+    info.join('<hr class="it-hr" style="margin-bottom:10px">') + '</div>' : '') +
     sec.map(s => '<div class="card card-pad">' + s + '</div>').join('');
   h += '<div class="flex gap1" style="margin:.6rem 0">' +
     '<button class="btn btn-primary" style="flex:1" onclick="Exportar.pdfViaje(\'' + d.id +

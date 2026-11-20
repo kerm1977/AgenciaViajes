@@ -24,8 +24,8 @@ const Itinerario = {
   },
   pax() { return parseInt((($('#dest-conguia') || {}).value) || '0') || 0; }, paxS() { return parseInt((($('#dest-singuia') || {}).value) || '0') || 0; },
   async vi(chk) { if (chk.checked && (!(await confirmar('¿Mostrar teléfono y monto en el itinerario público?')) || !(await confirmar('¿Seguro? Lo verán todas las personas.')))) chk.checked = false; },
-  _wys(d) { const bt = b => '<button type="button" class="wys-b" title="' + b[1] + '" onmousedown="event.preventDefault()" onclick="WYS.cmdAt(this,\'' + b[0] + (b[2] || '') + '\')"><i class="fa-solid ' + b[3] + '"></i></button>';
-    return '<div class="wys-bar">' + [['bold','Negrita','','fa-bold'], ['underline','Subrayado','','fa-underline'], ['insertUnorderedList','Viñetas','','fa-list-ul'], ['insertOrderedList','Lista ordenada','','fa-list-ol'], ['formatBlock','Cita',",'blockquote'",'fa-quote-left']].map(bt).join('') +
+  _wys(d) { const bt = b => '<button type="button" class="wys-b" title="' + b[1] + '" onmousedown="event.preventDefault()" onclick="WYS.cmdAt(this,\'' + b[0] + '\'' + (b[2] ? ',\'' + b[2] + '\'' : '') + ')"><i class="fa-solid ' + b[3] + '"></i></button>';
+    return '<div class="wys-bar">' + [['bold','Negrita','','fa-bold'], ['underline','Subrayado','','fa-underline'], ['insertUnorderedList','Viñetas','','fa-list-ul'], ['insertOrderedList','Lista ordenada','','fa-list-ol'], ['formatBlock','Cita','blockquote','fa-quote-left']].map(bt).join('') +
       '</div><div class="wys-edit it-desc" contenteditable="true">' + (d || '') + '</div>'; },
   _fmt(n) { const s = (($('#dest-moneda') || {}).value === 'CRC') ? '₡' : '$';
     return s + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },

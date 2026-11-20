@@ -59,12 +59,19 @@ Object.assign(Itinerario, {
             : '<div class="multi-item"><span class="grupo">Sin campos libres' +
               '</span></div>') + '</div></div></div>';
     const td = top.querySelector('.it-dia');
+    if (this._topDia) td.value = this._topDia;
+    td.addEventListener('change', () => { this._topDia = td.value; });
     top.querySelectorAll('.multi-panel input').forEach(cb =>
       cb.addEventListener('change', () => {
         if (!cb.checked) return;
+        this._reopen = true;
         cards[+cb.value].dataset.dia = td.value || 'Día 1';
         this.syncItin(); }));
     c.appendChild(top);
+    if (this._reopen) {
+      this._reopen = false;
+      const m = top.querySelector('.multi');
+      if (m) m.classList.add('open'); }
     /* filas asignadas: día + selector de campo + horas + guía + X */
     cards.filter(k => k.dataset.dia).forEach(card => {
       const row = document.createElement('div');

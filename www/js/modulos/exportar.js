@@ -159,6 +159,7 @@ const Exportar = {
         if (it.verinfo && it.precio)
           line('    ' + Itinerario.fmtT(d, it.precio) +
             (it.modo === 'grupo' ? ' P/G' : ' P/P'));
+        if (it.lugar) line('    Lugar: ' + it.lugar);
         if (it.guia) line('    Guía: ' + it.guia);
         if (it.desc) line('    ' + txt(it.desc));
         if (it.adesc) line('    ' + txt(it.adesc)); }); });

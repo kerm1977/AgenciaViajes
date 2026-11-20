@@ -26,8 +26,10 @@ Object.assign(Itinerario, {
   async syncItin() {
     const c = $('#itinerary-container'); if (!c) return;
     const n = (this._sN = (this._sN || 0) + 1);
-    const guias = ((await DB.list('contactos')) || [])
-      .filter(x => x.tipo === 'Guía').map(x => x.nombre);
+    const guias = $$('#destinos-lista-container .dst-item')
+      .map(x => ((x.value !== undefined ? x.value
+        : (x.querySelector('input') || {}).value) || '').trim())
+      .filter(Boolean);
     if (n !== this._sN) return;
     c.innerHTML = '';
     const cards = $$('#it-general .it-acc'),
@@ -74,10 +76,10 @@ Object.assign(Itinerario, {
             (card.dataset.hhasta ? ' checked' : '') + '> Requiere fin</label>' +
           '<input type="time" class="input it-hh" style="flex:0 0 5rem" title="Hora de llegada"' +
             (card.dataset.hhasta ? '' : ' hidden') + '>' +
-          '<select class="select it-guia" style="flex:1"></select></div>' +
+          '<select class="select it-guia" style="flex:1"></select></div>' /* lugares */ +
         this._wys(card.dataset.adesc);
       const d = row.querySelector('.it-dia'), p = row.querySelector('.it-pick'),
-            g = row.querySelector('.it-guia'), gs = card.dataset.guia || '';
+            g = row.querySelector('.it-guia'), gs = card.dataset.lugar || '';
       const ad = row.querySelector('.it-desc');
       if (ad) ad.addEventListener('input', () => {
         card.dataset.adesc = ad.innerHTML; });
@@ -86,7 +88,7 @@ Object.assign(Itinerario, {
       p.addEventListener('change', () => {
         const nc = cards[+p.value];
         if (!nc || nc === card) return;
-        ['dia','hdesde','hhasta','guia','adesc'].forEach(k => delete card.dataset[k]);
+        ['dia','hdesde','hhasta','guia','lugar','adesc'].forEach(k => delete card.dataset[k]);
         nc.dataset.dia = d.value; this.syncItin(); });
       [['hd','hdesde','rh'],['hh','hhasta','rf']].forEach(([cl, k, ck]) => {
         const i = row.querySelector('.it-' + cl),
@@ -97,11 +99,11 @@ Object.assign(Itinerario, {
           i.hidden = !ckb.checked;
           if (!ckb.checked) { i.value = ''; delete card.dataset[k]; }
           else i.focus(); }); });
-      g.innerHTML = '<option value="">— Guía —</option>' +
+      g.innerHTML = '<option value="">— Lugar —</option>' +
         guias.concat(gs && !guias.includes(gs) ? [gs] : [])
           .map(n => '<option>' + esc(n) + '</option>').join('');
       g.value = gs;
-      g.addEventListener('change', () => { card.dataset.guia = g.value; });
+      g.addEventListener('change', () => { card.dataset.lugar = g.value; });
       c.appendChild(row);
     });
   },

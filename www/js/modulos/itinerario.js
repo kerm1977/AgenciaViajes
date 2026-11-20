@@ -108,7 +108,7 @@ const Itinerario = {
     const card = document.createElement('div');
     card.className = 'it-acc it-card open'; card.id = rid;
     card.dataset.tipo = tipo || 'Parada';
-    ['dia','hdesde','hhasta','guia','adesc'].forEach(k => {
+    ['dia','hdesde','hhasta','guia','lugar','adesc'].forEach(k => {
       const v = x[k] || (k === 'dia' ? dia : '');
       if (v) card.dataset[k] = v; });
     const head =
@@ -210,7 +210,7 @@ const Itinerario = {
           ? { campo: card.dataset.tipo,
               valor: card.querySelector('.it-campo').value.trim() }
           : leer(card, '');
-      ['dia','hdesde','hhasta','guia','adesc'].forEach(k => {
+      ['dia','hdesde','hhasta','guia','lugar','adesc'].forEach(k => {
         o[k] = card.dataset[k] || ''; });
       it.push(o); });
     return it;

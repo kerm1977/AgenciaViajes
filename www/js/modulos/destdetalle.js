@@ -92,44 +92,45 @@ Destinos.pagina = async function (id) {
     ? '<h3 class="pit-dia"><i class="fa-solid fa-route"></i> Itinerario</h3>'
     : '';
   dias.forEach(dia => {
-    h += '<h3 class="pit-dia"><i class="fa-solid fa-calendar-day"></i> ' +
-      esc(dia) + esc(ftag(dia)) + '</h3>';
-    porDia[dia].forEach(it => {
-      const q = encodeURIComponent(
-        [it.destino, d.pais].filter(Boolean).join(', '));
-      const esUrl = /^https?:/.test(it.maps || '');
-      const waze = esUrl ? it.maps : it.maps
-        ? 'https://waze.com/ul?q=' + encodeURIComponent(it.maps)
-        : 'https://waze.com/ul?q=' + q;
-      const gmaps = esUrl ? it.maps : it.maps ||
-        ('https://www.google.com/maps/search/?api=1&query=' + q);
-      h += '<div class="pit-ev">' +
-        '<p class="pit-ev-t"><i class="fa-solid fa-ticket"></i> ' +
+    h += '<div class="pit-ev"><p class="pit-ev-t">' +
+      '<i class="fa-solid fa-calendar-day"></i> ' + esc(dia) +
+      esc(ftag(dia)) + '</p><div class="pit-tk-dash"></div>' +
+      porDia[dia].map(it => {
+        const q = encodeURIComponent(
+          [it.destino, d.pais].filter(Boolean).join(', '));
+        const esUrl = /^https?:/.test(it.maps || '');
+        const waze = esUrl ? it.maps : it.maps
+          ? 'https://waze.com/ul?q=' + encodeURIComponent(it.maps)
+          : 'https://waze.com/ul?q=' + q;
+        const gmaps = esUrl ? it.maps : it.maps ||
+          ('https://www.google.com/maps/search/?api=1&query=' + q);
+        return '<p class="pit-ev-t"><i class="fa-solid fa-ticket"></i> ' +
           esc(it.tipo) +
           (it.destino ? ' <span class="hint">· ' + esc(it.destino) + '</span>' : '') +
           '</p>' +
-        ((it.hdesde || it.hhasta) ? '<p class="pit-tk-time">' +
-          esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
-          '</p>' : '') +
-        '<div class="pit-tk-dash"></div>' +
-        (it.ruta && it.ruta !== it.tipo ? '<p>' + esc(it.ruta) + '</p>' : '') +
-        (it.nombre ? '<p><i class="fa-solid fa-user"></i> ' + esc(it.nombre) + '</p>' : '') +
-        (it.verinfo && it.tel ? '<p><i class="fa-solid fa-phone"></i> ' + esc(it.tel) + '</p>' : '') +
-        (it.verinfo && it.telGuia ? '<p><i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + '</p>' : '') +
-        (it.verinfo && it.precio ? '<p><i class="fa-solid fa-coins"></i> ' +
-          Itinerario.fmtT(d, it.precio) +
-          (it.modo === 'grupo' ? ' · P/G' : ' · P/P') + '</p>' : '') +
-        (it.guia ? '<p><i class="fa-solid fa-user-check"></i> Guía: ' +
-          esc(it.guia) + '</p>' : '') +
-        (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
-        (it.adesc ? '<div class="pit-desc">' + it.adesc + '</div>' : '') +
-        '<div class="flex gap1" style="margin-top:.4rem">' +
-          '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(gmaps) +
-            '"><i class="fa-solid fa-map"></i> Maps</a>' +
-          '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(waze) +
-            '"><i class="fa-solid fa-diamond-turn-right"></i> Waze</a>' +
-        '</div></div>';
-    });
+          ((it.hdesde || it.hhasta) ? '<p class="pit-tk-time">' +
+            esc(it.hdesde || '') + (it.hhasta ? ' – ' + esc(it.hhasta) : '') +
+            '</p>' : '') +
+          (it.ruta && it.ruta !== it.tipo ? '<p>' + esc(it.ruta) + '</p>' : '') +
+          (it.nombre ? '<p><i class="fa-solid fa-user"></i> ' + esc(it.nombre) + '</p>' : '') +
+          (it.lugar ? '<p><i class="fa-solid fa-location-dot"></i> ' +
+            esc(it.lugar) + '</p>' : '') +
+          (it.verinfo && it.tel ? '<p><i class="fa-solid fa-phone"></i> ' + esc(it.tel) + '</p>' : '') +
+          (it.verinfo && it.telGuia ? '<p><i class="fa-solid fa-user-tie"></i> ' + esc(it.telGuia) + '</p>' : '') +
+          (it.verinfo && it.precio ? '<p><i class="fa-solid fa-coins"></i> ' +
+            Itinerario.fmtT(d, it.precio) +
+            (it.modo === 'grupo' ? ' · P/G' : ' · P/P') + '</p>' : '') +
+          (it.guia ? '<p><i class="fa-solid fa-user-check"></i> Guía: ' +
+            esc(it.guia) + '</p>' : '') +
+          (it.desc ? '<div class="pit-desc">' + it.desc + '</div>' : '') +
+          (it.adesc ? '<div class="pit-desc">' + it.adesc + '</div>' : '') +
+          '<div class="flex gap1" style="margin-top:.4rem">' +
+            '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(gmaps) +
+              '"><i class="fa-solid fa-map"></i> Maps</a>' +
+            '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(waze) +
+              '"><i class="fa-solid fa-diamond-turn-right"></i> Waze</a>' +
+          '</div>';
+      }).join('<div class="pit-tk-dash"></div>') + '</div>';
   });
   const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id)
     .sort((a, b) => a.nombre.localeCompare(b.nombre));

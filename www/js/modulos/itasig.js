@@ -80,11 +80,14 @@ Object.assign(Itinerario, {
       if (!ds.desc) { const a = mine.map(k => k.dataset.adesc).find(Boolean);
         if (a) ds.desc = a; }
       const day = document.createElement('div');
-      day.className = 'it-card it-day'; day.dataset.dia = dia;
+      day.className = 'it-card it-day' +
+        (dia === (this._openDay || 'Día 1') ? ' open' : '');
+      day.dataset.dia = dia;
       day.innerHTML =
         '<div class="it-day-h"><b>' + dia + '</b>' +
-          (fecha ? '<span class="it-day-f">' + fecha + '</span>' : '') + '</div>' +
-        this._wys(ds.desc) +
+          (fecha ? '<span class="it-day-f">' + fecha + '</span>' : '') +
+          '<i class="fa-solid fa-chevron-down muted it-day-c"></i></div>' +
+        '<div class="it-day-b">' + this._wys(ds.desc) +
         multi('— Asignar campos —', free.length ? free.map(k =>
           '<label class="multi-item"><input type="checkbox" class="it-cc" ' +
           'value="' + cards.indexOf(k) + '"> ' + titulo(k) + '</label>').join('')
@@ -99,19 +102,23 @@ Object.assign(Itinerario, {
             '</span></div>') +
         '<div class="it-lugs">' + ds.lugares.map(t =>
           '<span class="it-lug">' + esc(t) + '</span>').join('') + '</div>' +
-        '<div class="it-items"></div>';
+        '<div class="it-items"></div></div>';
       c.appendChild(day);
+      day.querySelector('.it-day-h').addEventListener('click', () => {
+        this._openDay = this._openDay === dia ? null : dia;
+        $$('#itinerary-container .it-day').forEach(b =>
+          b.classList.toggle('open', b.dataset.dia === this._openDay)); });
       const ed = day.querySelector('.it-desc');
       if (ed) ed.addEventListener('input', () => { ds.desc = ed.innerHTML; });
       day.querySelectorAll('.it-cc').forEach(cb =>
         cb.addEventListener('change', () => { if (!cb.checked) return;
-          this._reopen = dia + '|0';
+          this._openDay = dia; this._reopen = dia + '|0';
           cards[+cb.value].dataset.dia = dia; this.syncItin(); }));
       day.querySelectorAll('.it-lc').forEach(cb =>
         cb.addEventListener('change', () => {
           ds.lugares = $$('.it-lc', day).filter(x => x.checked)
             .map(x => x.value);
-          this._reopen = dia + '|1'; this.syncItin(); }));
+          this._openDay = dia; this._reopen = dia + '|1'; this.syncItin(); }));
       const items = day.querySelector('.it-items');
       mine.forEach(card => {
         const row = document.createElement('div');

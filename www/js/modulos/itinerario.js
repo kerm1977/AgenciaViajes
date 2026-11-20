@@ -143,38 +143,29 @@ const Itinerario = {
       esc(stripCod(v)) + '" class="input ' + cls + '"></div></div>';
     const inp = (lab, t, cls, v) => this._l(lab, '<input type="' + t +
       '" value="' + esc(v || '') + '" class="input ' + cls + '">');
-    const transp = /^Transporte\s/.test(tipo || '');
     const costos = '<hr class="it-hr"><div class="grid-2">' +
-        this._l(transp ? 'Monto' : 'Precio del servicio',
-          '<input type="number" min="0" step="1" value="' +
+        this._l('Precio del servicio', '<input type="number" min="0" step="1" value="' +
           esc(x.precio || '') + '" class="input it-precio">', 'fl-p') +
         this._l('Cobro', '<select class="select it-modo">' +
-          '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') +
-            '>' + (transp ? 'P/P — por persona' : 'Por persona') + '</option>' +
-          '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') +
-            '>' + (transp ? 'P/G — por grupo' : 'Por grupo') +
-            '</option></select>') + '</div>' +
+          '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') + '>Por persona</option>' +
+          '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') + '>Por grupo</option></select>') + '</div>' +
       '<p class="it-total hint"></p>' +
       '<label class="it-vi"><input type="checkbox" class="it-verinfo"' +
         (x.verinfo ? ' checked' : '') +
         ' onchange="Itinerario.vi(this)"> Ver información</label></div>';
     card.innerHTML = head + '<div class="it-acc-body">' +
-      (transp
-        ? inp('Nombre del transporte', 'text', 'it-nombre', x.nombre) +
-          tel('it-tela', 'Tel. del contacto', x.tel) +
-          inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
-          this._l('Descripción', this._wys(x.desc))
-        : (tipo === 'Entradas' && this.entradasCard ? this.entradasCard(ruta, x)
-          : inp('Detalle (Ej. llegada hotel)', 'text', 'it-ruta', ruta) +
+      (tipo === 'Uber / Didi / Taxi / Bus' || !this.entradasCard
+        ? inp('Detalle (Ej. llegada hotel)', 'text', 'it-ruta', ruta) +
           inp('Guía / Agencia / Tour operador', 'text', 'it-nombre', x.nombre) +
           '<div class="grid-2">' + tel('it-tela', 'Tel. agencia', x.tel) +
             tel('it-telg', 'Tel. guía', x.telGuia) + '</div>' +
           inp('Enlace Google Maps / Waze', 'url', 'it-maps', x.maps) +
-          this._l('Descripción', this._wys(x.desc)))) + costos;
+          this._l('Descripción', this._wys(x.desc))
+        : this.entradasCard(ruta, x)) + costos;
     c.appendChild(card);
     if (window.wireNormalizadores) wireNormalizadores(card);
     ['input','change'].forEach(t => card.addEventListener(t, () => this._calc(card)));
-    if (tipo === 'Entradas') ['.it-cmap', '.it-cwaz'].forEach(s => {
+    ['.it-cmap', '.it-cwaz'].forEach(s => {
       const i = card.querySelector(s); if (!i) return;
       i.addEventListener('change', () =>
         card.querySelector(s === '.it-cmap' ? '.it-maps' : '.it-waze')

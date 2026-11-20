@@ -210,3 +210,6 @@ label.lbl {
 .pit-ol li { margin:.15rem 0; }
 .pit-x { padding:0 .3rem; font-size:11px; }
 .pit-nota-t { display:inline; }
+.it-gtotal, .pit-total { font-size:13px; font-weight:700; color:var(--slate-800);
+  text-align:right; margin:.4rem 0 0; }
+.pit-total { font-size:14px; }

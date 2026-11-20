@@ -142,6 +142,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
     } else h = '<b>Total: ' + sim() + con.toFixed(2) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
     hint.textContent = sim() + con.toFixed(2);
+    if (Itinerario._gtotal) Itinerario._gtotal();
   };
   card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G
   const pintar = () => {

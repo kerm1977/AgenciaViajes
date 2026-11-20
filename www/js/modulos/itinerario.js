@@ -236,3 +236,4 @@ const Itinerario = {
       T += con * (cg || 1); I += sg ? con * cg / sg : con; }
     return { t: T, i: I }; }
 };
+window.Itinerario = Itinerario;   /* guards window.Itinerario en otros módulos */

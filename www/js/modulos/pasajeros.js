@@ -246,4 +246,4 @@ const Pasajeros = {
         p.destinoId = ''; await DB.save('pasajeros', p); }
   }
 };
-Router.ON_TAB.pasajeros = () => Pasajeros.render();
+Router.ON_TAB.pasajeros = () => Pasajeros.render(); window.Pasajeros = Pasajeros;

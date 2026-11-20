@@ -158,8 +158,8 @@ const Destinos = {
       destinos: dests,
       fechas: { on: $('#dest-tiene-fechas').checked,
         desde: $('#dest-fdesde').value, hasta: $('#dest-fhasta').value },
-      imagen: (prev && prev.imagen) || '', guia: '', transporte: '', aerolinea: '', vuelo: '',
-      checkin: '', checkout: '', notas: '', itinerario: []
+      imagen: (prev && prev.imagen) || '', imgfx: prev ? prev.imgfx : null,
+      guia: '', transporte: '', aerolinea: '', vuelo: '', checkin: '', checkout: '', notas: '', itinerario: []
     };
     /* campos acordeón → propiedades del viaje; resto → itinerario */
     Itinerario.collect().forEach(i => {

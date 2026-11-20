@@ -16,11 +16,11 @@ Object.assign(Destinos, {
     const p = (await DB.list('pasajeros'))
       .find(x => x.id === id || x.contactoId === id);
     if (!p) return showToast('Guarda el viaje para crear su ficha', 'error');
-    closeModal('modal-destino');
+    $('#pag-destino').classList.remove('open');
     await Router.switchTab('pasajeros'); Pasajeros.editar(p.id);
   },
   async paxNuevo() {
-    closeModal('modal-destino');
+    $('#pag-destino').classList.remove('open');
     await Router.switchTab('pasajeros'); Pasajeros.nuevo();
   },
   paxDel(cid) {

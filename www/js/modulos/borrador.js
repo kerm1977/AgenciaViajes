@@ -11,6 +11,11 @@ const Borrador = {
       try {
         if (!$('#form-destino')) return;
         const d = {
+          editId: ($('#destino-id') || {}).value || '',
+          noincluye: ($('#dest-noincluye') || {}).value || '',
+          desc: ($('#desc-editor') || {}).innerHTML || '',
+          paxSel: (window.Destinos && Destinos._paxSel) || [],
+          paxLibres: (window.Destinos && Destinos._paxLibres) || [],
           conguia: $('#dest-conguia').value,
           singuia: $('#dest-singuia').value,
           moneda: $('#dest-moneda').value,
@@ -43,6 +48,11 @@ const Borrador = {
     $('#dest-fdesde').value = f.desde || '';
     $('#dest-fhasta').value = f.hasta || '';
     if (window.Destinos) Destinos.togFechas();
+    const ni = $('#dest-noincluye'); if (ni) ni.value = d.noincluye || '';
+    const ed2 = $('#desc-editor'); if (ed2) ed2.innerHTML = d.desc || '';
+    if (window.Destinos) { Destinos._paxSel = d.paxSel || [];
+      Destinos._paxLibres = d.paxLibres || [];
+      if (Destinos.paxRender) Destinos.paxRender(); }
     const dc = $('#destinos-lista-container'); dc.innerHTML = '';
     (d.destinos && d.destinos.length ? d.destinos : [null])
       .forEach(n => Destinos.addDestino(n));
@@ -64,7 +74,7 @@ const Borrador = {
     if (!await confirmar('¿Seguro? Esta acción NO se puede deshacer: ' +
         'los datos escritos se borran.')) return;
     this.clear();
-    closeModal('modal-destino');
+    const pg = $('#pag-destino'); if (pg) pg.classList.remove('open');
   }
 };
 /* autoguardado: cualquier tecla, cambio u opción del selector-modal dentro

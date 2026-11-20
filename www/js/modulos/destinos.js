@@ -100,11 +100,12 @@ const Destinos = {
     $('#dest-tiene-fechas').checked = false; this.togFechas(); this._fillPais('');
     $('#destinos-lista-container').innerHTML = '';
     $('#itinerary-container').innerHTML = ''; $('#it-general').innerHTML = '';
-    Itinerario.initPickers(); Borrador.clear(); // nuevo = desde cero
+    Itinerario.initPickers();
     this.paxReset && this.paxReset();  const edn = $('#desc-editor'); if (edn) edn.innerHTML = '';
     this.addDestino();
     $('#modal-destino-title').textContent = 'Crear Nuevo Destino y Viaje'; this._capRes();
-    openModal('modal-destino'); this.togFechas();
+    $('#pag-destino').classList.add('open'); this.togFechas();
+    const dr = Borrador.get(); if (dr && !dr.editId) Borrador.restore(dr);
   },
   _capRes() {
     const r = $('#cap-acc-res'); if (!r) return;
@@ -180,7 +181,7 @@ const Destinos = {
     await DB.save('destinos', obj); if (window.Pasajeros && Pasajeros.syncViaje)
       await Pasajeros.syncViaje(obj.id, this._paxSel || []);
     Borrador.clear();
-    closeModal('modal-destino');
+    $('#pag-destino').classList.remove('open');
     showToast(id ? 'Destino actualizado' : 'Destino creado');
     this.render();
   },
@@ -216,8 +217,9 @@ const Destinos = {
       this.addItRow(it.destino, it.dia, it.tipo || 'Llegada y traslado', it.ruta, it, 1); });
     Itinerario.refresh();
     $('#modal-destino-title').textContent = 'Editar Destino y Viaje';
-    openModal('modal-destino');
-    this.paxCargar && this.paxCargar(id);
+    $('#pag-destino').classList.add('open');
+    if (this.paxCargar) await this.paxCargar(id);
+    const dr = Borrador.get(); if (dr && dr.editId === id) Borrador.restore(dr);
   },
   async borrar(id) {
     if (!Session.can('destinos.eliminar')) {

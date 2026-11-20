@@ -10,14 +10,17 @@
 </div>
 <div id="destinos-grid" class="grid-cards"></div>
 
-<!-- Modal: crear/editar destino -->
-<div id="modal-destino" class="modal">
-  <div class="modal-box lg">
-    <div class="modal-head">
-      <h3 id="modal-destino-title">Crear Nuevo Destino y Viaje</h3>
-      <button class="modal-x" onclick="closeModal('modal-destino')"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <form id="form-destino" class="modal-body" onsubmit="Destinos.guardar(event)" novalidate>
+<!-- Página completa: crear/editar destino y viaje -->
+<div id="pag-destino" class="pag-itin">
+  <div class="pag-top">
+    <button type="button" class="iconbtn" onclick="Destinos.cancelar()">
+      <i class="fa-solid fa-arrow-left"></i></button>
+    <h2 id="modal-destino-title" style="margin:0;font-size:1.05rem;flex:1">Crear Nuevo Destino y Viaje</h2>
+    <button type="submit" form="form-destino" class="btn btn-primary btn-sm">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+  </div>
+  <div class="pag-itin-body"><div style="max-width:52rem;margin:0 auto">
+    <form id="form-destino" onsubmit="Destinos.guardar(event)" novalidate>
       <input type="hidden" id="destino-id">
       <div class="it-acc cap-acc" id="cap-acc">
         <div class="it-acc-head">
@@ -157,11 +160,11 @@
         <textarea id="dest-noincluye" class="input" rows="3"
           placeholder="Ej. Propinas, bebidas alcohólicas, impuestos de salida… (una por línea)"></textarea>
       </div>
-      <div class="modal-foot" style="padding-left:0;padding-right:0">
+      <div class="flex gap2" style="justify-content:flex-end;padding:.8rem 0 2.5rem">
         <button type="button" class="btn btn-soft" onclick="Destinos.cancelar()">Cancelar</button>
         <button type="submit" class="btn btn-primary">Guardar Destino</button>
       </div>
-    </form>
+    </form></div>
   </div>
 </div>
 

@@ -112,7 +112,7 @@ const Destinos = {
     const on = $('#dest-tiene-fechas').checked;
     $$('#dest-fechas-wrap').forEach(w => w.style.display = on ? 'grid' : 'none');
     const fn = $('#f-nombre'); if (fn) fn.style.marginTop = on ? '0' : '2.4rem';
-    this._fechasTxt(); },
+    this._fechasTxt(); const st = $('#dest-save-top'); if (st) st.style.display = this._paso === 8 ? '' : 'none'; },
   _fechasTxt() {
     const t = id => { const v = ($(id) || {}).value; if (!v) return ''; const d = new Date(v + 'T00:00:00');
       return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); };
@@ -125,9 +125,9 @@ const Destinos = {
         (!$('#dest-fdesde').value || !$('#dest-fhasta').value)) {
       aviso('No podés dejar los campos de fechas vacíos, tenés que llenarlos.', 'Fechas del viaje');
       return; }
+    if (!$('#dest-tiene-fechas').checked && (n === 6 || n === 7)) n = n === 7 ? 5 : 8;
     n = Math.max(1, Math.min(ss.length, n)); this._paso = n;
-    ss.forEach((s, i) => s.classList.toggle('open', i === n - 1));
-    this.togFechas();
+    ss.forEach((s, i) => s.classList.toggle('open', i === n - 1)); this.togFechas();
     if (n === 5 && window.Itinerario && Itinerario.initPickers)
       Itinerario.initPickers();
     const ts = $('#pag-ota-ts'); if (ts) ts.textContent = window.TM_OTA ? 'OTA ' + TM_OTA.ts : '';

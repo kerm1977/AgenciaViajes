@@ -17,8 +17,10 @@ Destinos.pagina = async function (id) {
   const TG = Itinerario.totalViaje(d);
   if (TG.i) h += '<p class="pit-precio">Precio por persona<br><b>' +
     Itinerario.fmtT(d, TG.i) + '</b></p>';
-  if (d.notas) h += '<div class="pit-nota"><i class="fa-solid fa-note-sticky"></i> ' +
-    '<div class="pit-nota-t">' + d.notas + '</div></div>';
+  if (d.notas) h += '<div class="card card-pad">' +
+    '<p class="lbl" style="margin:.1rem 0 .3rem;text-align:center">' +
+    '<i class="fa-solid fa-note-sticky"></i> Descripción del viaje</p>' +
+    '<hr class="it-hr"><div class="pit-nota-t">' + d.notas + '</div></div>';
   const f = d.fechas || {},
         ICON = { 'Guía':'fa-user-tie','Descripción / notas':'fa-note-sticky',
           'Transporte Acuático':'fa-ship','Transporte Terrestre':'fa-bus',
@@ -37,7 +39,7 @@ Destinos.pagina = async function (id) {
   const lnk = (u, t) => /^https?:/.test(u || '')
     ? '<a class="btn btn-sm btn-soft" target="_blank" href="' + esc(u) +
       '">' + t + '</a>' : '';
-  const sH = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem">' +
+  const sH = (ic, t) => '<p class="lbl" style="margin:.1rem 0 .3rem;text-align:center">' +
     '<i class="fa-solid ' + ic + '"></i> ' + esc(t) + '</p>';
   const sec = [], info = [];            /* cards separadas por sección */
   if (f.on && (f.desde || f.hasta)) info.push(sH('fa-calendar-days', 'Fechas') +
@@ -139,7 +141,7 @@ Destinos.pagina = async function (id) {
     }).join(''));
   const pax = (await DB.list('pasajeros')).filter(p => p.destinoId === d.id)
     .sort((a, b) => a.nombre.localeCompare(b.nombre));
-  sec.push('<p class="lbl pit-tog" style="margin:.1rem 0 .3rem;cursor:pointer" ' +
+  sec.push('<p class="lbl pit-tog" style="margin:.1rem 0 .3rem;cursor:pointer;text-align:center;justify-content:center" ' +
     'onclick="Destinos.togPax(this)"><i class="fa-solid fa-users"></i> Pasajeros ' +
     '<span class="hint">(' + pax.length + ')</span>' +
     '<i class="fa-solid fa-chevron-down pit-ch" style="margin-left:auto"></i></p>' +

@@ -51,13 +51,14 @@ const Itinerario = {
       if (ns) h += ' ÷ ' + ns + ' S/G = ' +
         this._fmt(precio / ns) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(precio) + '</b>';
-    } else {                         /* P/P: precio × C/G, repartido entre S/G */
-      const T = precio * n;
+    } else {                         /* P/P: precio × C/G, repartido entre S/G,
+                                        ese c/u cobrado a TODOS (× C/G) */
+      const T = precio * n,
+            cu = ns ? Math.round(T / ns) : precio;
       let h = '<hr class="it-hr">P/P ' + this._fmt(precio) + ' × ' + n +
         ' C/G = ' + this._fmt(T);
-      if (ns) h += '<br>÷ ' + ns + ' S/G = ' +
-        this._fmt(T / ns) + ' c/u';
-      out.innerHTML = h + '<br><b>Total: ' + this._fmt(T) + '</b>';
+      if (ns) h += '<br>÷ ' + ns + ' S/G = ' + this._fmt(cu) + ' c/u';
+      out.innerHTML = h + '<br><b>Total: ' + this._fmt(cu * n) + '</b>';
     }
     if (hnt) hnt.textContent = this._fmt(this._ind(modo, precio));
     this._gtotal();
@@ -66,7 +67,7 @@ const Itinerario = {
   _ind(modo, p) {
     const n = this.pax(), ns = this.paxS();
     if (modo === 'grupo') return ns ? p / ns : p;
-    return ns ? p * n / ns : p; },
+    return ns ? Math.round(p * n / ns) : p; },
   initPickers() {
     const t = $('#it-tipo-new'); if (!t) return;
     t.innerHTML = '<option value="">— Campo del viaje —</option>' +
@@ -223,9 +224,8 @@ const Itinerario = {
       const v = s => parseFloat((c.querySelector(s) || {}).value) || 0,
             ck = s => !!(c.querySelector(s) || {}).checked,
             mo = c.querySelector('.it-modo');
-      if (v('.it-precio')) { const m =
-            mo && mo.value === 'grupo' ? 'grupo' : 'persona';
-        tg += (m === 'grupo' || !n) ? v('.it-precio') : v('.it-precio') * n;
+      if (v('.it-precio')) { const m = mo && mo.value === 'grupo' ? 'grupo' : 'persona';
+        tg += (m === 'grupo' || !n) ? v('.it-precio') : this._ind(m, v('.it-precio')) * n;
         ti += this._ind(m, v('.it-precio')); }
       if (v('.it-pb')) { const con = v('.it-pb') +
           (ck('.it-os') ? v('.it-osv') : 0) + (ck('.it-ai') ? 0 : v('.it-ps'));

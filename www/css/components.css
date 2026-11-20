@@ -154,7 +154,8 @@ label.lbl {
 .upl-fx { position:fixed; inset:0; z-index:90; background:rgba(15,23,42,.35);
   display:flex; align-items:flex-end; }
 .upl-fx-card { width:100%; background:#fff; border-radius:16px 16px 0 0;
-  padding:1rem; box-shadow:var(--shadow-lg); animation:uplUp .2s ease; }
+  padding:1rem 1rem calc(2.6rem + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-lg); animation:uplUp .2s ease; }
 @keyframes uplUp { from { transform:translateY(40px); opacity:0 }
   to { transform:none; opacity:1 } }
 .upl-fx-r { display:flex; align-items:center; gap:.7rem; margin:.45rem 0;

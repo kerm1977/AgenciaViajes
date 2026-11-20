@@ -1,24 +1,45 @@
 /* wysiwyg.js — mini editor enriquecido compartido (negrita, subrayado,
    viñetas, lista ordenada, cita). El comando se aplica al editor .wys-edit
-   que tenga el foco, no solo a #desc-editor, para que todos los editores
-   de la app se comporten igual. Los botones usan onmousedown
-   preventDefault para no perder la selección del texto. */
+   donde está el cursor, no solo a #desc-editor, para que todos los
+   editores de la app se comporten igual. "Cita" envuelve la selección en
+   <blockquote> manualmente — formatBlock falla en algunos WebViews.
+   Los botones usan onmousedown preventDefault para no perder selección. */
 'use strict';
 const WYS = {
   _last: null,
-  cmd(c, v) {
-    let e = null;
+  _ed() {
     const sel = window.getSelection();
     if (sel && sel.anchorNode) {
       const n = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentNode;
-      if (n && n.closest) e = n.closest('.wys-edit');
+      if (n && n.closest) { const w = n.closest('.wys-edit'); if (w) return w; }
     }
-    if (!e) {
-      const a = document.activeElement;
-      e = a && a.closest ? a.closest('.wys-edit') : null;
+    const a = document.activeElement;
+    if (a && a.closest) { const w = a.closest('.wys-edit'); if (w) return w; }
+    return this._last || document.getElementById('desc-editor');
+  },
+  _toggleQuote(e) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const r = sel.getRangeAt(0);
+    const n = r.commonAncestorContainer.nodeType === 1
+      ? r.commonAncestorContainer : r.commonAncestorContainer.parentNode;
+    const bq0 = n && n.closest ? n.closest('blockquote') : null;
+    if (bq0 && e.contains(bq0)) {           // ya citado: quitar la cita
+      while (bq0.firstChild) bq0.parentNode.insertBefore(bq0.firstChild, bq0);
+      bq0.remove();
+    } else {                                 // citar: envolver en blockquote
+      const bq = document.createElement('blockquote');
+      try { r.surroundContents(bq); }
+      catch (err) { bq.appendChild(r.extractContents()); r.insertNode(bq); }
+      sel.removeAllRanges();
     }
-    if (!e) e = this._last || document.getElementById('desc-editor');
-    if (e) { e.focus(); document.execCommand(c, false, v || null); }
+    e.dispatchEvent(new Event('input', { bubbles: true }));
+  },
+  cmd(c, v) {
+    const e = this._ed();
+    if (!e) return;
+    if (c === 'formatBlock' && v === 'blockquote') this._toggleQuote(e);
+    else document.execCommand(c, false, v || null);
   }
 };
 document.addEventListener('focusin', e => {

@@ -53,8 +53,7 @@ const Itinerario = {
       if (ns) h += '<br>÷ ' + ns + ' S/G = ' + this._fmt(cu) + ' c/u';
       out.innerHTML = h + '<br><b>Total: ' + this._fmt(cu * n) + '</b>';
     }
-    if (hnt) hnt.textContent = 'C/G ' + this._fmt(precio) +
-      ' · S/G ' + this._fmt(this._ind(modo, precio));
+    if (hnt) hnt.textContent = this._fmt(this._ind(modo, precio));
     this._gtotal();
   },
   /* total individual del servicio: el "c/u" de la fórmula */

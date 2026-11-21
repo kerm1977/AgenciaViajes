@@ -54,6 +54,7 @@ const Vuelos = {
   KEYS: [
     ['vu.tequila', 'Kiwi Tequila apikey'],
     ['vu.tp', 'Travelpayouts (Aviasales) token']],
+  TP_DEF: 'c1af75818f66a4d2e1d653066ae49987',  /* token Aviasales incrustado */
   TIPS: [
     'Martes y miércoles suelen ser los días más baratos para volar; evitá viernes y domingo.',
     'Comprá 4–8 semanas antes (regional) o 2–4 meses antes (internacional).',
@@ -104,6 +105,7 @@ const Vuelos = {
     try {
       for (const r of await DB.list('config')) out[r.id] = r.valor || '';
     } catch (e) { /* sin tabla aún */ }
+    if (!out['vu.tp']) out['vu.tp'] = this.TP_DEF;
     return out;
   },
   async _keysForm() {
@@ -112,7 +114,8 @@ const Vuelos = {
     box.innerHTML = this.KEYS.map(k =>
       '<div><span class="fl-l">' + esc(k[1]) + '</span>' +
       '<input class="input" id="k-' + k[0] + '" type="password" ' +
-      'placeholder="Pegá tu llave" value="' + esc(kv[k[0]] || '') +
+      'placeholder="Pegá tu llave" value="' +
+      esc(kv[k[0]] || (k[0] === 'vu.tp' ? this.TP_DEF : '')) +
       '"></div>').join('');
   },
   async guardarKeys() {

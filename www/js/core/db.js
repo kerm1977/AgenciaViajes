@@ -2,7 +2,7 @@
    Offline-first; todos los módulos hablan solo con DB.* */
 'use strict';
 const DB = {
-  TABLAS: ['usuarios', 'contactos', 'destinos', 'pasajeros'],
+  TABLAS: ['usuarios', 'contactos', 'destinos', 'pasajeros', 'config'],
   JSON_FIELDS: { usuarios: ['permisos'],
                  destinos: ['itinerario', 'destinos', 'boleto', 'trans',
                             'fechas', 'imgfx', 'dias'] },
@@ -31,7 +31,9 @@ const DB = {
       ' grupo TEXT, pais TEXT, lugar TEXT, cedula TEXT, nacimiento TEXT,' +
       ' sangre TEXT, emNombre TEXT, emTel TEXT, cnombre TEXT,' +
       ' ctel TEXT, tel2 TEXT, tel3 TEXT, urlmapa TEXT, horario TEXT,' +
-      ' notas TEXT)'
+      ' notas TEXT)',
+    config: 'CREATE TABLE IF NOT EXISTS config (id TEXT PRIMARY KEY,' +
+      ' valor TEXT)'
   },
   /* columnas añadidas después del esquema inicial — migración ALTER */
   MIGRACIONES: {

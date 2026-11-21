@@ -1,6 +1,7 @@
-/* vuelos.js — buscador de vuelos baratos saliendo de Costa Rica.
-   Abre comparadores y aerolíneas con la búsqueda pre-cargada
-   (las APIs de precios son de pago; los deep-links son la vía gratuita). */
+/* vuelos.js — página completa: buscador de vuelos saliendo de Costa Rica.
+   APIs en vivo (Amadeus, Kiwi Tequila, SerpAPI/Google Flights) con llaves
+   propias guardadas en la tabla config; comparadores y aerolíneas por
+   deep-link siempre disponibles. */
 'use strict';
 const Vuelos = {
   AERO: [['SJO', 'San José (SJO)'], ['LIR', 'Liberia (LIR)']],
@@ -39,6 +40,9 @@ const Vuelos = {
       u: (o, d, i, v) => 'https://www.avianca.com/es/booking/select/?o1=' +
         o + '&d1=' + d + '&dd1=' + i + (v ? '&dd2=' + v + '&r=1' : '') +
         '&adt=1' },
+    { n: 'LATAM', s: 'Web oficial',
+      u: (o, d) => 'https://www.latamairlines.com/es/es/ofertas-vuelos?origin=' +
+        o + '&destination=' + d },
     { n: 'Copa Airlines', s: 'Web oficial',
       u: () => 'https://www.copaair.com/es/' },
     { n: 'Volaris', s: 'Web oficial',
@@ -47,6 +51,11 @@ const Vuelos = {
       u: () => 'https://www.vivaaerobus.com/' },
     { n: 'Wingo', s: 'Web oficial',
       u: () => 'https://www.wingo.com/' }],
+  KEYS: [
+    ['vu.amadeus_key', 'Amadeus API Key'],
+    ['vu.amadeus_sec', 'Amadeus API Secret'],
+    ['vu.tequila', 'Kiwi Tequila apikey'],
+    ['vu.serp', 'SerpAPI api_key']],
   TIPS: [
     'Martes y miércoles suelen ser los días más baratos para volar; evitá viernes y domingo.',
     'Comprá 4–8 semanas antes (regional) o 2–4 meses antes (internacional).',
@@ -54,7 +63,8 @@ const Vuelos = {
     'Activá "Alertas de precio" en Google Flights o Kayak para tu ruta.',
     'Revisá salir también desde Liberia (LIR): a veces es más barato a Norteamérica.',
     'Temporada baja desde CR: mayo–junio y setiembre–noviembre tienen mejores tarifas.'],
-  render() {
+
+  async abrir() {
     const o = $('#vu-o'), d = $('#vu-d');
     if (o && !o.options.length)
       o.innerHTML = this.AERO.map(x =>
@@ -69,10 +79,54 @@ const Vuelos = {
     const t = $('#vu-tips');
     if (t && !t.children.length)
       t.innerHTML = this.TIPS.map(x => '<li>' + esc(x) + '</li>').join('');
-    openModal('modal-vuelos');
     this._botones('#vu-agg', this.AGG);
     this._botones('#vu-aer', this.AEROL);
+    await this._keysForm();
+    $('#pag-vuelos').classList.add('open');
   },
+  cerrar() { $('#pag-vuelos').classList.remove('open'); },
+  togKeys() { const k = $('#vu-keys'); if (k) k.hidden = !k.hidden; },
+  tipo() {
+    const rt = (document.querySelector('input[name="vu-tipo"]:checked') ||
+      {}).value === 'rt';
+    const w = $('#vu-vw'); if (w) w.hidden = !rt;
+  },
+  _params() {
+    const rt = (document.querySelector('input[name="vu-tipo"]:checked') ||
+      {}).value === 'rt';
+    const v = ($('#vu-v') || {}).value || '';
+    return { o: $('#vu-o').value, d: $('#vu-d').value,
+      i: $('#vu-i').value,
+      v: rt && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '',
+      meta: +(($('#vu-meta') || {}).value || 0) };
+  },
+  /* ---------- llaves (tabla config) ---------- */
+  async _keys() {
+    const out = {};
+    try {
+      for (const r of await DB.list('config')) out[r.id] = r.valor || '';
+    } catch (e) { /* sin tabla aún */ }
+    return out;
+  },
+  async _keysForm() {
+    const box = $('#vu-keylist'); if (!box || box.children.length) return;
+    const kv = await this._keys();
+    box.innerHTML = this.KEYS.map(k =>
+      '<div><span class="fl-l">' + esc(k[1]) + '</span>' +
+      '<input class="input" id="k-' + k[0] + '" type="password" ' +
+      'placeholder="Pegá tu llave" value="' + esc(kv[k[0]] || '') +
+      '"></div>').join('');
+  },
+  async guardarKeys() {
+    for (const k of this.KEYS) {
+      const v = (($('#k-' + k[0]) || {}).value || '').trim();
+      if (v) await DB.save('config', { id: k[0], valor: v });
+      else await DB.remove('config', k[0]).catch(() => {});
+    }
+    showToast('Llaves guardadas');
+  },
+  /* búsqueda en vivo: vuelapi.js (extiende este objeto) */
+  /* ---------- comparadores / aerolíneas (deep-links) ---------- */
   _botones(sel, arr) {
     const box = $(sel); if (!box) return;
     box.innerHTML = arr.map((a, ix) =>
@@ -85,11 +139,8 @@ const Vuelos = {
       '</div></div></button>').join('');
   },
   ir(sel, ix) {
-    const arr = sel === '#vu-agg' ? this.AGG : this.AEROL,
-          o = $('#vu-o').value, d = $('#vu-d').value,
-          i = $('#vu-i').value, v = $('#vu-v').value;
-    if (!i) { showToast('Elegí la fecha de ida', 'error'); return; }
-    window.open(arr[ix].u(o, d, i, /^\d{4}-\d{2}-\d{2}$/.test(v || '') ? v : ''),
-      '_blank');
+    const arr = sel === '#vu-agg' ? this.AGG : this.AEROL, p = this._params();
+    if (!p.i) { showToast('Elegí la fecha de ida', 'error'); return; }
+    window.open(arr[ix].u(p.o, p.d, p.i, p.v), '_blank');
   }
 };

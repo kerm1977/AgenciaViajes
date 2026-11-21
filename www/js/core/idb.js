@@ -6,7 +6,7 @@ const IDB = {
   db: null,
   open(tablas) {
     return new Promise((res, rej) => {
-      const req = indexedDB.open('latribu_db', 1);
+      const req = indexedDB.open('latribu_db', 2);
       req.onupgradeneeded = () => {
         const d = req.result;
         tablas.forEach(t => {

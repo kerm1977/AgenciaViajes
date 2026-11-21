@@ -27,7 +27,7 @@
       <i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
     <button class="btn btn-soft" onclick="Perfil.cuentas()">
       <i class="fa-solid fa-credit-card"></i> Cuentas</button>
-    <button class="btn btn-soft" onclick="Vuelos.render()">
+    <button class="btn btn-soft" onclick="Vuelos.abrir()">
       <i class="fa-solid fa-plane"></i> Vuelos</button>
     <button class="btn btn-soft" onclick="Perfil.servidor()">
       <i class="fa-solid fa-server"></i> Descargar servidor</button>
@@ -58,25 +58,63 @@
     </div>
   </div>
 </div>
-<div id="modal-vuelos" class="modal">
-  <div class="modal-box" style="max-width:26rem">
-    <div class="modal-head">
-      <h3><i class="fa-solid fa-plane" style="color:var(--brand-600)"></i> Vuelos baratos</h3>
-      <button class="modal-x" onclick="closeModal('modal-vuelos')"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="grid" style="grid-template-columns:1fr 1fr;gap:.5rem">
-        <div><h4 class="lbl">Origen</h4><select id="vu-o" class="select"></select></div>
-        <div><h4 class="lbl">Destino</h4><select id="vu-d" class="select"></select></div>
-        <div><h4 class="lbl">Ida</h4><input id="vu-i" type="date" class="input"></div>
-        <div><h4 class="lbl">Regreso (opcional)</h4><input id="vu-v" type="date" class="input"></div>
+<!-- Página completa: buscador de vuelos -->
+<div id="pag-vuelos" class="pag-itin">
+  <div class="pag-top">
+    <button type="button" class="iconbtn" onclick="Vuelos.cerrar()">
+      <i class="fa-solid fa-arrow-left"></i></button>
+    <h2 style="margin:0;font-size:1.05rem;flex:1">Vuelos baratos</h2>
+    <button type="button" class="iconbtn" title="API keys"
+            onclick="Vuelos.togKeys()"><i class="fa-solid fa-key"></i></button>
+  </div>
+  <div class="pag-itin-body">
+    <div style="max-width:640px;width:100%;margin:0 auto;display:grid;gap:.7rem">
+      <div class="card card-pad">
+        <div class="flex gap2" style="margin-bottom:.6rem">
+          <label class="it-aic"><input type="radio" name="vu-tipo" value="ida"
+            checked onchange="Vuelos.tipo()"> Solo ida</label>
+          <label class="it-aic"><input type="radio" name="vu-tipo" value="rt"
+            onchange="Vuelos.tipo()"> Ida y vuelta</label>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:.5rem">
+          <div><h4 class="lbl">Origen</h4><select id="vu-o" class="select"></select></div>
+          <div><h4 class="lbl">Destino</h4><select id="vu-d" class="select"></select></div>
+          <div><h4 class="lbl">Fecha de ida</h4>
+            <input id="vu-i" type="date" class="input"></div>
+          <div id="vu-vw" hidden><h4 class="lbl">Fecha de vuelta</h4>
+            <input id="vu-v" type="date" class="input"></div>
+          <div><h4 class="lbl">Precio objetivo (USD)</h4>
+            <input id="vu-meta" type="number" min="0" class="input" placeholder="Ej. 280"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:.6rem"
+                onclick="Vuelos.buscar()">
+          <i class="fa-solid fa-magnifying-glass-dollar"></i> Buscar mejores precios</button>
+        <p class="hint text-xs" style="margin:.4rem 0 0">Con tus API keys busca en vivo
+          (Amadeus · Tequila · Google Flights). Tocá la llave arriba para configurarlas.</p>
       </div>
-      <h4 class="lbl" style="margin-top:.8rem">Comparadores</h4>
-      <div id="vu-agg" class="grid" style="gap:.35rem"></div>
-      <h4 class="lbl" style="margin-top:.8rem">Aerolíneas</h4>
-      <div id="vu-aer" class="grid" style="gap:.35rem"></div>
-      <h4 class="lbl" style="margin-top:.8rem">Mejores momentos para comprar</h4>
-      <ul class="pit-ol muted text-sm" id="vu-tips"></ul>
+      <div id="vu-res" style="display:grid;gap:.4rem"></div>
+      <div id="vu-keys" class="card card-pad" hidden>
+        <h4 class="lbl"><i class="fa-solid fa-key"></i> APIs en vivo (gratis)</h4>
+        <div id="vu-keylist" class="grid" style="gap:.4rem"></div>
+        <button class="btn btn-soft" style="width:100%;margin-top:.5rem"
+                onclick="Vuelos.guardarKeys()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar llaves</button>
+        <p class="hint text-xs" style="margin:.4rem 0 0">Llaves gratis:
+          Amadeus for Developers (2.000 consultas/mes) ·
+          tequila.kiwi.com · serpapi.com (Google Flights)</p>
+      </div>
+      <div class="card card-pad">
+        <h4 class="lbl">Comparadores</h4>
+        <div id="vu-agg" class="grid" style="gap:.35rem"></div>
+      </div>
+      <div class="card card-pad">
+        <h4 class="lbl">Aerolíneas</h4>
+        <div id="vu-aer" class="grid" style="gap:.35rem"></div>
+      </div>
+      <div class="card card-pad">
+        <h4 class="lbl">Mejores momentos para comprar</h4>
+        <ul class="pit-ol muted text-sm" id="vu-tips"></ul>
+      </div>
     </div>
   </div>
 </div>

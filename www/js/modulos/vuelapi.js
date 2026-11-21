@@ -27,15 +27,12 @@ Object.assign(Vuelos, {
     const p = this._params(), res = $('#vu-res');
     if (!p.i) { showToast('Elegí la fecha de ida', 'error'); return; }
     const k = await this._keys(), jobs = [];
-    if (k['vu.amadeus_key'] && k['vu.amadeus_sec'])
-      jobs.push(this._amadeus(p, k));
     if (k['vu.tequila']) jobs.push(this._tequila(p, k['vu.tequila']));
-    if (k['vu.serp']) jobs.push(this._serp(p, k['vu.serp']));
     if (k['vu.tp']) jobs.push(this._tp(p, k['vu.tp']));
     if (!jobs.length) {
       res.innerHTML = '<div class="card card-pad"><p class="hint text-sm">' +
         'Sin APIs configuradas — tocá la llave arriba para agregar ' +
-        'Amadeus, Tequila o SerpAPI, o usá los comparadores de abajo.' +
+        'Tequila o Aviasales, o usá los comparadores de abajo.' +
         '</p></div>';
       return;
     }
@@ -77,24 +74,6 @@ Object.assign(Vuelos, {
     $('#vu-res').innerHTML = h;
   },
   _f(s) { const a = s.split('-'); return a[2] + '/' + a[1] + '/' + a[0]; },
-  async _amadeus(p, k) {
-    const t = await this._http('post',
-      'https://test.api.amadeus.com/v1/security/oauth2/token', {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: 'grant_type=client_credentials&client_id=' +
-          encodeURIComponent(k['vu.amadeus_key']) + '&client_secret=' +
-          encodeURIComponent(k['vu.amadeus_sec']) });
-    const q = { originLocationCode: p.o, destinationLocationCode: p.d,
-      departureDate: p.i, adults: '1', currencyCode: 'USD', max: '8' };
-    if (p.v) q.returnDate = p.v;
-    const r = await this._http('get',
-      'https://test.api.amadeus.com/v2/shopping/flight-offers', {
-        params: q, headers: { Authorization: 'Bearer ' + t.access_token } });
-    return (r.data || []).map(o => ({ src: 'Amadeus',
-      aer: (o.validatingAirlineCodes || ['?']).join('+'),
-      precio: +o.price.total,
-      seg: Math.max(0, (o.itineraries[0].segments || []).length - 1) }));
-  },
   async _tequila(p, key) {
     const q = { fly_from: p.o, fly_to: p.d,
       date_from: this._f(p.i), date_to: this._f(p.i),
@@ -122,18 +101,5 @@ Object.assign(Vuelos, {
         precio: +o.price, seg: '—' });
     }
     return out.slice(0, 8);
-  },
-  async _serp(p, key) {
-    const q = { engine: 'google_flights', departure_id: p.o,
-      arrival_id: p.d, outbound_date: p.i, currency: 'USD',
-      hl: 'es', api_key: key, type: p.v ? '1' : '2' };
-    if (p.v) q.return_date = p.v;
-    const r = await this._http('get', 'https://serpapi.com/search.json',
-      { params: q });
-    const arr = (r.best_flights || []).concat(r.other_flights || []);
-    return arr.map(o => ({ src: 'Google Flights',
-      aer: ((o.flights || [])[0] || {}).airline || '?',
-      precio: +o.price,
-      seg: Math.max(0, (o.flights || []).length - 1) }));
   }
 });

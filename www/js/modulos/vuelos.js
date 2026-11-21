@@ -52,10 +52,7 @@ const Vuelos = {
     { n: 'Wingo', s: 'Web oficial',
       u: () => 'https://www.wingo.com/' }],
   KEYS: [
-    ['vu.amadeus_key', 'Amadeus API Key'],
-    ['vu.amadeus_sec', 'Amadeus API Secret'],
     ['vu.tequila', 'Kiwi Tequila apikey'],
-    ['vu.serp', 'SerpAPI api_key'],
     ['vu.tp', 'Travelpayouts (Aviasales) token']],
   TIPS: [
     'Martes y miércoles suelen ser los días más baratos para volar; evitá viernes y domingo.',

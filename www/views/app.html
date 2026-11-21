@@ -82,6 +82,16 @@
                  oninput="Destinos.paxPickRender()" placeholder="Buscar por nombre o teléfono...">
         </div>
       </div>
+      <div class="flex gap1" style="margin-bottom:.5rem">
+        <select id="pxp-tipo" class="select" style="flex:1"
+                onchange="Destinos.paxPickRender()">
+          <option value="">Todos los tipos</option>
+          <option>Pasajero</option><option>Guía</option><option>Transportista</option>
+          <option>Aerolínea</option><option>Hotel</option><option>Servicios / Otros</option>
+        </select>
+        <button type="button" class="btn btn-soft" onclick="Contactos.nuevo()">
+          <i class="fa-solid fa-user-plus"></i> Nuevo</button>
+      </div>
       <div id="pxp-lista" class="grp-lista"></div>
       <div class="modal-foot" style="padding-left:0;padding-right:0">
         <button type="button" class="btn btn-soft"

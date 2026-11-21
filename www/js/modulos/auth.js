@@ -83,8 +83,7 @@ const Auth = {
   nav() {
     const items = [
       ['destinos', 'fa-map-location-dot', 'Destinos y Viajes', 'Viajes'],
-      ['contactos', 'fa-address-book', 'Contactos', 'Contactos'],
-      ['pasajeros', 'fa-users-gear', 'Pasajeros', 'Pasajeros'],
+      ['contactos', 'fa-users', 'Contactos', 'Contactos'],
       ['usuarios', 'fa-user-shield', 'Usuarios y Roles', 'Usuarios'],
       ['perfil', 'fa-user-gear', 'Mi Perfil', 'Perfil']
     ];

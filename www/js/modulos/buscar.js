@@ -33,7 +33,7 @@ const Buscar = {
     if (mP.length) {
       html += '<p class="lbl mt1">Pasajeros</p>' + mP.map(p =>
         '<div class="multi-item" onclick="closeModal(\'modal-buscar\');' +
-        'Router.switchTab(\'pasajeros\')">' +
+        'Router.switchTab(\'contactos\')">' +
         '<i class="fa-solid fa-user" style="color:var(--purple-600)"></i> ' +
         esc(p.nombre) + '</div>').join('');
     }

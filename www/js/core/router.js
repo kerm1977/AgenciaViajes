@@ -13,8 +13,8 @@ const Router = {
   TITULOS: {
     destinos: ['Destinos y Viajes',
       'Gestiona tus paquetes turísticos, guías, vuelos e itinerarios diarios'],
-    contactos: ['Gestión de Contactos',
-      'Directorio de clientes, guías, transportistas y proveedores'],
+    contactos: ['Contactos y Pasajeros',
+      'Agenda: pasajeros, guías, transportistas, aerolíneas, hoteles y servicios'],
     pasajeros: ['Control de Pasajeros',
       'Asignación de pasajeros a viajes y control de vuelos / check-in'],
     usuarios: ['Usuarios y Roles',

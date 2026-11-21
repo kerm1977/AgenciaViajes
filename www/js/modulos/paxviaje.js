@@ -32,17 +32,19 @@ Object.assign(Destinos, {
   },
   async paxPickRender() {
     const q = ((($('#pxp-buscar') || {}).value) || '').toLowerCase(),
+          tf = (($('#pxp-tipo') || {}).value || ''),
           vid = this._paxVid,
           cs = await DB.list('contactos'), ps = await DB.list('pasajeros'),
           hit = x => !q || (x.nombre || '').toLowerCase().includes(q) ||
             (x.telefono || '').includes(q);
     const items = cs.filter(c => hit(c) && !this._paxSel.includes(c.id) &&
         !(vid && ps.some(p => p.contactoId === c.id && p.destinoId === vid)))
-      .map(c => ({ id: 'c:' + c.id, n: c.nombre, t: c.telefono }))
+      .map(c => ({ id: 'c:' + c.id, n: c.nombre, t: c.telefono, tp: c.tipo }))
       .concat(ps.filter(p => hit(p) && !p.destinoId &&
           (!p.contactoId || !cs.some(c => c.id === p.contactoId)) &&
           (vid || !this._paxLibres.includes(p.id)))
-        .map(p => ({ id: 'p:' + p.id, n: p.nombre, t: p.telefono })))
+        .map(p => ({ id: 'p:' + p.id, n: p.nombre, t: p.telefono, tp: 'Pasajero' })))
+      .filter(x => !tf || x.tp === tf)
       .sort((a, b) => a.n.localeCompare(b.n));
     $('#pxp-lista').innerHTML = items.map(x =>
       '<label class="grp-hit"><input type="checkbox" ' +
@@ -50,7 +52,8 @@ Object.assign(Destinos, {
       'onchange="Destinos.paxPickTog(\'' + x.id + '\')"><span><b>' +
       esc(x.n) + '</b>' +
       (x.t ? ' <span class="hint">' + esc(x.t) + '</span>' : '') +
-      '</span></label>').join('') ||
+      ' <span class="badge badge-slate" style="font-size:9px">' + esc(x.tp) +
+      '</span></span></label>').join('') ||
       '<p class="hint" style="text-align:center">Sin resultados</p>';
     this._paxCount();
   },

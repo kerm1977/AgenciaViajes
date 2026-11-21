@@ -1,14 +1,15 @@
-<!-- contactos.html — tab Contactos + modal -->
+<!-- contactos.html — agenda unificada (contactos + pasajeros) + modal -->
 <div class="actionbar">
   <div class="flex gap2" style="flex:1;flex-wrap:wrap">
     <div class="searchbox">
       <i class="fa-solid fa-search"></i>
       <input type="text" id="search-contactos" class="input" oninput="Contactos.render()"
-             placeholder="Buscar por nombre, teléfono, email...">
+             placeholder="Buscar por nombre, teléfono, email, viaje...">
     </div>
     <select id="filter-contacto-tipo" class="select" style="max-width:14rem"
             onchange="Contactos.render()">
       <option value="">Todos los tipos</option>
+      <option>Pasajero</option>
       <option>Guía</option>
       <option>Transportista</option><option>Aerolínea</option>
       <option>Hotel</option><option>Servicios / Otros</option>
@@ -16,6 +17,24 @@
   </div>
   <button class="btn btn-primary" onclick="Contactos.nuevo()">
     <i class="fa-solid fa-user-plus"></i> Nuevo Contacto</button>
+  <button class="btn btn-soft" onclick="Contactos.paxNuevo()">
+    <i class="fa-solid fa-user-plus"></i> Agregar pasajero</button>
+</div>
+<div class="actionbar" style="gap:.4rem;flex-wrap:wrap">
+  <button class="iconbtn" title="Respaldo por WhatsApp" onclick="PaxDir.wa()">
+    <i class="fa-brands fa-whatsapp"></i></button>
+  <button class="iconbtn" title="Exportar VCard (.vcf)" onclick="PaxDir.vcard()">
+    <i class="fa-solid fa-address-book"></i></button>
+  <button class="iconbtn" title="Exportar a TXT" onclick="PaxDir.txt()">
+    <i class="fa-solid fa-file-lines"></i></button>
+  <button class="iconbtn" title="Exportar a JSON" onclick="PaxDir.json()">
+    <i class="fa-solid fa-file-export"></i></button>
+  <label class="iconbtn" title="Importar JSON" style="margin:0">
+    <i class="fa-solid fa-file-import"></i>
+    <input type="file" accept=".json" style="display:none"
+           onchange="PaxDir.importar(this)"></label>
+  <button class="iconbtn" title="Fusionar pasajeros" onclick="PaxDir.fusion()">
+    <i class="fa-solid fa-code-merge"></i></button>
 </div>
 <div id="contactos-grid" class="grid" style="gap:.35rem"></div>
 
@@ -35,7 +54,7 @@
       </div>
       <div class="grid-2">
         <div class="field">
-          <label class="lbl">Categoría / rol *</label>
+          <label class="lbl">Tipo de usuario *</label>
           <select id="cont-tipo" class="select">
             <option>Guía</option>
             <option>Transportista</option><option>Aerolínea</option>

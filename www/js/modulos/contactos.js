@@ -106,7 +106,7 @@ const Contactos = {
   /* alta/edición usa el formulario completo de pasajeros (pide el tipo) */
   async nuevo() {
     await Router.cargar('pasajeros', '#tab-pasajeros');
-    Pasajeros.nuevo('Guía'); },
+    Pasajeros.nuevo(); },
   async editar(id) {
     await Router.cargar('pasajeros', '#tab-pasajeros');
     Pasajeros.editar(id, 'contactos'); },

@@ -2,7 +2,10 @@
 'use strict';
 function openModal(id) {
   const m = document.getElementById(id);
-  if (m) m.classList.add('open');
+  if (!m) return;
+  /* un modal dentro de un tab oculto nunca se ve: súbelo al body */
+  if (m.parentElement !== document.body) document.body.appendChild(m);
+  m.classList.add('open');
 }
 function closeModal(id) {
   const m = document.getElementById(id);

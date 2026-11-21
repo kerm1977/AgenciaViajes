@@ -87,6 +87,14 @@
           <button class="btn btn-primary" onclick="Vuelos.ifrAdd()">
             <i class="fa-solid fa-plus"></i></button>
         </div>
+        <div class="flex gap2" style="margin-top:.4rem">
+          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
+                  onclick="Vuelos.ifrWidget('busc')">
+            <i class="fa-solid fa-plane"></i> Buscador Aviasales</button>
+          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
+                  onclick="Vuelos.ifrWidget('cal')">
+            <i class="fa-solid fa-calendar-days"></i> Calendario precios</button>
+        </div>
         <div id="vu-ifr"></div>
       </div>
       <div id="vu-keys" class="card card-pad" hidden>

@@ -19,6 +19,24 @@ Object.assign(Vuelos, {
     inp.value = '';
     this.ifrList();
   },
+  /* widgets embebibles de Aviasales (tp.media está hecho para iframe)
+     con el marker de afiliado — las tarifas dentro llevan a la compra */
+  WIDGETS: {
+    busc: 'https://tp.media/content?currency=usd&promo_id=4044' +
+      '&shmarker=809301&campaign_id=100&target_host=search.aviasales.com' +
+      '&locale=es&origin=SJO&destination=LIM&one_way=false',
+    cal: 'https://tp.media/content?currency=usd&promo_id=2811' +
+      '&shmarker=809301&campaign_id=100&target_host=search.aviasales.com' +
+      '&locale=es&origin=SJO&destination=LIM',
+  },
+  async ifrWidget(k) {
+    const l = await this._ifr(), u = this.WIDGETS[k];
+    if (!u) return;
+    if (!l.includes(u)) { if (l.length >= 8) {
+      showToast('Máximo 8 iframes', 'error'); return; } l.push(u); }
+    await DB.save('config', { id: this.IFRKEY, valor: JSON.stringify(l) });
+    this.ifrList();
+  },
   async ifrDel(i) {
     const l = await this._ifr();
     l.splice(i, 1);

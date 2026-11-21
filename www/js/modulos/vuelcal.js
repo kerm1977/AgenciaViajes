@@ -196,19 +196,40 @@ Object.assign(Vuelos, {
     const k = await this._keys();
     this._calBuild(L.p, k);
   },
-  diaSel(fecha, ret) {
-    const p = this._params(), v = ret || p.v;
-    window.open('https://www.kayak.com/flights/' + p.o + '-' + p.d + '/' +
-      fecha + (v ? '/' + v : '') + '?sort=price_a', '_blank');
+  async _pais() {
+    const k = await this._keys();
+    return k['vu.pais'] || 'CR';
   },
-  /* día de un calendario de aerolínea: abre su web oficial si existe */
-  diaAerSel(code, fecha, ret) {
-    const p = this._params(),
-          a = this.AEROF.find(x => x[0] === code),
+  _kayak(p, fecha, v, cc) {
+    const dom = { CR: 'kayak.co.cr', CO: 'kayak.com.co',
+      PE: 'kayak.com.pe', MX: 'kayak.com.mx',
+      US: 'kayak.com' }[cc] || 'kayak.com';
+    return 'https://www.' + dom + '/flights/' + p.o + '-' + p.d + '/' +
+      fecha + (v ? '/' + v : '') + '?sort=price_a';
+  },
+  async diaSel(fecha, ret) {
+    const p = this._params(), v = ret || p.v, cc = await this._pais();
+    window.open(this._kayak(p, fecha, v, cc), '_blank');
+  },
+  /* web oficial de la aerolínea, en la versión del país de compra */
+  _aerUrl(code, p, i, v, cc) {
+    const lc = cc.toLowerCase();
+    if (code === 'AV')
+      return 'https://www.avianca.com/' +
+        (cc === 'US' ? 'en/us' : 'es/' + lc) +
+        '/booking/select/?o1=' + p.o + '&d1=' + p.d + '&dd1=' + i +
+        (v ? '&dd2=' + v + '&r=1' : '') + '&adt=1&pos=' + cc;
+    if (code === 'LA')
+      return 'https://www.latamairlines.com/es/' + lc +
+        '/ofertas-vuelos?origin=' + p.o + '&destination=' + p.d;
+    const a = this.AEROF.find(x => x[0] === code),
           l = a && this.AEROL.find(x => x.n.indexOf(a[1]) === 0);
-    if (l) {
-      window.open(l.u(p.o, p.d, fecha, ret || p.v), '_blank'); return;
-    }
-    this.diaSel(fecha, ret);
+    return l ? l.u(p.o, p.d, i, v) : '';
+  },
+  async diaAerSel(code, fecha, ret) {
+    const p = this._params(), cc = await this._pais(),
+          u = this._aerUrl(code, p, fecha, ret || p.v, cc);
+    if (u) { window.open(u, '_blank'); return; }
+    window.open(this._kayak(p, fecha, ret || p.v, cc), '_blank');
   },
 });

@@ -83,6 +83,14 @@
           <div style="min-width:0"><h4 class="lbl">Precio objetivo · <b id="vu-metav">$380</b></h4>
             <input id="vu-meta" type="range" min="100" max="500" step="10" value="380"
                    style="width:100%" oninput="Vuelos.onRango()"></div>
+          <div style="min-width:0"><h4 class="lbl">País de compra (a veces cambia el precio)</h4>
+            <select id="vu-pais" class="select" onchange="Vuelos.setPais(this.value)">
+              <option value="CR">Costa Rica</option>
+              <option value="CO">Colombia</option>
+              <option value="PE">Perú</option>
+              <option value="MX">México</option>
+              <option value="US">Estados Unidos</option>
+            </select></div>
         </div>
         <h4 class="lbl" style="margin-top:.5rem">Filtro de aerolíneas</h4>
         <div id="vu-aerof" class="flex gap1" style="flex-wrap:wrap"></div>
@@ -90,7 +98,7 @@
                 onclick="Vuelos.buscar()">
           <i class="fa-solid fa-magnifying-glass-dollar"></i> Buscar mejores precios</button>
         <p class="hint text-xs" style="margin:.4rem 0 0">Con tus API keys busca en vivo
-          (Tequila · Aviasales). Tocá la llave arriba para configurarlas.</p>
+          Aviasales. Tocá la llave arriba para configurar tu token.</p>
       </div>
       <div id="vu-res" style="display:grid;gap:.4rem"></div>
       <div id="vu-cal"></div>
@@ -101,7 +109,7 @@
                 onclick="Vuelos.guardarKeys()">
           <i class="fa-solid fa-floppy-disk"></i> Guardar llaves</button>
         <p class="hint text-xs" style="margin:.4rem 0 0">Llaves gratis:
-          tequila.kiwi.com · travelpayouts.com (token inmediato)</p>
+          travelpayouts.com (token inmediato y gratis)</p>
       </div>
       <div class="card card-pad">
         <h4 class="lbl">Comparadores</h4>

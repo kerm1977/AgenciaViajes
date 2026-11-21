@@ -1,7 +1,6 @@
 /* vuelos.js — página completa: buscador de vuelos saliendo de Costa Rica.
-   APIs en vivo (Amadeus, Kiwi Tequila, SerpAPI/Google Flights) con llaves
-   propias guardadas en la tabla config; comparadores y aerolíneas por
-   deep-link siempre disponibles. */
+   API en vivo Aviasales (Travelpayouts) con token en la tabla config;
+   comparadores y aerolíneas por deep-link siempre disponibles. */
 'use strict';
 const Vuelos = {
   AERO: [['SJO', 'San José (SJO)'], ['LIR', 'Liberia (LIR)']],
@@ -52,7 +51,6 @@ const Vuelos = {
     { n: 'Wingo', s: 'Web oficial',
       u: () => 'https://www.wingo.com/' }],
   KEYS: [
-    ['vu.tequila', 'Kiwi Tequila apikey'],
     ['vu.tp', 'Travelpayouts (Aviasales) token']],
   TP_DEF: 'c1af75818f66a4d2e1d653066ae49987',  /* token Aviasales incrustado */
   /* aerolíneas del filtro: código IATA, nombre, color del calendario */
@@ -114,6 +112,8 @@ const Vuelos = {
     this._botones('#vu-agg', this.AGG);
     this._botones('#vu-aer', this.AEROL);
     this.aerChips();
+    const ps = $('#vu-pais'), kv = await this._keys();
+    if (ps) ps.value = kv['vu.pais'] || 'CR';
     await this._keysForm();
     $('#pag-vuelos').classList.add('open');
   },
@@ -149,6 +149,10 @@ const Vuelos = {
       'placeholder="Pegá tu llave" value="' +
       esc(kv[k[0]] || (k[0] === 'vu.tp' ? this.TP_DEF : '')) +
       '"></div>').join('');
+  },
+  /* país de compra: cambia la región de las páginas de compra */
+  setPais(v) {
+    DB.save('config', { id: 'vu.pais', valor: v }).catch(() => {});
   },
   async guardarKeys() {
     for (const k of this.KEYS) {

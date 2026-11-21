@@ -1,5 +1,5 @@
-/* vuelapi.js — búsqueda en vivo de precios de vuelo: Amadeus, Kiwi
-   Tequila y SerpAPI (Google Flights). Extiende el objeto Vuelos. */
+/* vuelapi.js — búsqueda en vivo de precios de vuelo (Aviasales/
+   Travelpayouts). Extiende el objeto Vuelos. */
 'use strict';
 Object.assign(Vuelos, {
   /* ---------- HTTP: nativo (sin CORS) o fetch ---------- */
@@ -37,13 +37,11 @@ Object.assign(Vuelos, {
     this._calMes = p.i.slice(0, 7);   /* antes de pedir, para que la API
                                          consulte el mes correcto */
     const k = await this._keys(), jobs = [];
-    if (k['vu.tequila'] && !p.flex)
-      jobs.push(this._tequila(p, k['vu.tequila']));
     if (k['vu.tp']) jobs.push(this._tp(p, k['vu.tp']));
     if (!jobs.length) {
       res.innerHTML = '<div class="card card-pad"><p class="hint text-sm">' +
         'Sin APIs configuradas — tocá la llave arriba para agregar ' +
-        'Tequila o Aviasales, o usá los comparadores de abajo.' +
+        'tu token de Aviasales, o usá los comparadores de abajo.' +
         '</p></div>';
       return;
     }
@@ -116,19 +114,6 @@ Object.assign(Vuelos, {
   },
   _f(s) { const a = s.split('-'); return a[2] + '/' + a[1] + '/' + a[0]; },
   /* calendarios por aerolínea: vuelcal.js (extiende este objeto) */
-  async _tequila(p, key) {
-    const q = { fly_from: p.o, fly_to: p.d,
-      date_from: this._f(p.i), date_to: this._f(p.i),
-      return_from: this._f(p.v), return_to: this._f(p.v),
-      adults: '1', selected_cabins: 'M',  /* M = economy */
-      curr: 'USD', limit: '8', sort: 'price' };
-    const r = await this._http('get',
-      'https://api.tequila.kiwi.com/v2/search',
-      { params: q, headers: { apikey: key } });
-    return (r.data || []).map(o => ({ src: 'Tequila',
-      aer: (o.airlines || ['?']).join('+'), precio: +o.price,
-      seg: Math.max(0, (o.route || []).length - 1) }));
-  },
   /* Travelpayouts / Aviasales: token gratis inmediato; devuelve la
      caché de precios más baratos encontrados en el mes de la fecha. */
   async _tp(p, key) {

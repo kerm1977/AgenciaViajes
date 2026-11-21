@@ -124,7 +124,8 @@ Object.assign(Vuelos, {
       if (sel.length && !sel.includes(a[0])) return;
       h += this._calGrid(mes, pd, {}, a, null);
     });
-    if (!Object.keys(pD).length && !Object.keys(porAer).length)
+    if (!Object.keys(porDia).length && !Object.keys(porAer).length &&
+        !Object.keys(mxf).length)
       h += '<p class="hint text-sm">Sin datos de precios en este mes.</p>';
     h += '<p class="hint text-xs" style="margin:.4rem 0 0">' +
       'Cada calendario es una aerolínea con su color; tocá un día para ' +

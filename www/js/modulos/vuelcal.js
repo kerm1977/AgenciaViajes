@@ -33,6 +33,9 @@ Object.assign(Vuelos, {
           month: this._calMes, currency: 'usd', token: key } });
     const out = {};
     (r.data || []).forEach(o => {
+      if (!o.depart_date || o.depart_date.slice(0, 7) !== this._calMes)
+        return;
+      if (o.actual === false || !o.return_date) return;
       const d = +o.depart_date.slice(8, 10);
       if (!out[d] || o.value < out[d]) out[d] = o.value;
     });
@@ -47,6 +50,9 @@ Object.assign(Vuelos, {
     const out = [], mes = (r.data || {})[p.d] || {};
     for (const k2 in mes) {
       const o = mes[k2];
+      if (!o.departure_at ||
+          o.departure_at.slice(0, 7) !== (this._calMes ||
+            p.i.slice(0, 7))) continue;
       if (p.v && !o.return_at) continue;
       out.push({ aer: o.airline || '?', dia: +o.departure_at.slice(8, 10),
         precio: +o.price, ret: o.return_at || '' });
@@ -123,7 +129,8 @@ Object.assign(Vuelos, {
       h += '<p class="hint text-sm">Sin datos de precios en este mes.</p>';
     h += '<p class="hint text-xs" style="margin:.4rem 0 0">' +
       'Cada calendario es una aerolínea con su color; tocá un día para ' +
-      'abrir la página de compra.</p></div>';
+      'abrir la página de compra. Los precios son la última tarifa ' +
+      'encontrada en Aviasales — al comprar pueden variar.</p></div>';
     box.innerHTML = h;
   },
   _calGrid(mes, porDia, mx, aer, titulo) {

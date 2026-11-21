@@ -117,6 +117,16 @@
             <i class="fa-solid fa-rotate"></i> Revisar ahora</button>
         </div>
       </div>
+      <div class="card card-pad">
+        <h4 class="lbl"><i class="fa-solid fa-table-columns"></i> Comparador visual</h4>
+        <div class="flex gap2">
+          <input class="input" id="vu-ifru" placeholder="https://…"
+            inputmode="url" style="flex:1">
+          <button class="btn btn-primary" onclick="Vuelos.ifrAdd()">
+            <i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div id="vu-ifr"></div>
+      </div>
       <div id="vu-keys" class="card card-pad" hidden>
         <h4 class="lbl"><i class="fa-solid fa-key"></i> APIs en vivo (gratis)</h4>
         <div id="vu-keylist" class="grid" style="gap:.4rem"></div>

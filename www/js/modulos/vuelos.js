@@ -118,6 +118,7 @@ const Vuelos = {
     const te = $('#vu-tel'); if (te) te.value = kv['vu.tel'] || '';
     await this._keysForm();
     if (this.vigList) { this.vigList(); this.vigCheck(); }
+    if (this.ifrList) this.ifrList();
     $('#pag-vuelos').classList.add('open');
   },
   cerrar() { $('#pag-vuelos').classList.remove('open'); },

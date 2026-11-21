@@ -20,8 +20,10 @@ const Vuelos = {
         encodeURIComponent('vuelos de ' + o + ' a ' + d + ' el ' + i +
           (v ? ' regreso ' + v : ' solo ida')) },
     { n: 'Kayak', s: 'Ordenado por precio',
-      u: (o, d, i, v) => 'https://www.kayak.com/flights/' + o + '-' + d +
-        '/' + i + (v ? '/' + v : '') + '?sort=price_a' },
+      u: (o, d, i, v, cc) => 'https://www.' + ({ CR: 'kayak.co.cr',
+        CO: 'kayak.com.co', PE: 'kayak.com.pe', MX: 'kayak.com.mx',
+        US: 'kayak.com' }[cc] || 'kayak.com') + '/flights/' + o + '-' +
+        d + '/' + i + (v ? '/' + v : '') + '?sort=price_a' },
     { n: 'Momondo', s: 'Ordenado por precio',
       u: (o, d, i, v) => 'https://www.momondo.com/flight-search/' + o + '-' +
         d + '/' + i + (v ? '/' + v : '') + '?sort=price_a' },
@@ -36,14 +38,18 @@ const Vuelos = {
         '/' + (v || i) + '/1/0/0' }],
   AEROL: [
     { n: 'Avianca', s: 'Directo con búsqueda',
-      u: (o, d, i, v) => 'https://www.avianca.com/es/booking/select/?o1=' +
-        o + '&d1=' + d + '&dd1=' + i + (v ? '&dd2=' + v + '&r=1' : '') +
-        '&adt=1' },
+      u: (o, d, i, v, cc) => 'https://www.avianca.com/' +
+        (cc === 'US' ? 'en/us' : 'es/' + (cc || 'cr').toLowerCase()) +
+        '/booking/select/?o1=' + o + '&d1=' + d + '&dd1=' + i +
+        (v ? '&dd2=' + v + '&r=1' : '') + '&adt=1&pos=' + (cc || 'CR') },
     { n: 'LATAM', s: 'Web oficial',
-      u: (o, d) => 'https://www.latamairlines.com/es/es/ofertas-vuelos?origin=' +
-        o + '&destination=' + d },
+      u: (o, d, i, v, cc) => 'https://www.latamairlines.com/es/' +
+        (cc || 'cr').toLowerCase() + '/ofertas-vuelos?origin=' + o +
+        '&destination=' + d },
     { n: 'Copa Airlines', s: 'Web oficial',
       u: () => 'https://www.copaair.com/es/' },
+    { n: 'Iberia', s: 'Web oficial',
+      u: () => 'https://www.iberia.com/' },
     { n: 'Volaris', s: 'Web oficial',
       u: () => 'https://www.volaris.com/' },
     { n: 'Viva Aerobus', s: 'Web oficial',
@@ -96,28 +102,15 @@ const Vuelos = {
     'Temporada baja desde CR: mayo–junio y setiembre–noviembre tienen mejores tarifas.'],
 
   async abrir() {
-    const o = $('#vu-o'), d = $('#vu-d');
-    if (o && !o.options.length)
-      o.innerHTML = this.AERO.map(x =>
-        '<option value="' + x[0] + '">' + x[1] + '</option>').join('');
-    if (d && !d.options.length) {
-      d.innerHTML = this.DEST.map(x =>
-        '<option value="' + x[0] + '">' + x[1] + ' (' + x[0] +
-        ')</option>').join('');
-      d.value = 'LIM';   /* Lima por defecto */
-    }
-    /* fechas vacías = búsqueda flexible por mes */
     const t = $('#vu-tips');
     if (t && !t.children.length)
       t.innerHTML = this.TIPS.map(x => '<li>' + esc(x) + '</li>').join('');
     this._botones('#vu-agg', this.AGG);
     this._botones('#vu-aer', this.AEROL);
-    this.aerChips();
     const ps = $('#vu-pais'), kv = await this._keys();
-    if (ps) ps.value = kv['vu.pais'] || 'CR';
-    const te = $('#vu-tel'); if (te) te.value = kv['vu.tel'] || '';
+    this._cc = kv['vu.pais'] || 'CR';
+    if (ps) ps.value = this._cc;
     await this._keysForm();
-    if (this.vigList) { this.vigList(); this.vigCheck(); }
     if (this.ifrList) this.ifrList();
     $('#pag-vuelos').classList.add('open');
   },
@@ -128,12 +121,12 @@ const Vuelos = {
     if (s) s.textContent = '$' + (($('#vu-meta') || {}).value || '');
     if (this._refil) this._refil();
   },
+  /* ruta y fechas internas: SJO→LIM, ida en 30 días, vuelta +9 */
   _params() {
-    const v = ($('#vu-v') || {}).value || '';
-    return { o: $('#vu-o').value, d: $('#vu-d').value,
-      i: $('#vu-i').value,
-      v: /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '',
-      meta: +(($('#vu-meta') || {}).value || 0) };
+    const f = d => d.toISOString().slice(0, 10),
+          i = new Date(Date.now() + 30 * 864e5),
+          v = new Date(i.getTime() + 9 * 864e5);
+    return { o: 'SJO', d: 'LIM', i: f(i), v: f(v), meta: 0 };
   },
   /* ---------- llaves (tabla config) ---------- */
   async _keys() {
@@ -156,6 +149,7 @@ const Vuelos = {
   },
   /* país de compra: cambia la región de las páginas de compra */
   setPais(v) {
+    this._cc = v;
     DB.save('config', { id: 'vu.pais', valor: v }).catch(() => {});
   },
   async guardarKeys() {
@@ -193,7 +187,6 @@ const Vuelos = {
   },
   ir(sel, ix) {
     const arr = sel === '#vu-agg' ? this.AGG : this.AEROL, p = this._params();
-    if (!p.i) { showToast('Elegí la fecha de ida', 'error'); return; }
-    window.open(arr[ix].u(p.o, p.d, p.i, p.v), '_blank');
+    window.open(arr[ix].u(p.o, p.d, p.i, p.v, this._cc || 'CR'), '_blank');
   }
 };

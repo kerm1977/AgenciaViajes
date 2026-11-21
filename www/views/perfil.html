@@ -70,52 +70,14 @@
   <div class="pag-itin-body">
     <div style="max-width:640px;width:100%;margin:0 auto;display:grid;gap:.7rem">
       <div class="card card-pad">
-        <p class="hint text-xs" style="margin:0 0 .6rem">Ida y vuelta · solo precios economy · dejá las fechas vacías para buscar flexible por mes</p>
-        <div class="grid" style="grid-template-columns:1fr;gap:.5rem">
-          <div style="min-width:0"><h4 class="lbl">Origen</h4>
-            <select id="vu-o" class="select"></select></div>
-          <div style="min-width:0"><h4 class="lbl">Destino</h4>
-            <select id="vu-d" class="select"></select></div>
-          <div style="min-width:0"><h4 class="lbl">Fecha de ida (opcional)</h4>
-            <input id="vu-i" type="date" class="input"></div>
-          <div id="vu-vw" style="min-width:0"><h4 class="lbl">Fecha de vuelta (opcional)</h4>
-            <input id="vu-v" type="date" class="input"></div>
-          <div style="min-width:0"><h4 class="lbl">Precio objetivo · <b id="vu-metav">$380</b></h4>
-            <input id="vu-meta" type="range" min="100" max="500" step="10" value="380"
-                   style="width:100%" oninput="Vuelos.onRango()"></div>
-          <div style="min-width:0"><h4 class="lbl">País de compra (a veces cambia el precio)</h4>
-            <select id="vu-pais" class="select" onchange="Vuelos.setPais(this.value)">
-              <option value="CR">Costa Rica</option>
-              <option value="CO">Colombia</option>
-              <option value="PE">Perú</option>
-              <option value="MX">México</option>
-              <option value="US">Estados Unidos</option>
-            </select></div>
-        </div>
-        <h4 class="lbl" style="margin-top:.5rem">Filtro de aerolíneas</h4>
-        <div id="vu-aerof" class="flex gap1" style="flex-wrap:wrap"></div>
-        <button class="btn btn-primary" style="width:100%;margin-top:.6rem"
-                onclick="Vuelos.buscar()">
-          <i class="fa-solid fa-magnifying-glass-dollar"></i> Buscar mejores precios</button>
-        <p class="hint text-xs" style="margin:.4rem 0 0">Con tus API keys busca en vivo
-          Aviasales. Tocá la llave arriba para configurar tu token.</p>
-      </div>
-      <div id="vu-res" style="display:grid;gap:.4rem"></div>
-      <div id="vu-cal"></div>
-      <div class="card card-pad">
-        <h4 class="lbl"><i class="fa-solid fa-bell"></i> Rutas vigiladas</h4>
-        <div><span class="fl-l">Tu WhatsApp (con código de país)</span>
-          <input class="input" id="vu-tel" inputmode="tel"
-            placeholder="Ej. 50688887777" onchange="Vuelos.setTel(this.value)"></div>
-        <div id="vu-vig"></div>
-        <div class="flex gap2" style="margin-top:.5rem">
-          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
-                  onclick="Vuelos.vigAdd()">
-            <i class="fa-solid fa-eye"></i> Vigilar esta ruta</button>
-          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
-                  onclick="Vuelos.vigCheck()">
-            <i class="fa-solid fa-rotate"></i> Revisar ahora</button>
-        </div>
+        <h4 class="lbl">País de compra (a veces cambia el precio)</h4>
+        <select id="vu-pais" class="select" onchange="Vuelos.setPais(this.value)">
+          <option value="CR">Costa Rica</option>
+          <option value="CO">Colombia</option>
+          <option value="PE">Perú</option>
+          <option value="MX">México</option>
+          <option value="US">Estados Unidos</option>
+        </select>
       </div>
       <div class="card card-pad">
         <h4 class="lbl"><i class="fa-solid fa-table-columns"></i> Comparador visual</h4>

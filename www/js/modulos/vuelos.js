@@ -55,7 +55,8 @@ const Vuelos = {
     ['vu.amadeus_key', 'Amadeus API Key'],
     ['vu.amadeus_sec', 'Amadeus API Secret'],
     ['vu.tequila', 'Kiwi Tequila apikey'],
-    ['vu.serp', 'SerpAPI api_key']],
+    ['vu.serp', 'SerpAPI api_key'],
+    ['vu.tp', 'Travelpayouts (Aviasales) token']],
   TIPS: [
     'Martes y miércoles suelen ser los días más baratos para volar; evitá viernes y domingo.',
     'Comprá 4–8 semanas antes (regional) o 2–4 meses antes (internacional).',

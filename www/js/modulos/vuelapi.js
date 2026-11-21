@@ -31,6 +31,7 @@ Object.assign(Vuelos, {
       jobs.push(this._amadeus(p, k));
     if (k['vu.tequila']) jobs.push(this._tequila(p, k['vu.tequila']));
     if (k['vu.serp']) jobs.push(this._serp(p, k['vu.serp']));
+    if (k['vu.tp']) jobs.push(this._tp(p, k['vu.tp']));
     if (!jobs.length) {
       res.innerHTML = '<div class="card card-pad"><p class="hint text-sm">' +
         'Sin APIs configuradas — tocá la llave arriba para agregar ' +
@@ -105,6 +106,22 @@ Object.assign(Vuelos, {
     return (r.data || []).map(o => ({ src: 'Tequila',
       aer: (o.airlines || ['?']).join('+'), precio: +o.price,
       seg: Math.max(0, (o.route || []).length - 1) }));
+  },
+  /* Travelpayouts / Aviasales: token gratis inmediato; devuelve la
+     caché de precios más baratos encontrados en el mes de la fecha. */
+  async _tp(p, key) {
+    const r = await this._http('get',
+      'https://api.travelpayouts.com/v1/prices/cheap', { params: {
+        origin: p.o, destination: p.d,
+        depart_date: p.i.slice(0, 7), currency: 'usd', token: key } });
+    const out = [], mes = (r.data || {})[p.d] || {};
+    for (const k2 in mes) {
+      const o = mes[k2];
+      if (p.v && !o.return_at) continue;
+      out.push({ src: 'Aviasales', aer: o.airline || '?',
+        precio: +o.price, seg: '—' });
+    }
+    return out.slice(0, 8);
   },
   async _serp(p, key) {
     const q = { engine: 'google_flights', departure_id: p.o,

@@ -25,10 +25,18 @@ Object.assign(Vuelos, {
   /* ---------- búsqueda en vivo ---------- */
   async buscar() {
     const p = this._params(), res = $('#vu-res');
-    if (!p.i) { showToast('Elegí la fecha de ida', 'error'); return; }
-    if (!p.v) { showToast('Elegí la fecha de vuelta', 'error'); return; }
+    if (p.i && !p.v) {
+      showToast('Elegí la fecha de vuelta', 'error'); return;
+    }
+    p.flex = !p.i;
+    if (p.flex) {
+      const hoy = new Date();
+      p.i = hoy.getFullYear() + '-' +
+        String(hoy.getMonth() + 1).padStart(2, '0') + '-01';
+    }
     const k = await this._keys(), jobs = [];
-    if (k['vu.tequila']) jobs.push(this._tequila(p, k['vu.tequila']));
+    if (k['vu.tequila'] && !p.flex)
+      jobs.push(this._tequila(p, k['vu.tequila']));
     if (k['vu.tp']) jobs.push(this._tp(p, k['vu.tp']));
     if (!jobs.length) {
       res.innerHTML = '<div class="card card-pad"><p class="hint text-sm">' +
@@ -47,6 +55,7 @@ Object.assign(Vuelos, {
       else errs.push((r.reason && r.reason.message) || 'sin respuesta');
     });
     this._last = { lista, errs, p };
+    this._mxCache = {};
     this._calMes = p.i.slice(0, 7);
     this._res(lista, errs, p.meta);
     this._calBuild(p, k);

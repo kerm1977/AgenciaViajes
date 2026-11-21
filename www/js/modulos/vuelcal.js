@@ -37,7 +37,8 @@ Object.assign(Vuelos, {
         return;
       if (o.actual === false || !o.return_date) return;
       const d = +o.depart_date.slice(8, 10);
-      if (!out[d] || o.value < out[d]) out[d] = o.value;
+      if (!out[d] || o.value < out[d].v)
+        out[d] = { v: o.value, ret: o.return_date };
     });
     return out;
   },
@@ -53,7 +54,7 @@ Object.assign(Vuelos, {
       if (!o.departure_at ||
           o.departure_at.slice(0, 7) !== (this._calMes ||
             p.i.slice(0, 7))) continue;
-      if (p.v && !o.return_at) continue;
+      if (!o.return_at) continue;
       out.push({ aer: o.airline || '?', dia: +o.departure_at.slice(8, 10),
         precio: +o.price, ret: o.return_at || '' });
     }
@@ -103,7 +104,7 @@ Object.assign(Vuelos, {
       if (e.precio > meta) return;
       pD[d] = e;
     });
-    Object.keys(mx).forEach(d => { if (mx[d] <= meta) mxf[d] = mx[d]; });
+    Object.keys(mx).forEach(d => { if (mx[d].v <= meta) mxf[d] = mx[d]; });
     let h = '<div class="card card-pad">' +
       '<div class="flex" style="align-items:center;justify-content:' +
       'space-between;margin-bottom:.2rem">' +
@@ -152,11 +153,15 @@ Object.assign(Vuelos, {
         '<b class="muted">' + w + '</b>').join('');
     for (let i = 0; i < ini; i++) h += '<div></div>';
     for (let d = 1; d <= nd; d++) {
-      const e = porDia[d], pr = e ? e.precio : mx[d],
+      const e = porDia[d], mo = mx[d],
+            pr = e ? e.precio : (mo ? mo.v : 0),
             fecha = mes + '-' + (d < 10 ? '0' + d : d),
             c2 = e ? (col || this._colorAer(e.aer)) : '',
-            tgt = aer ? 'Vuelos.diaAerSel(\'' + aer[0] + '\',\'' + fecha +
-              '\')' : 'Vuelos.diaSel(\'' + fecha + '\')';
+            ret = e ? (e.ret || '').slice(0, 10)
+                    : (mo ? (mo.ret || '') : ''),
+            tgt = (aer ? 'Vuelos.diaAerSel(\'' + aer[0] + '\',\'' + fecha +
+              '\'' : 'Vuelos.diaSel(\'' + fecha + '\'') +
+              ',\'' + ret + '\')';
       h += '<div role="button" style="padding:.2rem 0;border-radius:.35rem;' +
         'cursor:pointer;border:1px solid ' + (c2 || '#e2e8f0') +
         (c2 ? ';background:' + c2 : '') + '" onclick="' + tgt + '"' +
@@ -187,17 +192,19 @@ Object.assign(Vuelos, {
     const k = await this._keys();
     this._calBuild(L.p, k);
   },
-  diaSel(fecha) {
-    const p = this._params();
+  diaSel(fecha, ret) {
+    const p = this._params(), v = ret || p.v;
     window.open('https://www.kayak.com/flights/' + p.o + '-' + p.d + '/' +
-      fecha + (p.v ? '/' + p.v : '') + '?sort=price_a', '_blank');
+      fecha + (v ? '/' + v : '') + '?sort=price_a', '_blank');
   },
   /* día de un calendario de aerolínea: abre su web oficial si existe */
-  diaAerSel(code, fecha) {
+  diaAerSel(code, fecha, ret) {
     const p = this._params(),
           a = this.AEROF.find(x => x[0] === code),
           l = a && this.AEROL.find(x => x.n.indexOf(a[1]) === 0);
-    if (l) { window.open(l.u(p.o, p.d, fecha, p.v), '_blank'); return; }
-    this.diaSel(fecha);
+    if (l) {
+      window.open(l.u(p.o, p.d, fecha, ret || p.v), '_blank'); return;
+    }
+    this.diaSel(fecha, ret);
   },
 });

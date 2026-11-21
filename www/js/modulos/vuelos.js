@@ -107,9 +107,7 @@ const Vuelos = {
       d.innerHTML = this.DEST.map(x =>
         '<option value="' + x[0] + '">' + x[1] + ' (' + x[0] +
         ')</option>').join('');
-    const i = $('#vu-i');
-    if (i && !i.value)
-      i.value = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
+    /* fechas vacías = búsqueda flexible por mes */
     const t = $('#vu-tips');
     if (t && !t.children.length)
       t.innerHTML = this.TIPS.map(x => '<li>' + esc(x) + '</li>').join('');

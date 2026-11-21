@@ -102,6 +102,21 @@
       </div>
       <div id="vu-res" style="display:grid;gap:.4rem"></div>
       <div id="vu-cal"></div>
+      <div class="card card-pad">
+        <h4 class="lbl"><i class="fa-solid fa-bell"></i> Rutas vigiladas</h4>
+        <div><span class="fl-l">Tu WhatsApp (con código de país)</span>
+          <input class="input" id="vu-tel" inputmode="tel"
+            placeholder="Ej. 50688887777" onchange="Vuelos.setTel(this.value)"></div>
+        <div id="vu-vig"></div>
+        <div class="flex gap2" style="margin-top:.5rem">
+          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
+                  onclick="Vuelos.vigAdd()">
+            <i class="fa-solid fa-eye"></i> Vigilar esta ruta</button>
+          <button class="btn btn-soft" style="flex:1;font-size:.75rem"
+                  onclick="Vuelos.vigCheck()">
+            <i class="fa-solid fa-rotate"></i> Revisar ahora</button>
+        </div>
+      </div>
       <div id="vu-keys" class="card card-pad" hidden>
         <h4 class="lbl"><i class="fa-solid fa-key"></i> APIs en vivo (gratis)</h4>
         <div id="vu-keylist" class="grid" style="gap:.4rem"></div>

@@ -51,7 +51,8 @@ const Vuelos = {
     { n: 'Wingo', s: 'Web oficial',
       u: () => 'https://www.wingo.com/' }],
   KEYS: [
-    ['vu.tp', 'Travelpayouts (Aviasales) token']],
+    ['vu.tp', 'Travelpayouts (Aviasales) token'],
+    ['vu.tg', 'Telegram bot token (opcional)']],
   TP_DEF: 'c1af75818f66a4d2e1d653066ae49987',  /* token Aviasales incrustado */
   /* aerolíneas del filtro: código IATA, nombre, color del calendario */
   AEROF: [
@@ -114,7 +115,9 @@ const Vuelos = {
     this.aerChips();
     const ps = $('#vu-pais'), kv = await this._keys();
     if (ps) ps.value = kv['vu.pais'] || 'CR';
+    const te = $('#vu-tel'); if (te) te.value = kv['vu.tel'] || '';
     await this._keysForm();
+    if (this.vigList) { this.vigList(); this.vigCheck(); }
     $('#pag-vuelos').classList.add('open');
   },
   cerrar() { $('#pag-vuelos').classList.remove('open'); },
@@ -159,6 +162,18 @@ const Vuelos = {
       const v = (($('#k-' + k[0]) || {}).value || '').trim();
       if (v) await DB.save('config', { id: k[0], valor: v });
       else await DB.remove('config', k[0]).catch(() => {});
+    }
+    /* Telegram: el chat_id se detecta solo (escribile /start a tu bot) */
+    const tg = (($('#k-vu.tg') || {}).value || '').trim();
+    if (tg) {
+      try {
+        const r = await this._http('get',
+          'https://api.telegram.org/bot' + tg + '/getUpdates'), ms =
+          r.result || [], last = ms[ms.length - 1] || {},
+          cid = (last.message || last.channel_post || {}).chat;
+        if (cid) await DB.save('config',
+          { id: 'vu.tgc', valor: String(cid.id) });
+      } catch (e) { /* sin updates aún */ }
     }
     showToast('Llaves guardadas');
   },

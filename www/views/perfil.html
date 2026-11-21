@@ -88,6 +88,8 @@
           <div style="min-width:0"><h4 class="lbl">Precio objetivo (USD)</h4>
             <input id="vu-meta" type="number" min="0" class="input" placeholder="Ej. 280"></div>
         </div>
+        <h4 class="lbl" style="margin-top:.5rem">Filtro de aerolíneas</h4>
+        <div id="vu-aerof" class="flex gap1" style="flex-wrap:wrap"></div>
         <button class="btn btn-primary" style="width:100%;margin-top:.6rem"
                 onclick="Vuelos.buscar()">
           <i class="fa-solid fa-magnifying-glass-dollar"></i> Buscar mejores precios</button>
@@ -95,6 +97,7 @@
           (Tequila · Aviasales). Tocá la llave arriba para configurarlas.</p>
       </div>
       <div id="vu-res" style="display:grid;gap:.4rem"></div>
+      <div id="vu-cal"></div>
       <div id="vu-keys" class="card card-pad" hidden>
         <h4 class="lbl"><i class="fa-solid fa-key"></i> APIs en vivo (gratis)</h4>
         <div id="vu-keylist" class="grid" style="gap:.4rem"></div>

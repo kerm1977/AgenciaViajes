@@ -55,6 +55,31 @@ const Vuelos = {
     ['vu.tequila', 'Kiwi Tequila apikey'],
     ['vu.tp', 'Travelpayouts (Aviasales) token']],
   TP_DEF: 'c1af75818f66a4d2e1d653066ae49987',  /* token Aviasales incrustado */
+  /* aerolíneas del filtro: código IATA, nombre, color del calendario */
+  AEROF: [
+    ['AV', 'Avianca', '#d51243'], ['LA', 'LATAM', '#1e50a2'],
+    ['CM', 'Copa', '#0072ce'], ['IB', 'Iberia', '#d7192d'],
+    ['AA', 'American', '#0078d2'], ['UA', 'United', '#003366'],
+    ['AM', 'Aeroméxico', '#002856'], ['DL', 'Delta', '#e01933'],
+    ['NK', 'Spirit', '#c8a100'], ['Y4', 'Volaris', '#8e6bc0'],
+    ['VB', 'Viva Aerobus', '#003a70'], ['P5', 'Wingo', '#7b2ff7']],
+  _fA: {},   /* filtro de aerolíneas activo: {AV:true, LA:true} */
+  aerChips() {
+    const box = $('#vu-aerof'); if (!box) return;
+    box.innerHTML = this.AEROF.map(a =>
+      '<button type="button" class="btn btn-soft" style="padding:.2rem .5rem;' +
+      'font-size:.72rem' + (this._fA[a[0]] ?
+        ';background:' + a[2] + ';color:#fff;border-color:' + a[2] : '') +
+      '" onclick="Vuelos.togAer(\'' + a[0] + '\')">' +
+      '<i class="fa-solid fa-plane"></i> ' + esc(a[1]) + '</button>').join('');
+  },
+  togAer(c) {
+    this._fA[c] = !this._fA[c];
+    if (!this._fA[c]) delete this._fA[c];
+    this.aerChips();
+    if (this._refil) this._refil();
+  },
+  aerSel() { return Object.keys(this._fA); },
   TIPS: [
     'Martes y miércoles suelen ser los días más baratos para volar; evitá viernes y domingo.',
     'Comprá 4–8 semanas antes (regional) o 2–4 meses antes (internacional).',
@@ -80,6 +105,7 @@ const Vuelos = {
       t.innerHTML = this.TIPS.map(x => '<li>' + esc(x) + '</li>').join('');
     this._botones('#vu-agg', this.AGG);
     this._botones('#vu-aer', this.AEROL);
+    this.aerChips();
     await this._keysForm();
     $('#pag-vuelos').classList.add('open');
   },

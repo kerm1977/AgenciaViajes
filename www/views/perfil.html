@@ -76,14 +76,16 @@
           <label class="it-aic"><input type="radio" name="vu-tipo" value="rt"
             onchange="Vuelos.tipo()"> Ida y vuelta</label>
         </div>
-        <div class="grid" style="grid-template-columns:1fr 1fr;gap:.5rem">
-          <div><h4 class="lbl">Origen</h4><select id="vu-o" class="select"></select></div>
-          <div><h4 class="lbl">Destino</h4><select id="vu-d" class="select"></select></div>
-          <div><h4 class="lbl">Fecha de ida</h4>
+        <div class="grid" style="grid-template-columns:1fr;gap:.5rem">
+          <div style="min-width:0"><h4 class="lbl">Origen</h4>
+            <select id="vu-o" class="select"></select></div>
+          <div style="min-width:0"><h4 class="lbl">Destino</h4>
+            <select id="vu-d" class="select"></select></div>
+          <div style="min-width:0"><h4 class="lbl">Fecha de ida</h4>
             <input id="vu-i" type="date" class="input"></div>
-          <div id="vu-vw" hidden><h4 class="lbl">Fecha de vuelta</h4>
+          <div id="vu-vw" hidden style="min-width:0"><h4 class="lbl">Fecha de vuelta</h4>
             <input id="vu-v" type="date" class="input"></div>
-          <div><h4 class="lbl">Precio objetivo (USD)</h4>
+          <div style="min-width:0"><h4 class="lbl">Precio objetivo (USD)</h4>
             <input id="vu-meta" type="number" min="0" class="input" placeholder="Ej. 280"></div>
         </div>
         <button class="btn btn-primary" style="width:100%;margin-top:.6rem"

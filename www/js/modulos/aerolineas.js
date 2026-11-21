@@ -68,16 +68,27 @@ Itinerario.aeroCard = function (card, nombre, x) {
     '"' + (hd ? ' hidden' : '') + '><span class="fl-l">' + l + '</span>' +
     h + '</div>';
   const osOn = x.os === '1' || x.os === true;
+  /* visible: aerolínea + precio boleto + cobro; el resto tras "más información" */
+  const masOn = !!(x.clase || x.ci || asientoInc || osOn ||
+    x.esc === '1' || x.esc === true);
   card.querySelector('.it-acc-body').innerHTML =
     fl('Aerolínea', '<select class="select it-aero">' +
       '<option value="">— Aerolínea —</option>' +
       nombres.map(n => '<option' + (n === nombre ? ' selected' : '') + '>' +
         esc(n) + '</option>').join('') + '</select>') +
+    '<div class="grid-2">' +
+      fl('Precio boleto', '<input type="number" min="0" step="1" value="' +
+        esc(x.pb || '') + '" class="input it-pb">', 0, 'fl-p') +
+      fl('Cobro', '<select class="select it-modo">' +
+        '<option value="persona"' + (x.modo !== 'grupo' ? ' selected' : '') +
+        '>Por persona</option>' +
+        '<option value="grupo"' + (x.modo === 'grupo' ? ' selected' : '') +
+        '>Por grupo</option></select>') + '</div>' +
+    '<label class="it-aic"><input type="checkbox" class="it-mas"' +
+      (masOn ? ' checked' : '') + '> Agregar más información</label>' +
+    '<div class="it-masinfo"' + (masOn ? '' : ' hidden') + '>' +
     fl('Clase', '<select class="select it-clase"><option value="">' +
       '— Clase —</option></select>') +
-    '<hr class="it-hr">' +
-    fl('Precio boleto', '<input type="number" min="0" step="1" value="' +
-      esc(x.pb || '') + '" class="input it-pb">', 0, 'fl-p') +
     '<div class="it-chks">' +
       '<label class="it-aic"><input type="checkbox" class="it-cic"' +
         (x.ci ? ' checked' : '') + '> Enlace check-in</label>' +
@@ -112,7 +123,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
       fl('Aerolínea de la escala', '<select class="select it-esca">' +
         '<option value="">— Aerolínea de la escala —</option>' +
         nombres.map(n => '<option' + (n === x.esca ? ' selected' : '') +
-          '>' + esc(n) + '</option>').join('') + '</select>') + '</div>' +
+          '>' + esc(n) + '</option>').join('') + '</select>') + '</div></div>' +
     '<p class="it-total it-tota hint"></p>';
   const sel = card.querySelector('.it-aero'),
         cls = card.querySelector('.it-clase'),
@@ -125,6 +136,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
         osv = card.querySelector('.it-osv'),
         osd = card.querySelector('.it-osd'),
         tot = card.querySelector('.it-tota'),
+        mo  = card.querySelector('.it-modo'),
         inp = (c) => card.querySelector(c);
   const hint = card.querySelector('.it-hint');
   const n = el => parseFloat(el.value) || 0;
@@ -132,10 +144,20 @@ Itinerario.aeroCard = function (card, nombre, x) {
   const total = () => {
     const base = n(inp('.it-pb')) + (os.checked ? n(osv) : 0);
     const con = base + (ai.checked ? n(ps) : 0);
-    const cg = Itinerario.pax(), sg = Itinerario.paxS();
+    const cg = Itinerario.pax(), sg = Itinerario.paxS(),
+          grp = mo.value === 'grupo';
     if (!con) { tot.innerHTML = ''; hint.textContent = ''; return; }
     let h;
-    if (cg) {   /* boleto P/P: c/u repartido entre S/G, cobrado a todos */
+    if (grp) {            /* P/G: boleto es precio del grupo ÷ S/G */
+      const cu = sg ? Math.round(con / sg) : con;
+      h = 'P/G ' + sim() + con.toFixed(0) +
+        (sg ? '<br>÷ ' + sg + ' S/G = ' + sim() + cu + ' c/u' : '') +
+        '<br>C/G: ' + sim() + con.toFixed(0) + ' · S/G: ' + sim() +
+        cu.toFixed(0) + ' c/u' +
+        '<br>Total individual: ' + sim() + cu.toFixed(0) +
+        '<br>Total sin guía: ' + sim() + con.toFixed(0) +
+        '<br><b>Total por grupo: ' + sim() + con.toFixed(0) + '</b>';
+    } else if (cg) {   /* boleto P/P: c/u repartido entre S/G, cobrado a todos */
       const T = con * cg, cu = sg ? Math.round(T / sg) : con;
       h = 'P/P ' + sim() + con.toFixed(0) + ' × ' + cg + ' C/G = ' +
         sim() + T.toFixed(0) +
@@ -146,7 +168,8 @@ Itinerario.aeroCard = function (card, nombre, x) {
         '<br><b>Total por grupo: ' + sim() + cu * cg + '</b>';
     } else h = '<b>Total: ' + sim() + con.toFixed(0) + '</b>';
     tot.innerHTML = '<hr class="it-hr">' + h;
-    hint.textContent = sim() + (sg ? Math.round(con * cg / sg) : con);
+    hint.textContent = sim() + (grp ? (sg ? Math.round(con / sg) : con)
+      : (sg ? Math.round(con * cg / sg) : con));
     if (Itinerario._gtotal) Itinerario._gtotal();
   };
   card._tot = total;   // refresh() lo recalcula al cambiar C/G o S/G
@@ -181,6 +204,7 @@ Itinerario.aeroCard = function (card, nombre, x) {
       !os.checked; total(); });
   ['.it-pb', '.it-ps', '.it-osv'].forEach(c =>
     inp(c).addEventListener('input', total));
+  mo.addEventListener('change', total);
   pintar(); total();
 };
 Itinerario.aeroCollect = function (card) {
@@ -195,6 +219,7 @@ Itinerario.aeroCollect = function (card) {
       card.querySelector('.it-ci').value.trim() : '',
     clase: card.querySelector('.it-clase').value,
     pb: card.querySelector('.it-pb').value,
+    modo: card.querySelector('.it-modo').value,
     ai: card.querySelector('.it-ai').checked ? '1' : '0',
     ps: card.querySelector('.it-ps').value,
     os: card.querySelector('.it-os').checked ? '1' : '0',

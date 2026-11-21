@@ -76,6 +76,7 @@ Object.assign(Vuelos, {
   },
   _res(lista, errs, meta) {
     lista = this._filtra(lista.slice().sort((a, b) => a.precio - b.precio));
+    this._resLista = lista;
     let h = '';
     const min = lista.length ? lista[0].precio : 0;
     if (min && meta && min <= meta)
@@ -85,13 +86,16 @@ Object.assign(Vuelos, {
         Math.round(min) + ' ≤ $' + meta + '</p></div>';
     if (lista.length)
       h += '<div class="card card-pad"><h4 class="lbl">Mejores precios ' +
-        'en vivo (' + lista.length + ')</h4>' + lista.map(x =>
-        '<div class="it-acc" style="margin-top:.3rem"><div class="it-acc-btn">' +
+        'en vivo (' + lista.length + ')</h4>' + lista.map((x, ix) =>
+        '<div class="it-acc" style="margin-top:.3rem;cursor:pointer"' +
+        ' onclick="Vuelos.comprar(' + ix + ')"><div class="it-acc-btn">' +
         '<span class="it-acc-t">' + esc(x.aer) + '</span>' +
         '<span class="hint">' + esc(x.src) + ' · ' + x.seg +
         ' escala(s)</span>' +
         '<b style="color:var(--brand-600)">$' +
-        Math.round(x.precio) + '</b></div></div>').join('') + '</div>';
+        Math.round(x.precio) + '</b>' +
+        '<i class="fa-solid fa-arrow-up-right-from-square muted"></i>' +
+        '</div></div>').join('') + '</div>';
     if (errs.length)
       h += '<div class="card card-pad"><p class="hint text-xs">' +
         errs.map(esc).join(' · ') + '</p></div>';
@@ -99,6 +103,16 @@ Object.assign(Vuelos, {
       h = '<div class="card card-pad"><p class="hint text-sm">' +
         'Sin resultados para esa ruta, fecha y aerolíneas.</p></div>';
     $('#vu-res').innerHTML = h;
+  },
+  /* tocar un resultado de la lista abre la página de compra */
+  comprar(ix) {
+    const x = (this._resLista || [])[ix], p = this._params();
+    if (!x) return;
+    const fecha = x.fecha || p.i, ret = (x.ret || '').slice(0, 10),
+          a = this.AEROF.find(v =>
+            String(x.aer).split('+').includes(v[0]));
+    if (a) { this.diaAerSel(a[0], fecha, ret); return; }
+    this.diaSel(fecha, ret);
   },
   _f(s) { const a = s.split('-'); return a[2] + '/' + a[1] + '/' + a[0]; },
   /* calendarios por aerolínea: vuelcal.js (extiende este objeto) */
@@ -118,8 +132,11 @@ Object.assign(Vuelos, {
   /* Travelpayouts / Aviasales: token gratis inmediato; devuelve la
      caché de precios más baratos encontrados en el mes de la fecha. */
   async _tp(p, key) {
-    const mes = await this._cheapMes(p, key);
+    const mes = await this._cheapMes(p, key),
+          base = this._calMes || p.i.slice(0, 7);
     return mes.map(o => ({ src: 'Aviasales', aer: o.aer,
-      precio: o.precio, seg: '—' })).slice(0, 8);
+      precio: o.precio, seg: '—',
+      fecha: base + '-' + (o.dia < 10 ? '0' : '') + o.dia,
+      ret: (o.ret || '').slice(0, 10) })).slice(0, 8);
   }
 });

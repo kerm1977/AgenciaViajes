@@ -12,7 +12,10 @@ const DB = {
       ' permisos TEXT, activo INTEGER, creado TEXT)',
     contactos: 'CREATE TABLE IF NOT EXISTS contactos (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, tipo TEXT, codigo TEXT, telefono TEXT,' +
-      ' email TEXT, notas TEXT)',
+      ' email TEXT, notas TEXT, ap1 TEXT, ap2 TEXT, pasaporte TEXT,' +
+      ' fijo TEXT, tel2 TEXT, tel3 TEXT, cedula TEXT, nacimiento TEXT,' +
+      ' sangre TEXT, grupo TEXT, pais TEXT, lugar TEXT, emNombre TEXT,' +
+      ' emTel TEXT, cnombre TEXT, ctel TEXT, urlmapa TEXT, horario TEXT)',
     destinos: 'CREATE TABLE IF NOT EXISTS destinos (id TEXT PRIMARY KEY,' +
       ' nombre TEXT, pais TEXT, destinos TEXT,' +
       ' paxConGuia INTEGER, paxSinGuia INTEGER, moneda TEXT, imagen TEXT, guia TEXT,' +
@@ -32,6 +35,11 @@ const DB = {
   },
   /* columnas añadidas después del esquema inicial — migración ALTER */
   MIGRACIONES: {
+    contactos: ['ap1 TEXT', 'ap2 TEXT', 'pasaporte TEXT', 'fijo TEXT',
+                'tel2 TEXT', 'tel3 TEXT', 'cedula TEXT', 'nacimiento TEXT',
+                'sangre TEXT', 'grupo TEXT', 'pais TEXT', 'lugar TEXT',
+                'emNombre TEXT', 'emTel TEXT', 'cnombre TEXT', 'ctel TEXT',
+                'urlmapa TEXT', 'horario TEXT'],
     destinos: ['pais TEXT', 'destinos TEXT',
                'paxConGuia INTEGER', 'paxSinGuia INTEGER', 'moneda TEXT',
                'checkout TEXT', 'boleto TEXT', 'trans TEXT', 'fechas TEXT',

@@ -83,62 +83,91 @@ const Pasajeros = {
     });
     sel.value = '';
   },
-  async nuevo() {
-    if (!Session.can('pasajeros.crear')) {
-      showToast('Sin permiso para agregar pasajeros', 'error'); return;
+  _edTabla: '',
+  async nuevo(tipo) {
+    if (!Session.can('pasajeros.crear') && !Session.can('contactos.crear')) {
+      showToast('Sin permiso para agregar', 'error'); return;
     }
+    this._edTabla = '';
     $('#form-pasajero').reset(); $('#pasajero-id').value = '';
     const w = $('#pax-wa'); if (w) w.style.display = 'none';
     llenarCodigos($('#pax-codigo'));
     await this._fillDestinos();
-    $('#modal-pasajero-title').textContent = 'Asignar Pasajero a Viaje';
+    $('#pax-tipo').value = tipo || 'Pasajero';
+    this.tTipo();
     openModal('modal-pasajero');
+  },
+  /* alterna campos propios de pasajero (viaje/asiento/check-in) según tipo */
+  tTipo() {
+    const esP = $('#pax-tipo').value === 'Pasajero',
+          solo = $('#pax-solo'), sd = $('#pax-destino');
+    if (solo) solo.style.display = esP ? '' : 'none';
+    if (sd) { if (esP) sd.dataset.reglas = 'requerido';
+      else delete sd.dataset.reglas; }
+    $('#modal-pasajero-title').textContent =
+      (($('#pasajero-id').value ? 'Editar ' : 'Nuevo ') +
+       (esP ? 'Pasajero' : 'Contacto — ' + $('#pax-tipo').value));
   },
   async guardar(e) {
     e.preventDefault();
     if (!V.check($('#form-pasajero'))) return;
-    const id = $('#pasajero-id').value;
-    const o = {
+    const id = $('#pasajero-id').value,
+          tipo = $('#pax-tipo').value,
+          tabla = tipo === 'Pasajero' ? 'pasajeros' : 'contactos',
+          o = {
       id: id || undefined,
       nombre: V.titleCase(($('#pax-nombre').value + ' ' +
         $('#pax-ap1').value + ' ' + $('#pax-ap2').value).trim()),
       ap1: V.titleCase($('#pax-ap1').value),
       ap2: V.titleCase($('#pax-ap2').value),
       codigo: $('#pax-codigo').value,
-      telefono: V.telNorm($('#pax-telefono').value),
-      destinoId: $('#pax-destino').value,
-      checkin: $('#pax-checkin-estado').value,
-      checkinUrl: $('#pax-checkin-url').value.trim()
-    };
+      telefono: V.telNorm($('#pax-telefono').value) };
     PAXF.forEach(k => { const el = $('#pax-' + k);
       if (el) o[k] = el.value.trim(); });
     o.pasaporte = (o.pasaporte || '').toUpperCase();
-    o.asiento = ($('#pax-asiento').value || '').trim().toUpperCase();
     o.email = V.emailNorm(o.email || '');
-    await DB.save('pasajeros', o);
+    if (tipo === 'Pasajero') {
+      o.destinoId = $('#pax-destino').value;
+      o.checkin = $('#pax-checkin-estado').value;
+      o.checkinUrl = $('#pax-checkin-url').value.trim();
+      o.asiento = ($('#pax-asiento').value || '').trim().toUpperCase();
+    } else o.tipo = tipo;
+    await DB.save(tabla, o);
+    const ot = this._edTabla || 'pasajeros';
+    if (id && ot !== tabla) await DB.remove(ot, id);
+    this._edTabla = '';
     closeModal('modal-pasajero');
-    showToast(id ? 'Pasajero actualizado' : 'Pasajero asignado');
+    showToast(id ? 'Registro actualizado' : 'Registro agregado');
     this.render();
+    if (window.Contactos) Contactos.render();
+    const mp = $('#modal-paxpick');
+    if (mp && mp.classList.contains('open')) Destinos.paxPickRender();
   },
-  async editar(id) {
-    if (!Session.can('pasajeros.editar')) return;
-    const p = await DB.get('pasajeros', id);
+  async editar(id, tabla) {
+    tabla = tabla || 'pasajeros';
+    if (!Session.can(tabla === 'pasajeros'
+        ? 'pasajeros.editar' : 'contactos.editar')) return;
+    const p = await DB.get(tabla, id);
     if (!p) return;
+    this._edTabla = tabla;
+    $('#form-pasajero').reset();
     await this._fillDestinos();
     llenarCodigos($('#pax-codigo'), p.codigo);
     $('#pasajero-id').value = p.id;
+    $('#pax-tipo').value = tabla === 'pasajeros'
+      ? 'Pasajero' : (p.tipo || 'Guía');
     $('#pax-nombre').value = p.ap1 ? p.nombre.split(' ')[0] || '' : p.nombre;
     $('#pax-ap1').value = p.ap1 || '';
     $('#pax-ap2').value = p.ap2 || '';
     $('#pax-telefono').value = p.telefono || '';
-    $('#pax-destino').value = p.destinoId;
+    $('#pax-destino').value = p.destinoId || '';
     $('#pax-asiento').value = p.asiento || '';
     $('#pax-checkin-estado').value = p.checkin || 'Pendiente';
     $('#pax-checkin-url').value = p.checkinUrl || '';
     PAXF.forEach(k => { const el = $('#pax-' + k);
       if (el) el.value = p[k] || ''; });
     const w = $('#pax-wa'); if (w) w.style.display = p.checkinUrl ? '' : 'none';
-    $('#modal-pasajero-title').textContent = 'Editar Pasajero';
+    this.tTipo();
     openModal('modal-pasajero');
   },
   /* abre WhatsApp al celular del pasajero con el enlace de check-in */
@@ -153,57 +182,6 @@ const Pasajeros = {
     const msg = 'Hola ' + (nom || 'viajero') +
       ', aquí tienes el enlace para hacer tu check-in: ' + u.trim();
     window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
-  },
-  /* --- Asignar grupo a viaje --- */
-  _grpSel: [],
-  async grupo() {
-    if (!Session.can('pasajeros.editar')) {
-      showToast('Sin permiso para asignar pasajeros', 'error'); return; }
-    this._grpSel = [];
-    const sel = $('#grp-viaje');
-    sel.innerHTML = '<option value="">Asignar viaje…</option>';
-    (await DB.list('destinos')).forEach(d => {
-      const o = document.createElement('option');
-      o.value = d.id; o.textContent = d.nombre; sel.appendChild(o); });
-    sel.value = ''; $('#grp-buscar').value = '';
-    await this.grpRender();
-    openModal('modal-grupo');
-  },
-  async grpRender() {
-    const q = ((($('#grp-buscar') || {}).value) || '').toLowerCase(),
-          vid = (($('#grp-viaje') || {}).value) || '',
-          pxs = (await DB.list('pasajeros'))
-            .filter(p => p.destinoId !== vid)
-            .filter(p => !q || (p.nombre || '').toLowerCase().includes(q) ||
-              (p.telefono || '').includes(q)).sort((a, b) => a.nombre.localeCompare(b.nombre));
-    $('#grp-lista').innerHTML = pxs.map(p =>
-      '<label class="grp-hit"><input type="checkbox" value="' + p.id + '"' +
-      (this._grpSel.includes(p.id) ? ' checked' : '') +
-      ' onchange="Pasajeros.grpTog(\'' + p.id + '\')"><span><b>' +
-      esc(p.nombre) + '</b>' +
-      (p.telefono ? ' <span class="hint">' + esc(p.telefono) + '</span>' : '') +
-      '</span></label>').join('') ||
-      '<p class="hint" style="text-align:center">Sin resultados</p>';
-    this._grpCount();
-  },
-  _grpCount() { const c = $('#grp-count');
-    if (c) c.textContent = this._grpSel.length ? '(' + this._grpSel.length + ')' : ''; },
-  grpTog(id) {
-    const i = this._grpSel.indexOf(id);
-    if (i < 0) this._grpSel.push(id); else this._grpSel.splice(i, 1); this._grpCount();
-  },
-  async guardarGrupo() {
-    const vid = $('#grp-viaje').value;
-    if (!vid) return showToast('Elegí el viaje', 'warn');
-    if (!this._grpSel.length)
-      return showToast('Seleccioná al menos un pasajero', 'warn');
-    for (const pid of this._grpSel) {
-      const p = await DB.get('pasajeros', pid);
-      if (p) { p.destinoId = vid; await DB.save('pasajeros', p); } }
-    showToast(this._grpSel.length + ' pasajeros asignados');
-    this._grpSel = []; closeModal('modal-grupo');
-    if (Destinos._detId === vid) Destinos.pagina(vid);
-    this.render();
   },
   async borrar(id) {
     if (!Session.can('pasajeros.eliminar')) {

@@ -45,48 +45,55 @@ const Contactos = {
   },
   pg(d) { this._page = Math.max(0, this._page + d); this.render(); },
   _card(c, eP, dP, viaje) {
-    const acc = '<span class="it-acc-t"><b>' + esc(c.nombre) +
-      '</b> <span class="badge ' + (this.BADGE[c.tipo] || 'badge-slate') +
-      '">' + esc(c.tipo) + '</span></span>';
-    const head = '<div class="it-acc-head"><button type="button" class="it-acc-btn" ' +
-      'onclick="this.closest(\'.it-acc\').classList.toggle(\'open\')">' + acc +
-      '<span class="hint">' + esc((c.codigo || '') + (c.telefono || '')) +
-      '</span><i class="fa-solid fa-chevron-down"></i></button></div>';
-    const wa = c.telefono ? '<a class="btn btn-soft" target="_blank" ' +
-      'style="color:#25D366" href="https://wa.me/' +
-      String((c.codigo || '') + c.telefono).replace(/\D/g, '') +
-      '"><i class="fa-brands fa-whatsapp"></i></a>' : '';
-    if (c._k === 'p')
-      return '<div class="it-acc">' + head + '<div class="it-acc-body">' +
-        (c.telefono ? '<p><i class="fa-solid fa-phone"></i> <b>Tel:</b> ' +
-          esc((c.codigo || '') + c.telefono) + '</p>' : '') +
-        (c.pasaporte ? '<p><i class="fa-solid fa-id-card"></i> <b>Pasaporte:</b> ' +
-          esc(c.pasaporte) + '</p>' : '') +
-        (c.destinoId ? '<p><i class="fa-solid fa-map-location-dot"></i> ' +
-          '<b>Viaje:</b> ' + esc(viaje(c.destinoId)) + '</p>' : '') +
-        (c.checkin ? '<p><i class="fa-solid fa-square-check"></i> ' +
-          '<b>Check-in:</b> ' + esc(c.checkin) + '</p>' : '') +
-        '<div class="flex gap1" style="justify-content:flex-end">' + wa +
-        (eP ? '<button class="btn btn-soft" onclick="Contactos.paxEdit(\'' +
-          c.id + '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
+    const f = (ic, lb, v) => v ? '<p><i class="fa-solid ' + ic + '"></i> <b>' +
+          lb + ':</b> ' + esc(v) + '</p>' : '',
+      acc = '<span class="it-acc-t"><b>' + esc(c.nombre) +
+        '</b> <span class="badge ' + (this.BADGE[c.tipo] || 'badge-slate') +
+        '">' + esc(c.tipo) + '</span></span>',
+      head = '<div class="it-acc-head"><button type="button" class="it-acc-btn" ' +
+        'onclick="this.closest(\'.it-acc\').classList.toggle(\'open\')">' + acc +
+        '<span class="hint">' + esc((c.codigo || '') + (c.telefono || '')) +
+        '</span><i class="fa-solid fa-chevron-down"></i></button></div>',
+      wa = c.telefono ? '<a class="btn btn-soft" target="_blank" ' +
+        'style="color:#25D366" href="https://wa.me/' +
+        String((c.codigo || '') + c.telefono).replace(/\D/g, '') +
+        '"><i class="fa-brands fa-whatsapp"></i></a>' : '',
+      esPax = c._k === 'p',
+      acts = '<div class="flex gap1" style="justify-content:flex-end">' + wa +
+        (eP ? '<button class="btn btn-soft" onclick="Contactos.' +
+          (esPax ? 'paxEdit' : 'editar') + '(\'' + c.id +
+          '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
         (dP ? '<button class="btn btn-soft" style="color:var(--rose-600)" ' +
-          'onclick="Contactos.paxDel(\'' + c.id +
-          '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
-        '</div></div></div>';
+          'onclick="Contactos.' + (esPax ? 'paxDel' : 'borrar') + '(\'' + c.id +
+          '\')"><i class="fa-solid fa-trash"></i></button>' : '') + '</div>',
+      filas = f('fa-id-card', 'Cédula', c.cedula) +
+        f('fa-passport', 'Pasaporte', c.pasaporte) +
+        f('fa-cake-candles', 'Nacimiento', c.nacimiento) +
+        f('fa-droplet', 'Sangre', c.sangre) + f('fa-users', 'Grupo', c.grupo) +
+        f('fa-flag', 'País', c.pais) + f('fa-location-dot', 'Lugar', c.lugar) +
+        f('fa-phone', 'Fijo', c.fijo) + f('fa-phone', 'Tel 2', c.tel2) +
+        f('fa-phone', 'Tel 3', c.tel3) + f('fa-envelope', 'Correo', c.email) +
+        f('fa-triangle-exclamation', 'Emergencia',
+          [c.emNombre, c.emTel].filter(Boolean).join(' · ')) +
+        f('fa-user-clock', 'Contacto',
+          [c.cnombre, c.ctel].filter(Boolean).join(' · ')) +
+        f('fa-clock', 'Horario', c.horario) +
+        f('fa-note-sticky', 'Notas', c.notas) +
+        (c.urlmapa ? '<p><a href="' + esc(c.urlmapa) + '" target="_blank" ' +
+          'style="color:var(--brand-600)"><i class="fa-solid fa-map"></i> ' +
+          'Mapa</a></p>' : '');
     return '<div class="it-acc">' + head + '<div class="it-acc-body">' +
-      (c.telefono ? '<p><i class="fa-solid fa-phone"></i> <b>Tel:</b> ' +
-        esc((c.codigo || '') + c.telefono) + '</p>' : '') +
-      (c.email ? '<p><i class="fa-solid fa-envelope"></i> <b>Correo:</b> ' +
-        esc(c.email) + '</p>' : '') +
-      (c.notas ? '<p class="hint" style="background:var(--slate-50);padding:.5rem;' +
-        'border-radius:var(--r-md);font-style:italic">' + esc(c.notas) + '</p>' : '') +
-      '<div class="flex gap1" style="justify-content:flex-end">' + wa +
-      (eP ? '<button class="btn btn-soft" onclick="Contactos.editar(\'' + c.id +
-        '\')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
-      (dP ? '<button class="btn btn-soft" style="color:var(--rose-600)" ' +
-        'onclick="Contactos.borrar(\'' + c.id +
-        '\')"><i class="fa-solid fa-trash"></i></button>' : '') +
-      '</div></div></div>';
+      filas +
+      (esPax && c.destinoId ? f('fa-plane', 'Viaje', viaje(c.destinoId)) : '') +
+      (esPax && c.asiento ? f('fa-chair', 'Asiento', c.asiento) : '') +
+      (esPax && c.checkin ? '<p><span class="badge ' +
+        (c.checkin === 'Realizado' ? 'badge-brand' : 'badge-amber') + '">' +
+        esc(c.checkin) + '</span></p>' : '') +
+      (esPax && c.checkinUrl ? '<p><a href="' + esc(c.checkinUrl) +
+        '" target="_blank" style="color:var(--brand-600)">' +
+        '<i class="fa-solid fa-arrow-up-right-from-square"></i> ' +
+        'Enlace check-in</a></p>' : '') +
+      acts + '</div></div>';
   },
   /* pasajeros dentro de la agenda (la ficha completa vive en la vista) */
   async paxEdit(id) {
@@ -96,48 +103,13 @@ const Contactos = {
     await Router.cargar('pasajeros', '#tab-pasajeros');
     Pasajeros.nuevo(); },
   async paxDel(id) { await Pasajeros.borrar(id); this.render(); },
-  nuevo() {
-    if (!Session.can('contactos.crear')) {
-      showToast('Sin permiso para agregar contactos', 'error'); return;
-    }
-    $('#form-contacto').reset(); $('#contacto-id').value = '';
-    llenarCodigos($('#cont-codigo'));
-    $('#modal-contacto-title').textContent = 'Registrar Contacto';
-    openModal('modal-contacto');
-  },
-  async guardar(e) {
-    e.preventDefault();
-    if (!V.check($('#form-contacto'))) return;
-    const id = $('#contacto-id').value;
-    await DB.save('contactos', {
-      id: id || undefined,
-      nombre: V.titleCase($('#cont-nombre').value),
-      tipo: $('#cont-tipo').value,
-      codigo: $('#cont-codigo').value,
-      telefono: V.telNorm($('#cont-telefono').value),
-      email: V.emailNorm($('#cont-email').value),
-      notas: $('#cont-notas').value.trim()
-    });
-    closeModal('modal-contacto');
-    showToast(id ? 'Contacto actualizado' : 'Contacto registrado');
-    this.render();
-    if ($('#modal-paxpick') && $('#modal-paxpick').classList.contains('open'))
-      Destinos.paxPickRender();
-  },
+  /* alta/edición usa el formulario completo de pasajeros (pide el tipo) */
+  async nuevo() {
+    await Router.cargar('pasajeros', '#tab-pasajeros');
+    Pasajeros.nuevo('Guía'); },
   async editar(id) {
-    if (!Session.can('contactos.editar')) return;
-    const c = await DB.get('contactos', id);
-    if (!c) return;
-    $('#contacto-id').value = c.id;
-    $('#cont-nombre').value = c.nombre;
-    $('#cont-tipo').value = c.tipo;
-    llenarCodigos($('#cont-codigo'), c.codigo);
-    $('#cont-telefono').value = c.telefono || '';
-    $('#cont-email').value = c.email || '';
-    $('#cont-notas').value = c.notas || '';
-    $('#modal-contacto-title').textContent = 'Editar Contacto';
-    openModal('modal-contacto');
-  },
+    await Router.cargar('pasajeros', '#tab-pasajeros');
+    Pasajeros.editar(id, 'contactos'); },
   async borrar(id) {
     if (!Session.can('contactos.eliminar')) {
       showToast('Sin permiso para eliminar contactos', 'error'); return;

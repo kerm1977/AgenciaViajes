@@ -36,6 +36,14 @@
     </div>
     <form id="form-pasajero" class="modal-body" onsubmit="Pasajeros.guardar(event)" novalidate>
       <input type="hidden" id="pasajero-id">
+      <div class="field">
+        <label class="lbl">Tipo de usuario *</label>
+        <select id="pax-tipo" class="select" onchange="Pasajeros.tTipo()">
+          <option>Pasajero</option><option>Guía</option>
+          <option>Transportista</option><option>Aerolínea</option>
+          <option>Hotel</option><option>Servicios / Otros</option>
+        </select>
+      </div>
       <div class="grid-2">
         <div class="field">
           <label class="lbl">Nombre *</label>
@@ -129,6 +137,7 @@
       <div class="field"><label class="lbl">URL de Google Maps</label>
         <input type="url" id="pax-urlmapa" class="input" placeholder="https://maps.app.goo.gl/..."></div>
 
+      <div id="pax-solo">
       <div class="field">
         <label class="lbl">Destino / viaje asignado *</label>
         <select id="pax-destino" class="select" data-reglas="requerido"></select>
@@ -160,9 +169,10 @@
             <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
         </div>
       </div>
+      </div>
       <div class="modal-foot" style="padding-left:0;padding-right:0">
         <button type="button" class="btn btn-soft" onclick="closeModal('modal-pasajero')">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar Pasajero</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
   </div>

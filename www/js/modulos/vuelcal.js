@@ -94,6 +94,9 @@ Object.assign(Vuelos, {
     Object.keys(porAer).forEach(c =>
       aerMin[c] = Math.min.apply(null,
         Object.keys(porAer[c]).map(d => porAer[c][d].precio)));
+    /* las aerolíneas seleccionadas nunca se pierden aunque el mes no
+       traiga datos de ellas */
+    sel.forEach(c => { seen[c] = 1; });
     this._aerSeen = Object.keys(seen);
     this._aerMin = aerMin;
     this.aerChips();
@@ -120,10 +123,10 @@ Object.assign(Vuelos, {
       '</i></button></div>' +
       this._calGrid(mes, pD, mxf, null, 'Mejor precio');
     this.AEROF.forEach(a => {
-      const pd = porAer[a[0]];
-      if (!pd) return;
+      const pd = porAer[a[0]] || {}, marcada = this._fA[a[0]];
+      if (!Object.keys(pd).length && !marcada) return;
       if (sel.length && !sel.includes(a[0])) return;
-      if (aerMin[a[0]] > meta) return;
+      if (aerMin[a[0]] != null && aerMin[a[0]] > meta) return;
       h += this._calGrid(mes, pd, {}, a, null);
     });
     if (!Object.keys(pD).length && !Object.keys(porAer).length)
@@ -140,13 +143,21 @@ Object.assign(Vuelos, {
           nd = new Date(y, m, 0).getDate(),
           col = aer ? aer[2] : '',
           nom = aer ? aer[1] : titulo,
-          mn = aer ? this._aerMin[aer[0]] : 0;
+          mn = aer ? this._aerMin[aer[0]] : 0,
+          vals = Object.keys(porDia).map(dd => porDia[dd].precio)
+            .concat(Object.keys(mx).map(dd => mx[dd].v)),
+          lo = vals.length ? Math.min.apply(null, vals) : 0,
+          hi = vals.length ? Math.max.apply(null, vals) : 0,
+          tier = pr => hi === lo ? '#16a34a' :     /* verde/ámbar/rojo */
+            (pr - lo) / (hi - lo) < .34 ? '#16a34a' :
+            (pr - lo) / (hi - lo) < .67 ? '#d97706' : '#dc2626';
     let h = '<div style="margin-top:.6rem"><p class="lbl" style="' +
       'margin:0 0 .2rem">' +
       (col ? '<i class="fa-solid fa-circle" style="color:' + col +
         ';font-size:.55rem"></i> ' : '') + esc(nom) +
       (mn ? ' <span class="muted">· desde $' + Math.round(mn) +
-        '</span>' : '') + '</p>' +
+        '</span>' : aer ? ' <span class="muted">· sin tarifas en ' +
+        'este mes</span>' : '') + '</p>' +
       '<div style="display:grid;grid-template-columns:repeat(7,1fr);' +
       'gap:2px;text-align:center;font-size:.7rem">' +
       ['D', 'L', 'M', 'X', 'J', 'V', 'S'].map(w =>
@@ -156,7 +167,7 @@ Object.assign(Vuelos, {
       const e = porDia[d], mo = mx[d],
             pr = e ? e.precio : (mo ? mo.v : 0),
             fecha = mes + '-' + (d < 10 ? '0' + d : d),
-            c2 = e ? (col || this._colorAer(e.aer)) : '',
+            c2 = pr ? tier(pr) : '',
             ret = e ? (e.ret || '').slice(0, 10)
                     : (mo ? (mo.ret || '') : ''),
             tgt = (aer ? 'Vuelos.diaAerSel(\'' + aer[0] + '\',\'' + fecha +

@@ -69,10 +69,10 @@ Object.assign(Vuelos, {
     this._calPaint(L.p);
   },
   _filtra(lista) {
-    const sel = this.aerSel(), meta = this._rango ? this._rango() : 9999;
-    return lista.filter(x => x.precio <= meta &&
-      (!sel.length || sel.some(c =>
-        String(x.aer).split('+').includes(c))));
+    const sel = this.aerSel();
+    if (!sel.length) return lista;
+    return lista.filter(x => sel.some(c =>
+      String(x.aer).split('+').includes(c)));
   },
   _res(lista, errs, meta) {
     lista = this._filtra(lista.slice().sort((a, b) => a.precio - b.precio));

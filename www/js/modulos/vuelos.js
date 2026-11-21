@@ -66,16 +66,14 @@ const Vuelos = {
   _fA: {},   /* filtro de aerolíneas activo: {AV:true, LA:true} */
   aerChips() {
     const box = $('#vu-aerof'); if (!box) return;
-    const meta = this._rango ? this._rango() : 9999,
-          vist = this._aerSeen || this.AEROF.map(a => a[0]),
+    const vist = this._aerSeen || this.AEROF.map(a => a[0]),
           mn = this._aerMin || {};
     box.innerHTML = this.AEROF.filter(a => vist.includes(a[0])).map(a => {
-      const on = this._fA[a[0]], off = mn[a[0]] != null && mn[a[0]] > meta;
+      const on = this._fA[a[0]];
       return '<button type="button" class="btn btn-soft" ' +
         'style="padding:.2rem .5rem;font-size:.72rem' +
-        (off ? ';opacity:.35' : '') +
         (on ? ';background:' + a[2] + ';color:#fff;border-color:' +
-        a[2] : '') + '"' + (off ? ' disabled' : '') +
+        a[2] : '') + '"' +
         ' onclick="Vuelos.togAer(\'' + a[0] + '\')">' +
         '<i class="fa-solid fa-plane"></i> ' + esc(a[1]) +
         (mn[a[0]] != null ? ' $' + Math.round(mn[a[0]]) : '') +
@@ -103,10 +101,12 @@ const Vuelos = {
     if (o && !o.options.length)
       o.innerHTML = this.AERO.map(x =>
         '<option value="' + x[0] + '">' + x[1] + '</option>').join('');
-    if (d && !d.options.length)
+    if (d && !d.options.length) {
       d.innerHTML = this.DEST.map(x =>
         '<option value="' + x[0] + '">' + x[1] + ' (' + x[0] +
         ')</option>').join('');
+      d.value = 'LIM';   /* Lima por defecto */
+    }
     /* fechas vacías = búsqueda flexible por mes */
     const t = $('#vu-tips');
     if (t && !t.children.length)

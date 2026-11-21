@@ -73,7 +73,7 @@ Object.assign(Vuelos, {
     const box = $('#vu-cal'); if (!box) return;
     const mes = this._calMes || p.i.slice(0, 7),
           mx = this._mx || {}, ch = this._cheap || [],
-          sel = this.aerSel(), meta = this._rango(),
+          sel = this.aerSel(),
           y = +mes.slice(0, 4), m = +mes.slice(5, 7),
           hoy = new Date(),
           minMes = hoy.getFullYear() + '-' +
@@ -103,13 +103,7 @@ Object.assign(Vuelos, {
     this._aerSeen = Object.keys(seen);
     this._aerMin = aerMin;
     this.aerChips();
-    const pD = {}, mxf = {};
-    Object.keys(porDia).forEach(d => {
-      const e = porDia[d];
-      if (e.precio > meta) return;
-      pD[d] = e;
-    });
-    Object.keys(mx).forEach(d => { if (mx[d].v <= meta) mxf[d] = mx[d]; });
+    const mxf = mx;   /* se muestran todos los precios, sin ocultar */
     let h = '<div class="card card-pad">' +
       '<div class="flex" style="align-items:center;justify-content:' +
       'space-between;margin-bottom:.2rem">' +
@@ -123,12 +117,11 @@ Object.assign(Vuelos, {
       (mes >= maxMes ? ' disabled' : '') +
       ' onclick="Vuelos.calNav(1)"><i class="fa-solid fa-chevron-right">' +
       '</i></button></div>' +
-      this._calGrid(mes, pD, mxf, null, 'Mejor precio');
+      this._calGrid(mes, porDia, mxf, null, 'Mejor precio');
     this.AEROF.forEach(a => {
       const pd = porAer[a[0]] || {}, marcada = this._fA[a[0]];
       if (!Object.keys(pd).length && !marcada) return;
       if (sel.length && !sel.includes(a[0])) return;
-      if (aerMin[a[0]] != null && aerMin[a[0]] > meta) return;
       h += this._calGrid(mes, pd, {}, a, null);
     });
     if (!Object.keys(pD).length && !Object.keys(porAer).length)
@@ -146,13 +139,10 @@ Object.assign(Vuelos, {
           col = aer ? aer[2] : '',
           nom = aer ? aer[1] : titulo,
           mn = aer ? this._aerMin[aer[0]] : 0,
-          vals = Object.keys(porDia).map(dd => porDia[dd].precio)
-            .concat(Object.keys(mx).map(dd => mx[dd].v)),
-          lo = vals.length ? Math.min.apply(null, vals) : 0,
-          hi = vals.length ? Math.max.apply(null, vals) : 0,
-          tier = pr => hi === lo ? '#16a34a' :     /* verde/ámbar/rojo */
-            (pr - lo) / (hi - lo) < .34 ? '#16a34a' :
-            (pr - lo) / (hi - lo) < .67 ? '#d97706' : '#dc2626';
+          meta = this._rango(),
+          /* verde = dentro del objetivo · ámbar = hasta $500 · rojo = +$500 */
+          tier = pr => pr <= meta ? '#16a34a' :
+            pr <= 500 ? '#d97706' : '#dc2626';
     let h = '<div style="margin-top:.6rem"><p class="lbl" style="' +
       'margin:0 0 .2rem">' +
       (col ? '<i class="fa-solid fa-circle" style="color:' + col +

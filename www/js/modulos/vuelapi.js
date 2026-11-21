@@ -34,6 +34,8 @@ Object.assign(Vuelos, {
       p.i = hoy.getFullYear() + '-' +
         String(hoy.getMonth() + 1).padStart(2, '0') + '-01';
     }
+    this._calMes = p.i.slice(0, 7);   /* antes de pedir, para que la API
+                                         consulte el mes correcto */
     const k = await this._keys(), jobs = [];
     if (k['vu.tequila'] && !p.flex)
       jobs.push(this._tequila(p, k['vu.tequila']));
@@ -56,7 +58,6 @@ Object.assign(Vuelos, {
     });
     this._last = { lista, errs, p };
     this._mxCache = {};
-    this._calMes = p.i.slice(0, 7);
     this._res(lista, errs, p.meta);
     this._calBuild(p, k);
   },

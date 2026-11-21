@@ -66,12 +66,22 @@ const Vuelos = {
   _fA: {},   /* filtro de aerolíneas activo: {AV:true, LA:true} */
   aerChips() {
     const box = $('#vu-aerof'); if (!box) return;
-    box.innerHTML = this.AEROF.map(a =>
-      '<button type="button" class="btn btn-soft" style="padding:.2rem .5rem;' +
-      'font-size:.72rem' + (this._fA[a[0]] ?
-        ';background:' + a[2] + ';color:#fff;border-color:' + a[2] : '') +
-      '" onclick="Vuelos.togAer(\'' + a[0] + '\')">' +
-      '<i class="fa-solid fa-plane"></i> ' + esc(a[1]) + '</button>').join('');
+    const meta = this._rango ? this._rango() : 9999,
+          vist = this._aerSeen || this.AEROF.map(a => a[0]),
+          mn = this._aerMin || {};
+    box.innerHTML = this.AEROF.filter(a => vist.includes(a[0])).map(a => {
+      const on = this._fA[a[0]], off = mn[a[0]] != null && mn[a[0]] > meta;
+      return '<button type="button" class="btn btn-soft" ' +
+        'style="padding:.2rem .5rem;font-size:.72rem' +
+        (off ? ';opacity:.35' : '') +
+        (on ? ';background:' + a[2] + ';color:#fff;border-color:' +
+        a[2] : '') + '"' + (off ? ' disabled' : '') +
+        ' onclick="Vuelos.togAer(\'' + a[0] + '\')">' +
+        '<i class="fa-solid fa-plane"></i> ' + esc(a[1]) +
+        (mn[a[0]] != null ? ' $' + Math.round(mn[a[0]]) : '') +
+        '</button>';
+    }).join('') || '<p class="hint text-xs">Buscá para ver las ' +
+      'aerolíneas que cubren esta ruta</p>';
   },
   togAer(c) {
     this._fA[c] = !this._fA[c];
@@ -111,18 +121,16 @@ const Vuelos = {
   },
   cerrar() { $('#pag-vuelos').classList.remove('open'); },
   togKeys() { const k = $('#vu-keys'); if (k) k.hidden = !k.hidden; },
-  tipo() {
-    const rt = (document.querySelector('input[name="vu-tipo"]:checked') ||
-      {}).value === 'rt';
-    const w = $('#vu-vw'); if (w) w.hidden = !rt;
+  onRango() {
+    const s = $('#vu-metav');
+    if (s) s.textContent = '$' + (($('#vu-meta') || {}).value || '');
+    if (this._refil) this._refil();
   },
   _params() {
-    const rt = (document.querySelector('input[name="vu-tipo"]:checked') ||
-      {}).value === 'rt';
     const v = ($('#vu-v') || {}).value || '';
     return { o: $('#vu-o').value, d: $('#vu-d').value,
       i: $('#vu-i').value,
-      v: rt && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '',
+      v: /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '',
       meta: +(($('#vu-meta') || {}).value || 0) };
   },
   /* ---------- llaves (tabla config) ---------- */

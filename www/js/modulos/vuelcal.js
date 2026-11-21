@@ -20,17 +20,20 @@ Object.assign(Vuelos, {
       '<i class="fa-solid fa-spinner fa-spin"></i> Cargando ' + mes +
       '…</p></div>';
     const [mx, ch] = await Promise.allSettled([
-      this._matrix(p, k['vu.tp']), this._cheapMes(p, k['vu.tp'])]);
+      this._latest(p, k['vu.tp']), this._cheapMes(p, k['vu.tp'])]);
     this._mx = mx.status === 'fulfilled' ? mx.value : {};
     this._cheap = ch.status === 'fulfilled' ? ch.value : [];
     this._mxCache[mes] = { mx: this._mx, cheap: this._cheap };
     this._calPaint(p);
   },
-  async _matrix(p, key) {
+  /* últimas tarifas encontradas por día (ida y vuelta, economy) */
+  async _latest(p, key) {
     const r = await this._http('get',
-      'https://api.travelpayouts.com/v2/prices/month-matrix', {
-        params: { origin: p.o, destination: p.d, trip_class: '0',
-          month: this._calMes, currency: 'usd', token: key } });
+      'https://api.travelpayouts.com/v2/prices/latest', { params: {
+        origin: p.o, destination: p.d, period_type: 'month',
+        beginning_of_period: this._calMes + '-01', one_way: 'false',
+        trip_class: '0', currency: 'usd', limit: '1000',
+        show_to_affiliates: 'true', token: key } });
     const out = {};
     (r.data || []).forEach(o => {
       if (!o.depart_date || o.depart_date.slice(0, 7) !== this._calMes)
@@ -103,7 +106,6 @@ Object.assign(Vuelos, {
     const pD = {}, mxf = {};
     Object.keys(porDia).forEach(d => {
       const e = porDia[d];
-      if (sel.length && !sel.includes(e.aer)) return;
       if (e.precio > meta) return;
       pD[d] = e;
     });

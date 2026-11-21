@@ -1,7 +1,7 @@
 /* vuelcal.js — calendarios de precios: uno general ("Mejor precio") y
-   uno por cada aerolínea con datos en la ruta, en su color. Barra de
-   precio oculta aerolíneas por encima del objetivo; flechas navegan
-   de hoy a 24 meses. Tocar un día abre la página de compra.
+   uno por cada aerolínea con datos en la ruta, en su color. Verde =
+   dentro del objetivo, ámbar hasta $500, rojo +$500. Flechas navegan
+   de hoy a 24 meses; tocar un día abre la página de compra.
    Extiende el objeto Vuelos (vuelos.js / vuelapi.js). */
 'use strict';
 Object.assign(Vuelos, {
@@ -17,13 +17,18 @@ Object.assign(Vuelos, {
       this._calPaint(p); return;
     }
     box.innerHTML = '<div class="card card-pad"><p class="hint text-sm">' +
-      '<i class="fa-solid fa-spinner fa-spin"></i> Cargando ' + mes +
-      '…</p></div>';
-    const [mx, ch] = await Promise.allSettled([
-      this._latest(p, k['vu.tp']), this._cheapMes(p, k['vu.tp'])]);
-    this._mx = mx.status === 'fulfilled' ? mx.value : {};
-    this._cheap = ch.status === 'fulfilled' ? ch.value : [];
-    this._mxCache[mes] = { mx: this._mx, cheap: this._cheap };
+      '<i class="fa-solid fa-spinner fa-spin"></i> Cargando ' + mes + '…</p></div>';
+    /* tarifas por aerolínea de TODOS los meses, una vez por ruta */
+    if (this._aerKey !== p.o + '-' + p.d) {
+      try { this._aerAll = await this._aerFares(p, k['vu.tp']); }
+      catch (e) { this._aerAll = []; }
+      this._aerKey = p.o + '-' + p.d;
+    }
+    this._cheap = (this._aerAll || []).filter(x => x.mo === mes);
+    let mx = {};
+    try { mx = await this._latest(p, k['vu.tp']); } catch (e) {}
+    this._mx = mx;
+    this._mxCache[mes] = { mx, cheap: this._cheap };
     this._calPaint(p);
   },
   /* últimas tarifas encontradas por día (ida y vuelta, economy) */
@@ -45,22 +50,33 @@ Object.assign(Vuelos, {
     });
     return out;
   },
-  async _cheapMes(p, key) {
-    const r = await this._http('get',
-      'https://api.travelpayouts.com/v1/prices/cheap', { params: {
-        origin: p.o, destination: p.d, trip_class: '0',
-        depart_date: this._calMes || p.i.slice(0, 7),
-        currency: 'usd', token: key } });
-    const out = [], mes = (r.data || {})[p.d] || {};
-    for (const k2 in mes) {
-      const o = mes[k2];
-      if (!o.departure_at ||
-          o.departure_at.slice(0, 7) !== (this._calMes ||
-            p.i.slice(0, 7))) continue;
-      if (!o.return_at) continue;
-      out.push({ aer: o.airline || '?', dia: +o.departure_at.slice(8, 10),
-        precio: +o.price, ret: o.return_at || '' });
-    }
+  /* todas las tarifas ida y vuelta por aerolínea, de todos los meses:
+     cheap + monthly (mínimo por mes) + direct (vuelos directos) */
+  async _aerFares(p, key) {
+    const api = 'https://api.travelpayouts.com/', out = [],
+          put = o => {
+            if (!o || !o.price || !o.return_at || !o.departure_at) return;
+            const f = o.departure_at.slice(0, 10);
+            out.push({ aer: o.airline || '?', fecha: f, mo: f.slice(0, 7),
+              dia: +f.slice(8), precio: +o.price,
+              ret: o.return_at.slice(0, 10) });
+          },
+          [c, m, d] = await Promise.allSettled([
+            this._http('get', api + 'v1/prices/cheap', { params: {
+              origin: p.o, destination: p.d, trip_class: '0',
+              currency: 'usd', token: key } }),
+            this._http('get', api + 'v1/prices/monthly', { params: {
+              origin: p.o, destination: p.d, currency: 'usd',
+              token: key } }),
+            this._http('get', api + 'v1/prices/direct', { params: {
+              origin: p.o, destination: p.d, currency: 'usd',
+              token: key } })]);
+    const meses = r => (r.status === 'fulfilled' ? r.value : {});
+    for (const k2 in (meses(c).data || {})[p.d] || {})
+      put(meses(c).data[p.d][k2]);
+    for (const k2 in (meses(d).data || {})[p.d] || {})
+      put(meses(d).data[p.d][k2]);
+    for (const k2 in meses(m).data || {}) put(meses(m).data[k2]);
     return out;
   },
   _colorAer(c) {
@@ -97,8 +113,7 @@ Object.assign(Vuelos, {
     Object.keys(porAer).forEach(c =>
       aerMin[c] = Math.min.apply(null,
         Object.keys(porAer[c]).map(d => porAer[c][d].precio)));
-    /* las aerolíneas seleccionadas nunca se pierden aunque el mes no
-       traiga datos de ellas */
+    /* las marcadas no se pierden aunque el mes no traiga datos */
     sel.forEach(c => { seen[c] = 1; });
     this._aerSeen = Object.keys(seen);
     this._aerMin = aerMin;
@@ -127,10 +142,9 @@ Object.assign(Vuelos, {
     if (!Object.keys(porDia).length && !Object.keys(porAer).length &&
         !Object.keys(mxf).length)
       h += '<p class="hint text-sm">Sin datos de precios en este mes.</p>';
-    h += '<p class="hint text-xs" style="margin:.4rem 0 0">' +
-      'Cada calendario es una aerolínea con su color; tocá un día para ' +
-      'abrir la página de compra. Los precios son la última tarifa ' +
-      'encontrada en Aviasales — al comprar pueden variar.</p></div>';
+    h += '<p class="hint text-xs" style="margin:.4rem 0 0">Cada ' +
+      'calendario es una aerolínea; tocá un día para comprar. Los ' +
+      'precios son la última tarifa encontrada — pueden variar.</p></div>';
     box.innerHTML = h;
   },
   _calGrid(mes, porDia, mx, aer, titulo) {

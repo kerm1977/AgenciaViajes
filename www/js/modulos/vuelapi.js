@@ -117,11 +117,11 @@ Object.assign(Vuelos, {
   /* Travelpayouts / Aviasales: token gratis inmediato; devuelve la
      caché de precios más baratos encontrados en el mes de la fecha. */
   async _tp(p, key) {
-    const mes = await this._cheapMes(p, key),
-          base = this._calMes || p.i.slice(0, 7);
-    return mes.map(o => ({ src: 'Aviasales', aer: o.aer,
-      precio: o.precio, seg: '—',
-      fecha: base + '-' + (o.dia < 10 ? '0' : '') + o.dia,
-      ret: (o.ret || '').slice(0, 10) })).slice(0, 8);
+    const base = this._calMes || p.i.slice(0, 7);
+    return (await this._aerFares(p, key))
+      .filter(o => o.mo === base)
+      .map(o => ({ src: 'Aviasales', aer: o.aer,
+        precio: o.precio, seg: '—', fecha: o.fecha, ret: o.ret }))
+      .slice(0, 8);
   }
 });

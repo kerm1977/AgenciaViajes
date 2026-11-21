@@ -46,6 +46,7 @@ Object.assign(Vuelos, {
       else errs.push((r.reason && r.reason.message) || 'sin respuesta');
     });
     this._last = { lista, errs, p };
+    this._calMes = p.i.slice(0, 7);
     this._res(lista, errs, p.meta);
     this._calBuild(p, k);
   },
@@ -103,7 +104,7 @@ Object.assign(Vuelos, {
     const r = await this._http('get',
       'https://api.travelpayouts.com/v2/prices/month-matrix', {
         params: { origin: p.o, destination: p.d,
-          month: p.i.slice(0, 7), currency: 'usd', token: key } });
+          month: this._calMes, currency: 'usd', token: key } });
     const out = {};
     (r.data || []).forEach(o => {
       const d = +o.depart_date.slice(8, 10);
@@ -115,7 +116,8 @@ Object.assign(Vuelos, {
     const r = await this._http('get',
       'https://api.travelpayouts.com/v1/prices/cheap', { params: {
         origin: p.o, destination: p.d,
-        depart_date: p.i.slice(0, 7), currency: 'usd', token: key } });
+        depart_date: this._calMes || p.i.slice(0, 7),
+        currency: 'usd', token: key } });
     const out = [], mes = (r.data || {})[p.d] || {};
     for (const k2 in mes) {
       const o = mes[k2];
@@ -131,19 +133,39 @@ Object.assign(Vuelos, {
   },
   _calPaint(p) {
     const box = $('#vu-cal'); if (!box) return;
-    const mx = this._mx || {}, ch = this._cheap || [],
+    const mes = this._calMes || p.i.slice(0, 7),
+          mx = this._mx || {}, ch = this._cheap || [],
           sel = this.aerSel(),
-          y = +p.i.slice(0, 4), m = +p.i.slice(5, 7),
+          y = +mes.slice(0, 4), m = +mes.slice(5, 7),
           ini = new Date(y, m - 1, 1).getDay(),
           nd = new Date(y, m, 0).getDate(),
-          porDia = {};
+          porDia = {},
+          hoy = new Date(),
+          minMes = hoy.getFullYear() + '-' +
+            String(hoy.getMonth() + 1).padStart(2, '0'),
+          maxD = new Date(hoy.getFullYear(), hoy.getMonth() + 24, 1),
+          maxMes = maxD.getFullYear() + '-' +
+            String(maxD.getMonth() + 1).padStart(2, '0'),
+          label = new Date(y, m - 1, 1).toLocaleDateString('es-ES',
+            { month: 'long', year: 'numeric' });
     ch.forEach(e => {
       if (sel.length && !sel.includes(e.aer)) return;
       if (!porDia[e.dia] || e.precio < porDia[e.dia].precio)
         porDia[e.dia] = e;
     });
-    let h = '<div class="card card-pad"><h4 class="lbl">' +
-      'Calendario de precios · ' + p.i.slice(0, 7) + '</h4>' +
+    let h = '<div class="card card-pad">' +
+      '<div class="flex" style="align-items:center;justify-content:' +
+      'space-between;margin-bottom:.3rem">' +
+      '<button type="button" class="iconbtn"' +
+      (mes <= minMes ? ' disabled' : '') +
+      ' onclick="Vuelos.calNav(-1)"><i class="fa-solid fa-chevron-left">' +
+      '</i></button>' +
+      '<h4 class="lbl" style="margin:0;text-transform:capitalize">' +
+      esc(label) + '</h4>' +
+      '<button type="button" class="iconbtn"' +
+      (mes >= maxMes ? ' disabled' : '') +
+      ' onclick="Vuelos.calNav(1)"><i class="fa-solid fa-chevron-right">' +
+      '</i></button></div>' +
       '<div style="display:grid;grid-template-columns:repeat(7,1fr);' +
       'gap:.25rem;text-align:center;font-size:.72rem">' +
       ['D', 'L', 'M', 'X', 'J', 'V', 'S'].map(w =>
@@ -151,7 +173,7 @@ Object.assign(Vuelos, {
     for (let i = 0; i < ini; i++) h += '<div></div>';
     for (let d = 1; d <= nd; d++) {
       const e = porDia[d], pr = e ? e.precio : mx[d],
-            fecha = p.i.slice(0, 8) + (d < 10 ? '0' + d : d),
+            fecha = mes + '-' + (d < 10 ? '0' + d : d),
             col = e ? this._colorAer(e.aer) : '';
       h += '<div role="button" style="padding:.25rem 0;border-radius:.4rem;' +
         'cursor:pointer;border:1px solid ' +
@@ -167,6 +189,25 @@ Object.assign(Vuelos, {
       'Colores = aerolínea del mejor precio encontrado; gris = mínimo ' +
       'general del día. Tocá un día para abrir la compra.</p></div>';
     box.innerHTML = h;
+  },
+  async calNav(dir) {
+    const L = this._last; if (!L) return;
+    const [y, m] = this._calMes.split('-').map(Number),
+          nm = new Date(y, m - 1 + dir, 1),
+          mes = nm.getFullYear() + '-' +
+            String(nm.getMonth() + 1).padStart(2, '0'),
+          hoy = new Date(),
+          minMes = hoy.getFullYear() + '-' +
+            String(hoy.getMonth() + 1).padStart(2, '0'),
+          maxD = new Date(hoy.getFullYear(), hoy.getMonth() + 24, 1),
+          maxMes = maxD.getFullYear() + '-' +
+            String(maxD.getMonth() + 1).padStart(2, '0');
+    if (mes < minMes || mes > maxMes) return;
+    this._calMes = mes;
+    this._mx = {}; this._cheap = [];
+    this._calPaint(L.p);
+    const k = await this._keys();
+    this._calBuild(L.p, k);
   },
   diaSel(fecha) {
     const p = this._params();
